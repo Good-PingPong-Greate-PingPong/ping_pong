@@ -1,0 +1,22 @@
+{
+  "compilerOptions": {
+    "module": "es2022", // ES6 모듈 사용
+    "esModuleInterop": true, // CommonJS 모듈을 ES6 모듈로 변환
+    "target": "es2022", // ES6 이상의 문법 사용
+    "moduleResolution": "node", // 모듈 해석 방식, node_modules 폴더를 검색하고, 확장자가 .ts, .tsx, .d.ts, .js, .json 순으로 파일을 찾음
+    "outDir": "./dist", // 컴파일된 파일이 저장될 경로
+    "forceConsistentCasingInFileNames": true, // 파일 이름의 대소문자를 구분
+    "noFallthroughCasesInSwitch": true, // switch 문에서 break를 사용하지 않으면 에러 발생
+    "isolatedModules": false, // 파일 간의 의존성을 검사하지 않음
+    "strict": true, // 모든 타입 검사 옵션 활성화
+    "noImplicitAny": true, // any 타입 사용을 금지
+    "useUnknownInCatchVariables": false, // catch 절에서 unknown 타입을 사용하지 않음
+    "inlineSourceMap": true // 컴파일된 JavaScript 파일에 소스 맵을 포함
+  },
+  "include": ["src/**/*"], // 컴파일할 파일 경로
+  "exclude": ["test"], // 제외할 파일 경로
+  "ts-node": {
+    "esm": true, //  ES6 모듈 사용
+    "experimentalSpecifierResolution": "node" // 모듈 해석 방식, 위와 동일
+  }
+}

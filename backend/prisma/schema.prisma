@@ -1,0 +1,126 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id                BigInt         @id @default(autoincrement())
+  nickname          String         @unique
+  password          String
+  email             String         @unique
+  profileImage      String?
+  createdAt         DateTime       @default(now())
+  updatedAt         DateTime       @updatedAt
+  isDeleted         Boolean        @default(false)
+  RefreshToken      RefreshToken[]
+  participants      Participant[]
+  friendsAsSender   Friend[]       @relation("FriendSender")
+  friendsAsReceiver Friend[]       @relation("FriendReceiver")
+}
+
+// TODO: Redis로 변경 예정
+model RefreshToken {
+  id        BigInt   @id @default(autoincrement())
+  userId    BigInt
+  token     String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model Tournament {
+  id            BigInt           @id @default(autoincrement())
+  startDatetime DateTime
+  endDatetime   DateTime
+  status        TournamentStatus
+  createdAt     DateTime         @default(now())
+  updatedAt     DateTime         @updatedAt
+  isDeleted     Boolean          @default(false)
+  matches       Match[]
+  participants  Participant[]
+}
+
+model Match {
+  id           BigInt        @id @default(autoincrement())
+  tournamentId BigInt
+  round        MatchRound
+  status       MatchStatus
+  scheduledAt  DateTime
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+  isDeleted    Boolean       @default(false)
+  tournament   Tournament    @relation(fields: [tournamentId], references: [id])
+  matchResults MatchResult[]
+}
+
+model Participant {
+  id           BigInt        @id @default(autoincrement())
+  tournamentId BigInt
+  userId       BigInt
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+  isDeleted    Boolean       @default(false)
+  tournament   Tournament    @relation(fields: [tournamentId], references: [id])
+  user         User          @relation(fields: [userId], references: [id])
+  matchResults MatchResult[]
+}
+
+model MatchResult {
+  id            BigInt      @id @default(autoincrement())
+  participantId BigInt
+  matchId       BigInt
+  score         Int
+  isGiveUp      Boolean
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
+  isDeleted     Boolean     @default(false)
+  match         Match       @relation(fields: [matchId], references: [id])
+  participant   Participant @relation(fields: [participantId], references: [id])
+}
+
+model SingleMatch {
+  id          BigInt   @id @default(autoincrement())
+  user1       String
+  user2       String
+  user1Score  Int
+  user2Score  Int
+  scheduledAt DateTime
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  isDeleted   Boolean  @default(false)
+}
+
+model Friend {
+  id         BigInt   @id @default(autoincrement())
+  senderId   BigInt
+  receiverId BigInt
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+  isDeleted  Boolean  @default(false)
+  sender     User     @relation("FriendSender", fields: [senderId], references: [id])
+  receiver   User     @relation("FriendReceiver", fields: [receiverId], references: [id])
+}
+
+enum TournamentStatus {
+  upcoming
+  ongoing
+  completed
+}
+
+enum MatchRound {
+  semi
+  final
+}
+
+enum MatchStatus {
+  upcoming
+  ongoing
+  completed
+}
