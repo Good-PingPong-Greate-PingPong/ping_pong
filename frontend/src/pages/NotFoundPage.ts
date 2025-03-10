@@ -1,6 +1,6 @@
 export function renderNotFoundPage(): string {
 	return `
-	  <h1>홈 페이지</h1>
-	  <p>이 페이지는 404 페이지입니다.</p>
+	  <h1 class="font-extrabold">404</h1>
+	  <p>페이지를 찾을 수 없습니다.</p>
 	`;
   }

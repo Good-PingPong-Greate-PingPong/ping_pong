@@ -1,7 +1,5 @@
 import { router } from './core/router';
 import { store } from './core/store';
-// import { renderHeader } from './components/common/Header';
-// import { renderFooter } from './components/common/Footer';
 
 export class App {
   private container: HTMLElement;
