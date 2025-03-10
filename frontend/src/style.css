@@ -15,16 +15,17 @@
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  color: black;
 }
 
 div {
-  border:#a8dcff 1px solid;
+  border: #a8dcff 1px solid;
 }
 
 a {
   font-size: 24px;
   font-weight: bolder;
-  color: #ffffff;
+  /* color: #ffffff; */
   text-decoration: inherit;
 }
 a:hover {
@@ -51,7 +52,6 @@ h1 {
   justify-content: center;
   height: 90vh;
   width: 90vw;
-
 }
 
 #app {

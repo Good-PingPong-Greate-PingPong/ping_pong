@@ -2,8 +2,8 @@ import logoutUrl from '../assets/logout.svg';
 
 export function renderHomePage(): string {
   return `
-	<div class="flex flex-row justify-around items-center border-2  w-full h-2/3">
-		<ul class="border-2  min-h-60 flex flex-col justify-around items-center">
+	<div class="flex flex-row justify-around items-center border-2  w-full h-2/3 ">
+		<ul class="border-2  min-h-60 flex flex-col justify-around items-center text-white">
 			<li class="min-w-40 min-h-14 bg-black rounded-lg flex flex-col justify-around"><a href="/local-game">로컬</a></li>
 			<li class="min-w-40 min-h-14 bg-black rounded-lg flex flex-col justify-around"><a href="/tournament-game">토너먼트</a></li>
 			<li class="min-w-40 min-h-14 bg-black rounded-lg flex flex-col justify-around"><a href="/">내 정보</a></li>
