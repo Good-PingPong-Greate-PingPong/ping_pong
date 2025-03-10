@@ -1,24 +1,24 @@
-import './style.css'
-import typescriptLogo from './typescript.svg'
-import viteLogo from '/vite.svg'
-import { setupCounter } from './counter.ts'
+// src/main.ts - 애플리케이션 진입점
+import './style.css';
+import { App } from './app';
 
-document.querySelector<HTMLDivElement>('#app')!.innerHTML = `
-  <div>
-    <a href="https://vite.dev" target="_blank">
-      <img src="${viteLogo}" class="logo" alt="Vite logo" />
-    </a>
-    <a href="https://www.typescriptlang.org/" target="_blank">
-      <img src="${typescriptLogo}" class="logo vanilla" alt="TypeScript logo" />
-    </a>
-    <h1>Vite + TypeScript</h1>
-    <div class="card">
-      <button id="counter" type="button"></button>
-    </div>
-    <p class="read-the-docs">
-      Click on the Vite and TypeScript logos to learn more
-    </p>
-  </div>
-`
+// DOM이 로드된 후 앱 시작
+document.addEventListener('DOMContentLoaded', () => {
+  const appContainer = document.querySelector('#app') as HTMLElement;
 
-setupCounter(document.querySelector<HTMLButtonElement>('#counter')!)
+  if (appContainer) {
+    try {
+      const app = new App(appContainer);
+      app.init();
+    } catch (error) {
+      console.error('Failed to initialize app:', error);
+    }
+  } else { 
+	console.error('App container not found!');
+  }
+});
+
+// 전역 에러 처리
+window.addEventListener('error', (event) => {
+  console.error('Global error:', event.error);
+});
