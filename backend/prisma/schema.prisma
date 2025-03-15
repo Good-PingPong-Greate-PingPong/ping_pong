@@ -45,7 +45,6 @@ model Tournament {
   createdAt     DateTime         @default(now())
   updatedAt     DateTime         @updatedAt
   isDeleted     Boolean          @default(false)
-  matches       Match[]
   participants  Participant[]
 }
 
@@ -59,7 +58,6 @@ model Match {
   createdAt      DateTime      @default(now())
   updatedAt      DateTime      @updatedAt
   isDeleted      Boolean       @default(false)
-  tournament     Tournament    @relation("TournamentMatches", fields: [tournamentId], references: [id])
   participant1   Participant   @relation("MatchParticipant1", fields: [participant1Id], references: [id])
   participant2   Participant   @relation("MatchParticipant2", fields: [participant2Id], references: [id])
   matchResults   MatchResult[]
@@ -74,7 +72,6 @@ model Participant {
   isDeleted    Boolean       @default(false)
   tournament   Tournament    @relation(fields: [tournamentId], references: [id])
   user         User          @relation(fields: [userId], references: [id])
-  matchResults MatchResult[]
   matchesAsParticipant1 Match[]    @relation("MatchParticipant1")
   matchesAsParticipant2 Match[]    @relation("MatchParticipant2")
 }
@@ -89,7 +86,6 @@ model MatchResult {
   updatedAt         DateTime    @updatedAt
   isDeleted         Boolean     @default(false)
   match             Match       @relation(fields: [matchId], references: [id])
-  participant       Participant @relation("ParticipantMatchResults", fields: [participantId], references: [id])
 }
 
 model SingleMatch {
