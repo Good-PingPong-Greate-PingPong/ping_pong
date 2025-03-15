@@ -10,8 +10,6 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-//twoFactor 여부 -> Boolean
-//twoFactor의 시크릿 키를 설정하는 것인가? -> 필드명 twoFactorSecret
 model User {
   id                BigInt         @id @default(autoincrement())
   nickname          String         @unique
@@ -79,7 +77,6 @@ model Participant {
   matchesAsParticipant2 Match[]    @relation("MatchParticipant2")
 }
 
-//기권한 참가자를 명확하게 명시 -> giveUpByParticipantId BigInt
 model MatchResult {
   id                BigInt      @id @default(autoincrement())
   matchId           BigInt
