@@ -10,12 +10,16 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+//twoFactor 여부 -> Boolean
+//twoFactor의 시크릿 키를 설정하는 것인가? -> 필드명 twoFactorSecret
 model User {
   id                BigInt         @id @default(autoincrement())
   nickname          String         @unique
   password          String
   email             String         @unique
   profileImage      String?
+  twoFactorEnabled  Boolean        @default(false)
+  twoFactorSecret   String?
   createdAt         DateTime       @default(now())
   updatedAt         DateTime       @updatedAt
   isDeleted         Boolean        @default(false)
@@ -25,7 +29,6 @@ model User {
   friendsAsReceiver Friend[]       @relation("FriendReceiver")
 }
 
-// TODO: Redis로 변경 예정
 model RefreshToken {
   id        BigInt   @id @default(autoincrement())
   userId    BigInt
@@ -48,16 +51,18 @@ model Tournament {
 }
 
 model Match {
-  id           BigInt        @id @default(autoincrement())
-  tournamentId BigInt
-  round        MatchRound
-  status       MatchStatus
-  scheduledAt  DateTime
-  createdAt    DateTime      @default(now())
-  updatedAt    DateTime      @updatedAt
-  isDeleted    Boolean       @default(false)
-  tournament   Tournament    @relation(fields: [tournamentId], references: [id])
-  matchResults MatchResult[]
+  id             BigInt        @id @default(autoincrement())
+  participant1Id BigInt
+  participant2Id BigInt
+  round          MatchRound
+  status         MatchStatus
+  scheduledAt    DateTime
+  createdAt      DateTime      @default(now())
+  updatedAt      DateTime      @updatedAt
+  isDeleted      Boolean       @default(false)
+  participant1   Participant   @relation("MatchParticipant1", fields: [participant1Id], references: [id])
+  participant2   Participant   @relation("MatchParticipant2", fields: [participant2Id], references: [id])
+  matchResults   MatchResult[]
 }
 
 model Participant {
@@ -70,31 +75,35 @@ model Participant {
   tournament   Tournament    @relation(fields: [tournamentId], references: [id])
   user         User          @relation(fields: [userId], references: [id])
   matchResults MatchResult[]
+  matchesAsParticipant1 Match[]    @relation("MatchParticipant1")
+  matchesAsParticipant2 Match[]    @relation("MatchParticipant2")
 }
 
+//기권한 참가자를 명확하게 명시 -> giveUpByParticipantId BigInt
 model MatchResult {
-  id            BigInt      @id @default(autoincrement())
-  participantId BigInt
-  matchId       BigInt
-  score         Int
-  isGiveUp      Boolean
-  createdAt     DateTime    @default(now())
-  updatedAt     DateTime    @updatedAt
-  isDeleted     Boolean     @default(false)
-  match         Match       @relation(fields: [matchId], references: [id])
-  participant   Participant @relation(fields: [participantId], references: [id])
+  id                BigInt      @id @default(autoincrement())
+  matchId           BigInt
+  participant1Score Int
+  participant2Score Int
+  isGiveUp          Boolean
+  createdAt         DateTime    @default(now())
+  updatedAt         DateTime    @updatedAt
+  isDeleted         Boolean     @default(false)
+  match             Match       @relation(fields: [matchId], references: [id])
 }
 
 model SingleMatch {
-  id          BigInt   @id @default(autoincrement())
-  user1       String
-  user2       String
-  user1Score  Int
-  user2Score  Int
-  scheduledAt DateTime
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-  isDeleted   Boolean  @default(false)
+  id            BigInt   @id @default(autoincrement())
+  userId       BigInt
+  user1Nickname String
+  user2Nickname String
+  user1Score    Int
+  user2Score    Int
+  scheduledAt   DateTime
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  isDeleted     Boolean  @default(false)
+  user          User     @relation(fields: [userId], references: [id])
 }
 
 model Friend {
