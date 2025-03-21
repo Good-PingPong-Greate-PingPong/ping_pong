@@ -11,11 +11,13 @@ datasource db {
 }
 
 model User {
-  id                BigInt         @id @default(autoincrement())
+  id                Number         @id @default(autoincrement())
   nickname          String         @unique
   password          String
   email             String         @unique
   profileImage      String?
+  twoFactorEnabled  Boolean        @default(false)
+  twoFactorSecret   String?
   createdAt         DateTime       @default(now())
   updatedAt         DateTime       @updatedAt
   isDeleted         Boolean        @default(false)
@@ -23,12 +25,12 @@ model User {
   participants      Participant[]
   friendsAsSender   Friend[]       @relation("FriendSender")
   friendsAsReceiver Friend[]       @relation("FriendReceiver")
+  SingleMatches     SingleMatch[]
 }
 
-// TODO: Redis로 변경 예정
 model RefreshToken {
-  id        BigInt   @id @default(autoincrement())
-  userId    BigInt
+  id        Number   @id @default(autoincrement())
+  userId    Number
   token     String
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -36,71 +38,74 @@ model RefreshToken {
 }
 
 model Tournament {
-  id            BigInt           @id @default(autoincrement())
+  id            Number           @id @default(autoincrement())
   startDatetime DateTime
   endDatetime   DateTime
   status        TournamentStatus
   createdAt     DateTime         @default(now())
   updatedAt     DateTime         @updatedAt
   isDeleted     Boolean          @default(false)
-  matches       Match[]
   participants  Participant[]
 }
 
 model Match {
-  id           BigInt        @id @default(autoincrement())
-  tournamentId BigInt
-  round        MatchRound
-  status       MatchStatus
-  scheduledAt  DateTime
-  createdAt    DateTime      @default(now())
-  updatedAt    DateTime      @updatedAt
-  isDeleted    Boolean       @default(false)
-  tournament   Tournament    @relation(fields: [tournamentId], references: [id])
-  matchResults MatchResult[]
+  id             Number        @id @default(autoincrement())
+  participant1Id Number
+  participant2Id Number
+  round          MatchRound
+  status         MatchStatus
+  scheduledAt    DateTime
+  createdAt      DateTime      @default(now())
+  updatedAt      DateTime      @updatedAt
+  isDeleted      Boolean       @default(false)
+  participant1   Participant   @relation("MatchParticipant1", fields: [participant1Id], references: [id])
+  participant2   Participant   @relation("MatchParticipant2", fields: [participant2Id], references: [id])
+  matchResults   MatchResult[]
 }
 
 model Participant {
-  id           BigInt        @id @default(autoincrement())
-  tournamentId BigInt
-  userId       BigInt
+  id           Number        @id @default(autoincrement())
+  tournamentId Number
+  userId       Number
   createdAt    DateTime      @default(now())
   updatedAt    DateTime      @updatedAt
   isDeleted    Boolean       @default(false)
   tournament   Tournament    @relation(fields: [tournamentId], references: [id])
   user         User          @relation(fields: [userId], references: [id])
-  matchResults MatchResult[]
+  matchesAsParticipant1 Match[]    @relation("MatchParticipant1")
+  matchesAsParticipant2 Match[]    @relation("MatchParticipant2")
 }
 
 model MatchResult {
-  id            BigInt      @id @default(autoincrement())
-  participantId BigInt
-  matchId       BigInt
-  score         Int
-  isGiveUp      Boolean
-  createdAt     DateTime    @default(now())
-  updatedAt     DateTime    @updatedAt
-  isDeleted     Boolean     @default(false)
-  match         Match       @relation(fields: [matchId], references: [id])
-  participant   Participant @relation(fields: [participantId], references: [id])
+  id                Number      @id @default(autoincrement())
+  matchId           Number
+  participant1Score Int
+  participant2Score Int
+  isGiveUp          Boolean
+  createdAt         DateTime    @default(now())
+  updatedAt         DateTime    @updatedAt
+  isDeleted         Boolean     @default(false)
+  match             Match       @relation(fields: [matchId], references: [id])
 }
 
 model SingleMatch {
-  id          BigInt   @id @default(autoincrement())
-  user1       String
-  user2       String
-  user1Score  Int
-  user2Score  Int
-  scheduledAt DateTime
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-  isDeleted   Boolean  @default(false)
+  id            Number   @id @default(autoincrement())
+  userId        Number
+  user1Nickname String
+  user2Nickname String
+  user1Score    Int
+  user2Score    Int
+  scheduledAt   DateTime
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  isDeleted     Boolean  @default(false)
+  user          User     @relation(fields: [userId], references: [id])
 }
 
 model Friend {
-  id         BigInt   @id @default(autoincrement())
-  senderId   BigInt
-  receiverId BigInt
+  id         Number   @id @default(autoincrement())
+  senderId   Number
+  receiverId Number
   createdAt  DateTime @default(now())
   updatedAt  DateTime @updatedAt
   isDeleted  Boolean  @default(false)
