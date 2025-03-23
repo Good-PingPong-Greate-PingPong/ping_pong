@@ -19,7 +19,7 @@
 }
 
 div {
-  border: #a8dcff 1px solid;
+  border: white 1px solid;
 }
 
 a {
@@ -61,7 +61,85 @@ h1 {
   text-align: center;
 }
 
-button {
+#ScoreDiv{
+  display: flex;
+  height: 50px;
+  width: 200px;
+  top: 50px;
+  position: absolute;
+  font-weight: bold;
+  font-family: Nunito;
+  z-index: 10;
+  color: black;
+  font-size: 3rem;
+  text-align: center;
+  justify-content: center;
+}
+
+canvas {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+}
+
+#Player1{
+  display: flex;
+  justify-content: center;
+  margin-right: 10%;
+}
+
+#Player2{
+  display: flex;
+  justify-content: center;
+  margin-left: 10%;
+}
+
+#Player1Nick{
+  display: flex;
+  white-space: nowrap;
+  justify-content: center;
+  margin-right: 50%;
+}
+
+#Player2Nick{
+  display: flex;
+  white-space: nowrap;
+  justify-content: center;
+  margin-left: 50%;
+}
+
+#WinMsg{
+  position: absolute;
+  width: 50%;
+  height: 30%;
+  top: calc(30% - 60px);
+  font-size: 80px;
+  font-weight: bold;
+  font-family: Nunito,sans-serif;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  text-align: center;
+  display: none;
+  white-space: nowrap;
+}
+
+button{
+  padding:10px;
+  border-radius: 20px;
+  border:none;
+  background-color: #15814e;
+  color:white;
+  font-weight: 900;
+  margin:auto;
+  cursor:pointer
+
+}
+button:hover{
+  background-color:#20c076 ;
+}
+
+/* button {
   /* border-radius: 8px;
   border: 1px solid transparent;
   padding: 0.6em 1.2em;
@@ -71,10 +149,11 @@ button {
   background-color: #1a1a1a;
   cursor: pointer;
   transition: border-color 0.25s; */
-}
-button:hover {
+/* } */
+/* button:hover {
   /* border-color: #646cff; */
-}
+/* } */
+
 button:focus,
 button:focus-visible {
   /* outline: 4px auto -webkit-focus-ring-color; */
