@@ -100,18 +100,18 @@ export class GameWindow {
     let distance1 = Math.abs(ball.x - LoclPad1XPos);
   
 		// 플레이어 1 충돌 감지
-    if (distance1 < 15 && ball.y > (this.Pad1YPos - 50) && this.Pad1YPos + 70 > ball.y)
+    if (distance1 < 30 && ball.y < (this.Pad1YPos + 130) && ball.y > (this.Pad1YPos - 30))
 			this.dirX = true;
 
     let LoclPad2XPos = this.DocWidth - 50;
     let distance2 = Math.abs(ball.x - LoclPad2XPos);
 
 		// 플레이어 2 충돌 감지
-    if (distance2 < 30 && ball.y > (this.Pad2YPos - 50) && this.Pad2YPos + 70 > ball.y)
+    if (distance2 < 30 && ball.y < (this.Pad2YPos + 130) && ball.y > (this.Pad2YPos - 30))
 			this.dirX = false;
 
 		// 게임 종료 판정
-    if (gameStatus.Score1 > 1){
+    if (gameStatus.Score1 > 9){
       gameStatus.RequestFrame = false;
       this.canvas.onclick=()=>{};
   
@@ -121,7 +121,7 @@ export class GameWindow {
       winPlayerId.innerHTML = "1";
     }
 
-    if (gameStatus.Score2 > 1){
+    if (gameStatus.Score2 > 9){
       gameStatus.RequestFrame = false;
       this.canvas.onclick=()=>{};
   
