@@ -11,7 +11,7 @@ datasource db {
 }
 
 model User {
-  id                Number         @id @default(autoincrement())
+  id                Int            @id @default(autoincrement())
   nickname          String         @unique
   password          String
   email             String         @unique
@@ -29,8 +29,8 @@ model User {
 }
 
 model RefreshToken {
-  id        Number   @id @default(autoincrement())
-  userId    Number
+  id        Int      @id @default(autoincrement())
+  userId    Int
   token     String
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -38,7 +38,7 @@ model RefreshToken {
 }
 
 model Tournament {
-  id            Number           @id @default(autoincrement())
+  id            Int              @id @default(autoincrement())
   startDatetime DateTime
   endDatetime   DateTime
   status        TournamentStatus
@@ -49,9 +49,9 @@ model Tournament {
 }
 
 model Match {
-  id             Number        @id @default(autoincrement())
-  participant1Id Number
-  participant2Id Number
+  id             Int          @id @default(autoincrement())
+  participant1Id Int
+  participant2Id Int
   round          MatchRound
   status         MatchStatus
   scheduledAt    DateTime
@@ -64,9 +64,9 @@ model Match {
 }
 
 model Participant {
-  id           Number        @id @default(autoincrement())
-  tournamentId Number
-  userId       Number
+  id           Int           @id @default(autoincrement())
+  tournamentId Int
+  userId       Int
   createdAt    DateTime      @default(now())
   updatedAt    DateTime      @updatedAt
   isDeleted    Boolean       @default(false)
@@ -77,8 +77,8 @@ model Participant {
 }
 
 model MatchResult {
-  id                Number      @id @default(autoincrement())
-  matchId           Number
+  id                Int         @id @default(autoincrement())
+  matchId           Int
   participant1Score Int
   participant2Score Int
   isGiveUp          Boolean
@@ -89,8 +89,8 @@ model MatchResult {
 }
 
 model SingleMatch {
-  id            Number   @id @default(autoincrement())
-  userId        Number
+  id            Int      @id @default(autoincrement())
+  userId        Int
   user1Nickname String
   user2Nickname String
   user1Score    Int
@@ -103,9 +103,9 @@ model SingleMatch {
 }
 
 model Friend {
-  id         Number   @id @default(autoincrement())
-  senderId   Number
-  receiverId Number
+  id         Int      @id @default(autoincrement())
+  senderId   Int
+  receiverId Int
   createdAt  DateTime @default(now())
   updatedAt  DateTime @updatedAt
   isDeleted  Boolean  @default(false)
