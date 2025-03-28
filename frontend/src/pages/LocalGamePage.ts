@@ -8,7 +8,7 @@ export function renderLocalGamePage(): string {
 
   // PlayerNic은 추후 유저 닉네임 삽입 로직으로 변경할 예정
 	return `
-    <div class="flex flex-row justify-around items-center w-full">
+    <div id="localGameDiv" class="flex flex-row justify-around items-center w-full">
       <div id="ScoreDiv">
         <p id="Player1Nick">USER 1</p>
         <p id="Player1">0</p> : <p id="Player2">0</p>

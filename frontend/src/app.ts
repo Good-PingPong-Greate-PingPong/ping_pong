@@ -28,7 +28,7 @@ export class App {
     // 앱 레이아웃 구성
     this.container.innerHTML = `
       <div id="app-container" class="border-2 ",>
-        <main id="app-content", class=" w-full h-full flex flex-col justify-center items-center">${pageContent}</main>
+        <main id="app-content", class=" w-full h-full flex flex-col justify-center items-center bg-red-100">${pageContent}</main>
       </div>
     `;
 

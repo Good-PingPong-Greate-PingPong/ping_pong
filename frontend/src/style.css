@@ -9,13 +9,21 @@
 
   color-scheme: light dark;
   color: rgba(255, 255, 255, 0.87);
-  background-color: #ffffff;
+  background-color: #797979;
 
   font-synthesis: none;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   color: black;
+
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+  height: 100%;
+
+  
 }
 
 div {
@@ -28,16 +36,15 @@ a {
   /* color: #ffffff; */
   text-decoration: inherit;
 }
-a:hover {
-  /* color: #000000; */
-}
+
 
 body {
-  margin: 0;
   display: flex;
-  place-items: center;
-  min-width: 320px;
-  min-height: 100vh;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
 }
 
 h1 {
@@ -50,94 +57,89 @@ h1 {
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  height: 90vh;
-  width: 90vw;
+  width: 100%;
+  height: 100%;
+  background-color: #ff7070;
+
 }
 
 #app {
-  max-width: 1280px;
-  margin: 0 auto;
-  padding: 2rem;
+
+  width: 90%;
+  height: 90%;
   text-align: center;
 }
 
-#ScoreDiv{
-  display: flex;
-  height: 50px;
-  width: 200px;
-  top: 50px;
-  position: absolute;
-  font-weight: bold;
-  font-family: Nunito;
-  z-index: 10;
-  color: black;
-  font-size: 3rem;
-  text-align: center;
-  justify-content: center;
-}
+#localGameDiv {
 
-canvas {
-  position: absolute;
-  width: 100%;
-  height: 100%;
-}
-
-#Player1{
-  display: flex;
-  justify-content: center;
-  margin-right: 10%;
-}
-
-#Player2{
-  display: flex;
-  justify-content: center;
-  margin-left: 10%;
-}
-
-#Player1Nick{
-  display: flex;
-  white-space: nowrap;
-  justify-content: center;
-  margin-right: 50%;
-}
-
-#Player2Nick{
-  display: flex;
-  white-space: nowrap;
-  justify-content: center;
-  margin-left: 50%;
-}
-
-#WinMsg{
-  position: absolute;
-  width: 50%;
-  height: 30%;
-  top: calc(30% - 60px);
-  font-size: 80px;
-  font-weight: bold;
-  font-family: Nunito,sans-serif;
   display: flex;
   flex-direction: column;
+  align-items: center;
   justify-content: center;
-  text-align: center;
-  display: none;
-  white-space: nowrap;
+  width: 100%;
+  height: 100%;
+
+  #ScoreDiv {
+    display: flex;
+    height: 80px;
+    width: 60%;
+    font-weight: bold;
+    font-family: Nunito;
+    color: black;
+    font-size: 3rem;
+    text-align: center;
+    justify-content: space-around;
+
+    border: 1px solid rgb(117, 177, 255);
+
+    p {
+      border: 1px solid rgb(117, 177, 255);
+
+    }
+  }
+  
+  canvas {
+    width: 90%;
+    height: 90%;
+
+    border: 1px solid rgb(117, 177, 255);
+
+  }
+  
+  #WinMsg{
+    position: absolute;
+    width: 50%;
+    height: 30%;
+    top: calc(30% - 60px);
+    font-size: 80px;
+    font-weight: bold;
+    font-family: Nunito,sans-serif;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    text-align: center;
+    display: none;
+    white-space: nowrap;
+    font-size: 24px;
+  }
+  
+  button{
+    padding:10px;
+    border-radius: 20px;
+    border:none;
+    background-color: #15814e;
+    color:white;
+    font-weight: 900;
+    margin:auto;
+    cursor:pointer
+  
+  }
+  button:hover{
+    background-color:#20c076 ;
+  }
+
 }
 
-button{
-  padding:10px;
-  border-radius: 20px;
-  border:none;
-  background-color: #15814e;
-  color:white;
-  font-weight: 900;
-  margin:auto;
-  cursor:pointer
-
-}
-button:hover{
-  background-color:#20c076 ;
-}
 
 /* button {
   /* border-radius: 8px;
