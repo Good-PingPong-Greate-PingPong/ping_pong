@@ -1,7 +1,12 @@
-import { connectPrisma } from './prisma';
+import * as plugin from '../plugins';
+import Fastify from 'fastify';
+import { registerRoutes } from '../routes';
 
-export async function init() {
-  // 데이터베이스 연결, 초기 설정 등 실행
-  await connectPrisma();
-  // 다른 초기화 작업 추가 가능
+export async function buildApp() {
+  const app = Fastify({ logger: { level: 'error' } });
+  await app.register(plugin.prismaPlugin);
+  await app.register(plugin.googleOAuth2);
+
+  await registerRoutes(app);
+  return app;
 }

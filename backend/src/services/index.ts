@@ -1,1 +1,1 @@
-// export * from "./someService";
+export * from './auth.sevice';
