@@ -31,9 +31,7 @@ export async function verifyAccessToken(
     request.user = decoded;
   } catch (err) {
     if (err instanceof jwt.TokenExpiredError) {
-      reply
-        .code(ERROR_MESSAGE.notExpired.status)
-        .send(ERROR_MESSAGE.notExpired);
+      reply.code(ERROR_MESSAGE.expired.status).send(ERROR_MESSAGE.expired);
     } else {
       reply
         .code(ERROR_MESSAGE.invalidToken.status)

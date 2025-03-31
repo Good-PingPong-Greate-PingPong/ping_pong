@@ -24,10 +24,10 @@ const ERROR_MESSAGE = {
     status: 401,
     message: 'Invalid Token',
   },
-  notExpired: {
+  expired: {
     success: false,
     status: 401,
-    message: 'Token Not Expired',
+    message: 'Token Expired',
   },
   forbidden: {
     success: false,
