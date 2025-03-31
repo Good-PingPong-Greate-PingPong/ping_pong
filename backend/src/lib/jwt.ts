@@ -1,7 +1,7 @@
 import jwt, { SignOptions, Secret } from 'jsonwebtoken';
 import { config } from '../config';
 import { FastifyRequest, FastifyReply } from 'fastify';
-import { ERROR_MESSAGE, SUCCESS_MESSAGE } from './constants';
+import { ERROR_MESSAGE } from './constants';
 
 export function signAccessToken(payload: object) {
   const secret: Secret = config.jwt.secret as Secret;
