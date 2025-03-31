@@ -8,3 +8,9 @@ declare module 'fastify' {
     googleOAuth2: OAuth2Namespace;
   }
 }
+
+declare module 'fastify' {
+  interface FastifyRequest {
+    user?: string | object;
+  }
+}
