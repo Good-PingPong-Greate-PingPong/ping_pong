@@ -1,5 +1,4 @@
 import { prisma } from '../plugins/prisma';
-import { verifyToken } from '../lib';
 
 export async function getGoogleUser(accessToken: string) {
   const res = await fetch('https://www.googleapis.com/oauth2/v2/userinfo', {

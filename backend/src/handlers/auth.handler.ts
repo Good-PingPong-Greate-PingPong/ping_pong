@@ -27,7 +27,7 @@ export async function googleCallbackHandler(
     reply
       .setCookie('refreshToken', refreshToken, {
         httpOnly: true,
-        secure: true,
+        secure: false, // 개발 환경에서는 false로 설정 추후 수정
         sameSite: 'strict', // CSRF 방지
         path: '/api/auth/refresh', // 이 경로 요청 시에만 자동 첨부
         maxAge: 60 * 60 * 24 * 7, // 7일
@@ -50,6 +50,7 @@ export async function logoutHandler(req: FastifyRequest, reply: FastifyReply) {
   const refreshToken = req.cookies.refreshToken;
 
   if (!refreshToken) {
+    console.log('No refresh token found in logout handler');
     return reply
       .code(ERROR_MESSAGE.unauthorized.status)
       .send(ERROR_MESSAGE.unauthorized);
@@ -76,6 +77,7 @@ export async function refreshHandler(req: FastifyRequest, reply: FastifyReply) {
   const refreshToken = req.cookies.refreshToken;
 
   if (!refreshToken) {
+    console.log('No refresh token found');
     return reply
       .code(ERROR_MESSAGE.unauthorized.status)
       .send(ERROR_MESSAGE.unauthorized);
