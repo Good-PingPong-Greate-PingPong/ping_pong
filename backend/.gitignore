@@ -200,4 +200,8 @@ $RECYCLE.BIN/
 # Windows shortcuts
 *.lnk
 
+# SQLite 데이터베이스 파일 무시
+*.db
+*.db-journal
+
 # End of https://www.toptal.com/developers/gitignore/api/node,macos,windows
