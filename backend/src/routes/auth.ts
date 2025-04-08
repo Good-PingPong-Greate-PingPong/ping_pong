@@ -28,7 +28,7 @@ export async function authRoutes(fastify: FastifyInstance) {
         httpOnly: true,
         secure: false,
         sameSite: 'strict',
-        path: '/api/auth/refresh',
+        path: '/',
         maxAge: 60 * 60 * 24 * 7,
       })
       .send({ message: '테스트용 쿠키와 DB 등록 완료' });

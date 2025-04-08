@@ -29,7 +29,7 @@ export async function googleCallbackHandler(
         httpOnly: true,
         secure: false, // 개발 환경에서는 false로 설정 추후 수정
         sameSite: 'strict', // CSRF 방지
-        path: '/api/auth/refresh', // 이 경로 요청 시에만 자동 첨부
+        path: '/', // 이 경로 요청 시에만 자동 첨부
         maxAge: 60 * 60 * 24 * 7, // 7일
       })
       .code(SUCCESS_MESSAGE.loginOK.status)
@@ -60,7 +60,7 @@ export async function logoutHandler(req: FastifyRequest, reply: FastifyReply) {
     await service.deleteRefreshToken(refreshToken);
 
     reply.clearCookie('refreshToken', {
-      path: '/api/auth/refresh',
+      path: '/',
     });
 
     return reply
