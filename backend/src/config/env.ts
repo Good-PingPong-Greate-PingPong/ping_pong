@@ -13,6 +13,7 @@ function getEnv(key: string, required = true): string {
 export const env = {
   PORT: process.env.PORT || '3000',
   DATABASE_URL: process.env.DATABASE_URL || 'file:./dev.db',
+  HOST: process.env.HOST || 'localhost',
 
   googleClientId: getEnv('GOOGLE_CLIENT_ID'),
   googleClientSecret: getEnv('GOOGLE_CLIENT_SECRET'),

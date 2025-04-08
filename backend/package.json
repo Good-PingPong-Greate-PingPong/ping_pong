@@ -13,6 +13,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "@fastify/cookie": "^11.0.2",
     "@fastify/oauth2": "^8.1.2",
     "@fastify/type-provider-typebox": "^5.1.0",
     "@fastify/websocket": "^11.0.2",

@@ -1,4 +1,5 @@
 import { prisma } from '../plugins/prisma';
+import { verifyToken } from '../lib';
 
 export async function getGoogleUser(accessToken: string) {
   const res = await fetch('https://www.googleapis.com/oauth2/v2/userinfo', {
@@ -28,4 +29,33 @@ export async function handleGoogleUser(googleUser: any) {
   }
 
   return user;
+}
+
+export async function saveRefreshToken(userId: number, token: string) {
+  return prisma.refreshToken.create({
+    data: {
+      userId,
+      token,
+    },
+  });
+}
+
+export async function deleteRefreshToken(token: string) {
+  return prisma.refreshToken.deleteMany({
+    where: { token },
+  });
+}
+
+export async function findRefreshToken(userId: number, refreshToken: string) {
+  const tokenRecord = await prisma.refreshToken.findFirst({
+    where: {
+      userId,
+      token: refreshToken,
+    },
+  });
+
+  return {
+    userId,
+    tokenRecord,
+  };
 }

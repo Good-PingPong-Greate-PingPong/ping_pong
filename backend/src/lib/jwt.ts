@@ -1,6 +1,6 @@
-import jwt, { SignOptions, Secret } from 'jsonwebtoken';
+import jwt, { SignOptions, Secret, JwtPayload } from 'jsonwebtoken';
 import { config } from '../config';
-import { FastifyRequest, FastifyReply } from 'fastify';
+import { FastifyRequest, FastifyReply, TokenPayload } from 'fastify';
 import { ERROR_MESSAGE } from './constants';
 
 export function signAccessToken(payload: object) {
@@ -12,30 +12,43 @@ export function signAccessToken(payload: object) {
   return jwt.sign(payload, secret, options);
 }
 
+export function signRefreshToken(payload: object) {
+  const secret: Secret = config.jwt.secret as Secret;
+  const options: SignOptions = {
+    expiresIn: config.jwt.refreshExpiresIn as SignOptions['expiresIn'],
+  };
+
+  return jwt.sign(payload, secret, options);
+}
+
+export function verifyToken(token: string): TokenPayload {
+  return jwt.verify(token, config.jwt.secret) as TokenPayload;
+}
+
 export async function verifyAccessToken(
   request: FastifyRequest,
   reply: FastifyReply,
 ) {
   const authHeader = request.headers.authorization;
   if (!authHeader?.startsWith('Bearer ')) {
-    reply
+    return reply
       .code(ERROR_MESSAGE.unauthorized.status)
       .send(ERROR_MESSAGE.unauthorized);
-    return;
   }
 
   const token = authHeader.split(' ')[1];
 
   try {
-    const decoded = jwt.verify(token, config.jwt.secret);
+    const decoded = verifyToken(token);
     request.user = decoded;
   } catch (err) {
     if (err instanceof jwt.TokenExpiredError) {
-      reply.code(ERROR_MESSAGE.expired.status).send(ERROR_MESSAGE.expired);
-    } else {
-      reply
-        .code(ERROR_MESSAGE.invalidToken.status)
-        .send(ERROR_MESSAGE.invalidToken);
+      return reply
+        .code(ERROR_MESSAGE.expired.status)
+        .send(ERROR_MESSAGE.expired);
     }
+    return reply
+      .code(ERROR_MESSAGE.invalidToken.status)
+      .send(ERROR_MESSAGE.invalidToken);
   }
 }

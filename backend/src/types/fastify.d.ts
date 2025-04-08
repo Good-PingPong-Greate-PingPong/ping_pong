@@ -14,3 +14,9 @@ declare module 'fastify' {
     user?: string | object;
   }
 }
+import { JwtPayload } from 'jsonwebtoken';
+declare module 'fastify' {
+  interface TokenPayload extends JwtPayload {
+    userId: number;
+  }
+}
