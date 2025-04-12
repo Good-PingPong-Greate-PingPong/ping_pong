@@ -32,10 +32,10 @@ export async function googleCallbackHandler(
         path: '/', // 이 경로 요청 시에만 자동 첨부
         maxAge: 60 * 60 * 24 * 7, // 7일
       })
+      .header('Authorization', `Bearer ${accessToken}`)
       .code(SUCCESS_MESSAGE.loginOK.status)
       .send({
         ...SUCCESS_MESSAGE.loginOK,
-        accessToken,
         user,
       });
   } catch (err) {
