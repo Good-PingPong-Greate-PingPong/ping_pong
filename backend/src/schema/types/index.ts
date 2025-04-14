@@ -1,12 +1,10 @@
-import { Static } from '@synclair/typebox'
-import { commonHeaderSchema } from '../commonSchema'
-import { localGameBodySchema } from '../localGameSchema'
+import { Static  } from "@sinclair/typebox";
+import { TCreateLocalGameRequest, TCreateLocalGameResponse } from "../local.game/local.game.typebox";
 
-type TCommonHeader = Static<typeof commonHeaderSchema>
-
-type TlocalGameBody = Static<typeof localGameBodySchema>
+type CreateLocalGameRequest = Static<typeof TCreateLocalGameRequest>;
+type CreateLocalGameResponse = Static<typeof TCreateLocalGameResponse>;
 
 export {
-    TCommonHeader,
-    TlocalGameBody
-}
+    CreateLocalGameRequest,
+    CreateLocalGameResponse
+};

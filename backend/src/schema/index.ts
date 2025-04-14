@@ -1,1 +1,1 @@
-export * from './localGameSchema'
+export * from './local.game/local.game.schema'
