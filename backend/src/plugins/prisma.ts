@@ -11,7 +11,6 @@ export default fp(async (fastify) => {
     console.error('❌ Prisma connection error:'); // fix me
     process.exit(1);
   }
-  fastify.decorate('prisma', prisma);
 
   fastify.addHook('onClose', async () => {
     await prisma.$disconnect();

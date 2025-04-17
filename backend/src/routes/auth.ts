@@ -1,6 +1,5 @@
 import { FastifyInstance } from 'fastify';
 import * as handler from '../handlers';
-import { prisma } from '../plugins/prisma'; // delete me
 
 export async function loginRoutes(fastify: FastifyInstance) {
   fastify.get('/login', async (req, reply) => {
