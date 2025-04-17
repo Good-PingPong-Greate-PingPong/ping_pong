@@ -19,7 +19,7 @@ export const TLoginResponse = Type.Intersect([
   Type.Object({
     accessToken: Type.String(),
     refreshToken: Type.String(),
-    user: Type.Number(), // ← 필요 시 명확히 정의해도 됨
+    user: Type.Number(),
   }),
 ]);
 

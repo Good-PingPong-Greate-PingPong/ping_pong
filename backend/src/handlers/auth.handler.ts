@@ -107,3 +107,10 @@ export async function refreshHandler(req: FastifyRequest, reply: FastifyReply) {
       .send(ERROR_MESSAGE.invalidToken);
   }
 }
+
+export async function loginRedirectHandler(
+  req: FastifyRequest,
+  reply: FastifyReply,
+) {
+  reply.redirect('/auth/google');
+}
