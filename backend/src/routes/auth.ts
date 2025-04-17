@@ -1,20 +1,13 @@
 import { FastifyInstance } from 'fastify';
-import * as handler from '../handlers';
+import * as handler from '../handlers/auth.handler';
 
-export async function loginRoutes(fastify: FastifyInstance) {
+const authRoute = async (fastify: FastifyInstance): Promise<void> => {
   fastify.get('/login', async (req, reply) => {
     reply.redirect('/auth/google');
   });
-}
-
-export async function authRoutes(fastify: FastifyInstance) {
   fastify.get('/google/callback', handler.googleCallbackHandler);
-}
-
-export async function refreshRoutes(fastify: FastifyInstance) {
   fastify.post('/refresh', handler.refreshHandler);
-}
-
-export async function logoutRoutes(fastify: FastifyInstance) {
   fastify.get('/logout', handler.logoutHandler);
-}
+};
+
+export default authRoute;
