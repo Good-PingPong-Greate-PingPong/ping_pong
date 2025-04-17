@@ -1,1 +1,1 @@
-// export * from './some.schema';
+export * from './auth.schema';
