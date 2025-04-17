@@ -5,6 +5,7 @@ import {
   signAccessToken,
   signRefreshToken,
   verifyToken,
+  getGoogleUser,
 } from '../lib';
 import { FastifyRequest, FastifyReply } from 'fastify';
 
@@ -19,7 +20,7 @@ export async function googleCallbackHandler(
       );
     const { access_token } = token.token as any;
 
-    const googleUser = await service.getGoogleUser(access_token);
+    const googleUser = await getGoogleUser(access_token);
     const user = await service.handleGoogleUser(googleUser);
     const accessToken = signAccessToken({ userId: user.id });
     const refreshToken = signRefreshToken({ userId: user.id });

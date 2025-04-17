@@ -1,7 +1,18 @@
-import jwt, { SignOptions, Secret, JwtPayload } from 'jsonwebtoken';
+import jwt, { SignOptions, Secret } from 'jsonwebtoken';
 import { config } from '../config';
 import { FastifyRequest, FastifyReply, TokenPayload } from 'fastify';
 import { ERROR_MESSAGE } from './constants';
+
+export async function getGoogleUser(accessToken: string) {
+  const res = await fetch('https://www.googleapis.com/oauth2/v2/userinfo', {
+	headers: {
+	  Authorization: `Bearer ${accessToken}`,
+	},
+  });
+
+  if (!res.ok) throw new Error('Google user fetch failed');
+  return await res.json();
+}
 
 export function signAccessToken(payload: object) {
   const secret: Secret = config.jwt.secret as Secret;
