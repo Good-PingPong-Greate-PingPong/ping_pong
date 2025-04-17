@@ -51,7 +51,6 @@ export async function logoutHandler(req: FastifyRequest, reply: FastifyReply) {
   const refreshToken = req.cookies.refreshToken;
 
   if (!refreshToken) {
-    console.log('No refresh token found in logout handler');
     return reply
       .code(ERROR_MESSAGE.unauthorized.status)
       .send(ERROR_MESSAGE.unauthorized);
@@ -78,7 +77,6 @@ export async function refreshHandler(req: FastifyRequest, reply: FastifyReply) {
   const refreshToken = req.cookies.refreshToken;
 
   if (!refreshToken) {
-    console.log('No refresh token found');
     return reply
       .code(ERROR_MESSAGE.unauthorized.status)
       .send(ERROR_MESSAGE.unauthorized);
