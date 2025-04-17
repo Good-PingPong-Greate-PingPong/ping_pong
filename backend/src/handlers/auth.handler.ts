@@ -21,7 +21,7 @@ export async function googleCallbackHandler(
     const { access_token } = token.token as any;
 
     const googleUser = await getGoogleUser(access_token);
-    const user = await service.handleGoogleUser(googleUser);
+    const user = await service.saveUser(googleUser);
     const accessToken = signAccessToken({ userId: user.id });
     const refreshToken = signRefreshToken({ userId: user.id });
     await service.saveRefreshToken(user.id, refreshToken);

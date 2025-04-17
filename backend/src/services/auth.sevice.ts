@@ -1,6 +1,6 @@
 import { prisma } from '../plugins/prisma';
 
-export async function handleGoogleUser(googleUser: any) {
+export async function saveUser(googleUser: any) {
   const { email, name, picture } = googleUser;
 
   let user = await prisma.user.findUnique({ where: { email } });
