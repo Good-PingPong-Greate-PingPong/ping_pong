@@ -1,49 +1,60 @@
 import { prisma } from '../plugins/prisma';
 
-export async function saveUser(googleUser: any) {
-  const { email, name, picture } = googleUser;
+const authService = () => {
+  const saveUser = async (googleUser: any) => {
+    const { email, name, picture } = googleUser;
 
-  let user = await prisma.user.findUnique({ where: { email } });
+    let user = await prisma.user.findUnique({ where: { email } });
 
-  if (!user) {
-    user = await prisma.user.create({
+    if (!user) {
+      user = await prisma.user.create({
+        data: {
+          email,
+          nickname: name || email.split('@')[0],
+          profileImage: picture,
+          password: '',
+        },
+      });
+    }
+
+    return user;
+  };
+
+  const saveRefreshToken = async (userId: number, token: string) => {
+    return prisma.refreshToken.create({
       data: {
-        email,
-        nickname: name || email.split('@')[0],
-        profileImage: picture,
-        password: '',
+        userId,
+        token,
       },
     });
-  }
+  };
 
-  return user;
-}
+  const deleteRefreshToken = async (token: string) => {
+    return prisma.refreshToken.deleteMany({
+      where: { token },
+    });
+  };
 
-export async function saveRefreshToken(userId: number, token: string) {
-  return prisma.refreshToken.create({
-    data: {
+  const findRefreshToken = async (userId: number, refreshToken: string) => {
+    const tokenRecord = await prisma.refreshToken.findFirst({
+      where: {
+        userId,
+        token: refreshToken,
+      },
+    });
+
+    return {
       userId,
-      token,
-    },
-  });
-}
-
-export async function deleteRefreshToken(token: string) {
-  return prisma.refreshToken.deleteMany({
-    where: { token },
-  });
-}
-
-export async function findRefreshToken(userId: number, refreshToken: string) {
-  const tokenRecord = await prisma.refreshToken.findFirst({
-    where: {
-      userId,
-      token: refreshToken,
-    },
-  });
+      tokenRecord,
+    };
+  };
 
   return {
-    userId,
-    tokenRecord,
+    saveUser,
+    saveRefreshToken,
+    deleteRefreshToken,
+    findRefreshToken,
   };
-}
+};
+
+export default authService();

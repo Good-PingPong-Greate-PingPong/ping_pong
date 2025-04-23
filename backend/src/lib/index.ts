@@ -1,2 +1,2 @@
 export * from './constants';
-export * from './jwt';
+export { default as jwtUtil } from './jwt';
