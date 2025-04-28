@@ -31,6 +31,11 @@ const ERROR_MESSAGE = {
     status: 401,
     message: 'Token Expired',
   },
+  not2FA: {
+    success: false,
+    status: 401,
+    message: 'Two-factor required',
+  },
   forbidden: {
     success: false,
     status: 403,
@@ -93,6 +98,11 @@ const SUCCESS_MESSAGE = {
     status: 200,
     success: true,
     message: '2FA Verify Success!',
+  },
+  need2FA: {
+    success: true,
+    status: 200,
+    message: 'tmp Login Success!',
   },
 } as const;
 

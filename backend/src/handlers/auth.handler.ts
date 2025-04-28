@@ -18,17 +18,28 @@ const authHandler = () => {
       const googleUser = await jwtUtil.getGoogleUser(access_token);
       const user = await authService.saveUser(googleUser);
 
+      if (user.twoFactorEnabled) {
+        const tmpToken = jwtUtil.signTmpToken({ userId: user.id });
+
+        return reply
+          .header('Temp-Authorization', `Bearer ${tmpToken}`)
+          .code(SUCCESS_MESSAGE.need2FA.status)
+          .send({
+            ...SUCCESS_MESSAGE.need2FA,
+          });
+      }
+
       const accessToken = jwtUtil.signAccessToken({ userId: user.id });
       const refreshToken = jwtUtil.signRefreshToken({ userId: user.id });
       await authService.saveRefreshToken(user.id, refreshToken);
 
-      reply
+      return reply
         .setCookie('refreshToken', refreshToken, {
           httpOnly: true,
-          secure: false, // 개발 환경에서는 false, 배포 시 true
+          secure: false, // 개발 환경에서는 false
           sameSite: 'strict',
           path: '/',
-          maxAge: 60 * 60 * 24 * 7, // 7일
+          maxAge: 60 * 60 * 24 * 7,
         })
         .header('Authorization', `Bearer ${accessToken}`)
         .code(SUCCESS_MESSAGE.loginOK.status)
@@ -38,7 +49,7 @@ const authHandler = () => {
         });
     } catch (err) {
       req.log.error(err);
-      reply
+      return reply
         .code(ERROR_MESSAGE.serverError.status)
         .send(ERROR_MESSAGE.serverError);
     }

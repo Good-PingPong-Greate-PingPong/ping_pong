@@ -6,7 +6,9 @@ const twoFARoute = async (fastify: FastifyInstance): Promise<void> => {
   fastify.get(
     '/setup',
     {
-      preHandler: [jwtUtil.verifyAccessToken],
+      preHandler: async (req, reply) => {
+        await jwtUtil.verifyAccessToken(req, reply, { expectTmpToken: false });
+      },
       schema: generate2FASchema,
     },
     twoFAHandler.setup,
@@ -15,7 +17,9 @@ const twoFARoute = async (fastify: FastifyInstance): Promise<void> => {
   fastify.post(
     '/verify',
     {
-      preHandler: [jwtUtil.verifyAccessToken],
+      preHandler: async (req, reply) => {
+        await jwtUtil.verifyAccessToken(req, reply, { expectTmpToken: true });
+      },
       schema: verify2FASchema,
     },
     twoFAHandler.verify,

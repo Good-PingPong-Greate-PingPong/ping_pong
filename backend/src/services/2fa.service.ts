@@ -36,7 +36,7 @@ const twoFAService = () => {
   };
 
   /**
-   * 사용자가 입력한 2FA 코드 검증 + 성공 시 활성화
+   * 사용자가 입력한 2FA 코드 검증
    */
   const verify2FACode = async (userId: number, inputCode: string) => {
     const user = await prisma.user.findUnique({
@@ -51,13 +51,6 @@ const twoFAService = () => {
       token: inputCode,
       window: 1,
     });
-
-    if (isVerified) {
-      await prisma.user.update({
-        where: { id: userId },
-        data: { twoFactorEnabled: true },
-      });
-    }
 
     return isVerified;
   };
