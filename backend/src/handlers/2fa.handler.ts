@@ -7,7 +7,7 @@ const twoFAHandler = () => {
    * 2FA 설정용 QR코드 생성 핸들러
    */
   const setup = async (req: FastifyRequest, reply: FastifyReply) => {
-    const userId = req.user.id;
+    const userId = req.user.userId;
 
     try {
       const result = await twoFAService.generate2FASetup(userId);
@@ -31,7 +31,7 @@ const twoFAHandler = () => {
     req: FastifyRequest<{ Body: { code: string } }>,
     reply: FastifyReply,
   ) => {
-    const userId = req.user.id;
+    const userId = req.user.userId;
     const { code } = req.body;
 
     if (!code) {
