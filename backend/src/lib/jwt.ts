@@ -25,10 +25,9 @@ const jwtUtil = () => {
 
   const signTmpToken = (payload: object) => {
     const secret: Secret = config.jwt.secret as Secret;
-    const options: SignOptions = {
+    return jwt.sign({ ...payload, twoFactorPending: true }, secret, {
       expiresIn: '5m',
-    };
-    return jwt.sign({ ...payload, twoFactorPending: true }, secret, options);
+    });
   };
 
   const signRefreshToken = (payload: object) => {
@@ -37,6 +36,10 @@ const jwtUtil = () => {
       expiresIn: config.jwt.refreshExpiresIn as SignOptions['expiresIn'],
     };
     return jwt.sign(payload, secret, options);
+  };
+  const signResetToken = (payload: { userId: number }) => {
+    const secret = config.jwt.secret;
+    return jwt.sign(payload, secret, { expiresIn: '5m' });
   };
 
   const verifyToken = (token: string): TokenPayload => {
@@ -81,6 +84,7 @@ const jwtUtil = () => {
     getGoogleUser,
     signAccessToken,
     signRefreshToken,
+    signResetToken,
     signTmpToken,
     verifyToken,
     verifyAccessToken,

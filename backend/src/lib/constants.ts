@@ -104,6 +104,16 @@ const SUCCESS_MESSAGE = {
     status: 200,
     message: 'tmp Login Success!',
   },
+  sendMail: {
+    success: true,
+    status: 201,
+    message: 'send reset email Success!',
+  },
+  reset2FA: {
+    success: true,
+    status: 200,
+    message: 'reset 2FA Success!',
+  },
 } as const;
 
 export { ERROR_MESSAGE, SUCCESS_MESSAGE };
