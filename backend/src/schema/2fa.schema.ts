@@ -2,6 +2,9 @@ import {
   TGenerate2FASetupResponse,
   TVerify2FARequest,
   TVerify2FAResponse,
+  TResetRequestResponse,
+  TResetConfirmQuery,
+  TResetConfirmResponse,
 } from './2fa.typebox';
 
 /**
@@ -20,5 +23,18 @@ export const verify2FASchema = {
   body: TVerify2FARequest,
   response: {
     200: TVerify2FAResponse,
+  },
+};
+
+export const resetRequestSchema = {
+  response: {
+    200: TResetRequestResponse,
+  },
+};
+
+export const resetConfirmSchema = {
+  querystring: TResetConfirmQuery,
+  response: {
+    200: TResetConfirmResponse,
   },
 };
