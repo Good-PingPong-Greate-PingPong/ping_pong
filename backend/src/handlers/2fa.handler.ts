@@ -27,12 +27,9 @@ const twoFAHandler = () => {
   /**
    * 2FA 코드 검증 핸들러
    */
-  const verify = async (
-    req: FastifyRequest<{ Body: { code: string } }>,
-    reply: FastifyReply,
-  ) => {
+  const verify = async (req: FastifyRequest, reply: FastifyReply) => {
     const userId = req.user.userId;
-    const { code } = req.body;
+    const { code } = req.body as { code: string };
 
     if (!code) {
       return reply

@@ -17,8 +17,7 @@ const twoFAService = () => {
     }
 
     const secret = speakeasy.generateSecret({
-      name: user.nickname,
-      issuer: 'Great-ping-pong',
+      name: `great-ping-pong (${user.nickname})`,
     });
 
     // QR코드 이미지 (Data URL)
