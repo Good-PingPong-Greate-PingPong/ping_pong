@@ -1,1 +1,2 @@
-export * from './local.game/local.game.schema'
+export * from './auth.schema';
+export * from './local.game/local.game.schema';
