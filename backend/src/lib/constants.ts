@@ -1,3 +1,5 @@
+import { verify } from 'crypto';
+
 const ERROR_MESSAGE = {
   badRequest: {
     success: false,
@@ -81,6 +83,16 @@ const SUCCESS_MESSAGE = {
     status: 201,
     success: true,
     message: 'register Success!',
+  },
+  generate2FA: {
+    status: 200,
+    success: true,
+    message: '2FA Setup Success!',
+  },
+  verify2FA: {
+    status: 200,
+    success: true,
+    message: '2FA Verify Success!',
   },
 } as const;
 

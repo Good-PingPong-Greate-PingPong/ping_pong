@@ -12,8 +12,8 @@ const twoFAHandler = () => {
     try {
       const result = await twoFAService.generate2FASetup(userId);
 
-      return reply.status(SUCCESS_MESSAGE.generate2FASuccess.status).send({
-        ...SUCCESS_MESSAGE.generate2FASuccess,
+      return reply.status(SUCCESS_MESSAGE.generate2FA.status).send({
+        ...SUCCESS_MESSAGE.generate2FA,
         qrCode: result.qrCode,
       });
     } catch (error) {
@@ -50,8 +50,8 @@ const twoFAHandler = () => {
       }
 
       return reply
-        .status(SUCCESS_MESSAGE.verify2FASuccess.status)
-        .send(SUCCESS_MESSAGE.verify2FASuccess);
+        .status(SUCCESS_MESSAGE.verify2FA.status)
+        .send(SUCCESS_MESSAGE.verify2FA);
     } catch (error) {
       req.log.error(error);
       return reply

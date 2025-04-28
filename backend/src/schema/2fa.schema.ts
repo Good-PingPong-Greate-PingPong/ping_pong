@@ -1,7 +1,7 @@
 import {
-  generate2FASetupResponse,
-  verify2FARequest,
-  verify2FAResponse,
+  TGenerate2FASetupResponse,
+  TVerify2FARequest,
+  TVerify2FAResponse,
 } from './2fa.typebox';
 
 /**
@@ -9,7 +9,7 @@ import {
  */
 export const generate2FASchema = {
   response: {
-    200: generate2FASetupResponse,
+    200: TGenerate2FASetupResponse,
   },
 };
 
@@ -17,8 +17,8 @@ export const generate2FASchema = {
  * 2FA 코드 검증 API 스키마
  */
 export const verify2FASchema = {
-  body: verify2FARequest,
+  body: TVerify2FARequest,
   response: {
-    200: verify2FAResponse,
+    200: TVerify2FAResponse,
   },
 };
