@@ -55,9 +55,23 @@ const twoFAService = () => {
     return isVerified;
   };
 
+  const reset2FA = async (email: string) => {
+    const user = await prisma.user.findUnique({ where: { email } });
+    if (!user) {
+      throw new Error('User not found');
+    }
+    return prisma.user.update({
+      where: { id: user.id },
+      data: {
+        twoFactorEnabled: false,
+        twoFactorSecret: null,
+      },
+    });
+  };
   return {
     generate2FASetup,
     verify2FACode,
+    reset2FA,
   };
 };
 
