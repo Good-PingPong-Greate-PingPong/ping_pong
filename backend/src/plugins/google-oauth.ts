@@ -15,5 +15,7 @@ export default fp(async (fastify) => {
     },
     startRedirectPath: '/auth/google',
     callbackUri: env.googleCallbackUrl,
+    generateStateFunction: () => 'test-state', // 테스트 끝나면 반드시 제거
+    checkStateFunction: () => true, // 테스트 끝나면 반드시 제거
   });
 });
