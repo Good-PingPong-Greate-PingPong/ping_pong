@@ -21,11 +21,10 @@ const authService = () => {
   };
 
   const saveRefreshToken = async (userId: number, token: string) => {
-    return prisma.refreshToken.create({
-      data: {
-        userId,
-        token,
-      },
+    return prisma.refreshToken.upsert({
+      where: { userId },
+      update: { token },
+      create: { userId, token },
     });
   };
 
@@ -34,7 +33,11 @@ const authService = () => {
       where: { token },
     });
   };
-
+  const findUserById = async (userId: number) => {
+    return await prisma.user.findUnique({
+      where: { id: userId },
+    });
+  };
   const findRefreshToken = async (userId: number, refreshToken: string) => {
     const tokenRecord = await prisma.refreshToken.findFirst({
       where: {
@@ -54,6 +57,7 @@ const authService = () => {
     saveRefreshToken,
     deleteRefreshToken,
     findRefreshToken,
+    findUserById,
   };
 };
 

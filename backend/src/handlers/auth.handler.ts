@@ -22,31 +22,14 @@ const authHandler = () => {
         const tmpToken = jwtUtil.signTmpToken({ userId: user.id });
 
         return reply
-          .header('Temp-Authorization', `Bearer ${tmpToken}`)
+          .header('Authorization', `Bearer ${tmpToken}`)
           .code(SUCCESS_MESSAGE.need2FA.status)
           .send({
             ...SUCCESS_MESSAGE.need2FA,
           });
       }
 
-      const accessToken = jwtUtil.signAccessToken({ userId: user.id });
-      const refreshToken = jwtUtil.signRefreshToken({ userId: user.id });
-      await authService.saveRefreshToken(user.id, refreshToken);
-
-      return reply
-        .setCookie('refreshToken', refreshToken, {
-          httpOnly: true,
-          secure: false, // 개발 환경에서는 false
-          sameSite: 'strict',
-          path: '/',
-          maxAge: 60 * 60 * 24 * 7,
-        })
-        .header('Authorization', `Bearer ${accessToken}`)
-        .code(SUCCESS_MESSAGE.loginOK.status)
-        .send({
-          ...SUCCESS_MESSAGE.loginOK,
-          user,
-        });
+      return finalizeLogin(reply, user.id, SUCCESS_MESSAGE.loginOK);
     } catch (err) {
       req.log.error(err);
       return reply
@@ -110,7 +93,33 @@ const authHandler = () => {
     }
   };
 
-  return { login, googleCallback, refresh, logout };
+  const finalizeLogin = async (
+    reply: FastifyReply,
+    id: number,
+    successMessage: { success: true; status: number; message: string },
+  ) => {
+    const accessToken = jwtUtil.signAccessToken({ userId: id });
+    const refreshToken = jwtUtil.signRefreshToken({ userId: id });
+
+    await authService.saveRefreshToken(id, refreshToken);
+
+    const user = await authService.findUserById(id);
+    return reply
+      .setCookie('refreshToken', refreshToken, {
+        httpOnly: true,
+        secure: false,
+        sameSite: 'strict',
+        path: '/',
+        maxAge: 60 * 60 * 24 * 7,
+      })
+      .header('Authorization', `Bearer ${accessToken}`)
+      .code(successMessage.status)
+      .send({
+        ...successMessage,
+        user,
+      });
+  };
+  return { login, googleCallback, refresh, logout, finalizeLogin };
 };
 
 export default authHandler();
