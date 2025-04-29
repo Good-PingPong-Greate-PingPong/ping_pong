@@ -37,6 +37,15 @@ setState (newState: Record<string, any>): void {
     this.render(); // 상태 변경 후 다시 렌더링
 }
 
+// 특정 DOM 요소에 이벤트를 등록하는 헬퍼 메서드
+addEvent(eventType: string, selector: string, callback: (event: Event) => void): void {
+    this.$target.addEventListener(eventType, (event: Event) => {
+      // 이벤트가 발생한 요소가 selector와 일치하지 않으면 무시
+    const target = event.target as Element;
+    if (!target.closest(selector)) return false;
+      callback(event); // selector와 일치하면 콜백 실행
+    });
+}
 
 }
 

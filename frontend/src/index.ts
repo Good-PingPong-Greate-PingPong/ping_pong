@@ -1,4 +1,3 @@
-// src/main.ts - 애플리케이션 진입점
 import './style.css';
 import { App } from './app';
 
@@ -8,8 +7,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   if (appContainer) {
     try {
-      const app = new App(appContainer);
-      app.init();
+      new App(appContainer);
     } catch (error) {
       console.error('Failed to initialize app:', error);
     }
