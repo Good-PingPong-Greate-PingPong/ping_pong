@@ -11,7 +11,7 @@ declare module 'fastify' {
 
 declare module 'fastify' {
   interface FastifyRequest {
-    user?: string | object;
+    user: TokenPayload;
   }
 }
 import { JwtPayload } from 'jsonwebtoken';

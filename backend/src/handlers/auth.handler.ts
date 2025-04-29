@@ -1,116 +1,125 @@
-import * as service from '../services';
-import {
-  SUCCESS_MESSAGE,
-  ERROR_MESSAGE,
-  signAccessToken,
-  signRefreshToken,
-  verifyToken,
-  getGoogleUser,
-} from '../lib';
+import { authService } from '../services';
+import { jwtUtil, SUCCESS_MESSAGE, ERROR_MESSAGE } from '../lib';
 import { FastifyRequest, FastifyReply } from 'fastify';
 
-export async function googleCallbackHandler(
-  req: FastifyRequest,
-  reply: FastifyReply,
-) {
-  try {
-    const token =
-      await req.server.googleOAuth2.getAccessTokenFromAuthorizationCodeFlow(
-        req,
+const authHandler = () => {
+  const login = async (req: FastifyRequest, reply: FastifyReply) => {
+    reply.redirect('/auth/google');
+  };
+
+  const googleCallback = async (req: FastifyRequest, reply: FastifyReply) => {
+    try {
+      const token =
+        await req.server.googleOAuth2.getAccessTokenFromAuthorizationCodeFlow(
+          req,
+        );
+      const { access_token } = token.token as any;
+
+      const googleUser = await jwtUtil.getGoogleUser(access_token);
+      const user = await authService.saveUser(googleUser);
+
+      if (user.twoFactorEnabled) {
+        const tmpToken = jwtUtil.signTmpToken({ userId: user.id });
+
+        return reply
+          .header('Authorization', `Bearer ${tmpToken}`)
+          .code(SUCCESS_MESSAGE.need2FA.status)
+          .send({
+            ...SUCCESS_MESSAGE.need2FA,
+          });
+      }
+
+      return finalizeLogin(reply, user.id, SUCCESS_MESSAGE.loginOK);
+    } catch (err) {
+      req.log.error(err);
+      return reply
+        .code(ERROR_MESSAGE.serverError.status)
+        .send(ERROR_MESSAGE.serverError);
+    }
+  };
+
+  const refresh = async (req: FastifyRequest, reply: FastifyReply) => {
+    const refreshToken = req.cookies.refreshToken;
+    if (!refreshToken) {
+      return reply
+        .code(ERROR_MESSAGE.unauthorized.status)
+        .send(ERROR_MESSAGE.unauthorized);
+    }
+
+    try {
+      const decoded = jwtUtil.verifyToken(refreshToken);
+      const { userId, tokenRecord } = await authService.findRefreshToken(
+        decoded.userId,
+        refreshToken,
       );
-    const { access_token } = token.token as any;
 
-    const googleUser = await getGoogleUser(access_token);
-    const user = await service.saveUser(googleUser);
-    const accessToken = signAccessToken({ userId: user.id });
-    const refreshToken = signRefreshToken({ userId: user.id });
-    await service.saveRefreshToken(user.id, refreshToken);
-    reply
-      .setCookie('refreshToken', refreshToken, {
-        httpOnly: true,
-        secure: false, // 개발 환경에서는 false로 설정 추후 수정
-        sameSite: 'strict', // CSRF 방지
-        path: '/', // 이 경로 요청 시에만 자동 첨부
-        maxAge: 60 * 60 * 24 * 7, // 7일
-      })
-      .header('Authorization', `Bearer ${accessToken}`)
-      .code(SUCCESS_MESSAGE.loginOK.status)
-      .send({
-        ...SUCCESS_MESSAGE.loginOK,
-        user,
+      if (!tokenRecord) {
+        return reply
+          .code(ERROR_MESSAGE.invalidToken.status)
+          .send(ERROR_MESSAGE.invalidToken);
+      }
+
+      const newAccessToken = jwtUtil.signAccessToken({ userId });
+      return reply.send({
+        ...SUCCESS_MESSAGE.refreshToken,
+        accessToken: newAccessToken,
       });
-  } catch (err) {
-    req.log.error(err);
-    reply
-      .code(ERROR_MESSAGE.serverError.status)
-      .send(ERROR_MESSAGE.serverError);
-  }
-}
-
-export async function logoutHandler(req: FastifyRequest, reply: FastifyReply) {
-  const refreshToken = req.cookies.refreshToken;
-
-  if (!refreshToken) {
-    return reply
-      .code(ERROR_MESSAGE.unauthorized.status)
-      .send(ERROR_MESSAGE.unauthorized);
-  }
-
-  try {
-    await service.deleteRefreshToken(refreshToken);
-
-    reply.clearCookie('refreshToken', {
-      path: '/',
-    });
-
-    return reply
-      .code(SUCCESS_MESSAGE.logoutOK.status)
-      .send(SUCCESS_MESSAGE.logoutOK);
-  } catch (err) {
-    return reply
-      .code(ERROR_MESSAGE.serverError.status)
-      .send(ERROR_MESSAGE.serverError);
-  }
-}
-
-export async function refreshHandler(req: FastifyRequest, reply: FastifyReply) {
-  const refreshToken = req.cookies.refreshToken;
-
-  if (!refreshToken) {
-    return reply
-      .code(ERROR_MESSAGE.unauthorized.status)
-      .send(ERROR_MESSAGE.unauthorized);
-  }
-
-  try {
-    const decoded = verifyToken(refreshToken);
-    const { userId, tokenRecord } = await service.findRefreshToken(
-      decoded.userId,
-      refreshToken,
-    );
-
-    if (!tokenRecord) {
+    } catch (err) {
       return reply
         .code(ERROR_MESSAGE.invalidToken.status)
         .send(ERROR_MESSAGE.invalidToken);
     }
+  };
 
-    const newAccessToken = signAccessToken({ userId });
+  const logout = async (req: FastifyRequest, reply: FastifyReply) => {
+    const refreshToken = req.cookies.refreshToken;
+    if (!refreshToken) {
+      return reply
+        .code(ERROR_MESSAGE.unauthorized.status)
+        .send(ERROR_MESSAGE.unauthorized);
+    }
 
-    return reply.send({
-      ...SUCCESS_MESSAGE.refreshToken,
-      accessToken: newAccessToken,
-    });
-  } catch (err) {
+    try {
+      await authService.deleteRefreshToken(refreshToken);
+      reply.clearCookie('refreshToken', { path: '/' });
+
+      return reply
+        .code(SUCCESS_MESSAGE.logoutOK.status)
+        .send(SUCCESS_MESSAGE.logoutOK);
+    } catch (err) {
+      return reply
+        .code(ERROR_MESSAGE.serverError.status)
+        .send(ERROR_MESSAGE.serverError);
+    }
+  };
+
+  const finalizeLogin = async (
+    reply: FastifyReply,
+    id: number,
+    successMessage: { success: true; status: number; message: string },
+  ) => {
+    const accessToken = jwtUtil.signAccessToken({ userId: id });
+    const refreshToken = jwtUtil.signRefreshToken({ userId: id });
+
+    await authService.saveRefreshToken(id, refreshToken);
+
+    const user = await authService.findUserById(id);
     return reply
-      .code(ERROR_MESSAGE.invalidToken.status)
-      .send(ERROR_MESSAGE.invalidToken);
-  }
-}
+      .setCookie('refreshToken', refreshToken, {
+        httpOnly: true,
+        secure: false,
+        sameSite: 'strict',
+        path: '/',
+        maxAge: 60 * 60 * 24 * 7,
+      })
+      .header('Authorization', `Bearer ${accessToken}`)
+      .code(successMessage.status)
+      .send({
+        ...successMessage,
+        user,
+      });
+  };
+  return { login, googleCallback, refresh, logout, finalizeLogin };
+};
 
-export async function loginRedirectHandler(
-  req: FastifyRequest,
-  reply: FastifyReply,
-) {
-  reply.redirect('/auth/google');
-}
+export default authHandler();
