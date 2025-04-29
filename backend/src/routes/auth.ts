@@ -1,12 +1,12 @@
 import { FastifyInstance } from 'fastify';
-import * as handler from '../handlers/auth.handler';
+import { authHandler } from '../handlers';
 import { loginSchema, refreshSchema, logoutSchema } from '../schema';
 
 const authRoute = async (fastify: FastifyInstance): Promise<void> => {
-  fastify.get('/login', { schema: loginSchema }, handler.loginRedirectHandler);
-  fastify.get('/google/callback', handler.googleCallbackHandler);
-  fastify.post('/refresh', { schema: refreshSchema }, handler.refreshHandler);
-  fastify.get('/logout', { schema: logoutSchema }, handler.logoutHandler);
+  fastify.get('/login', authHandler.login);
+  fastify.get('/google/callback', authHandler.googleCallback);
+  fastify.post('/refresh', { schema: refreshSchema }, authHandler.refresh);
+  fastify.get('/logout', { schema: logoutSchema }, authHandler.logout);
 };
 
 export default authRoute;

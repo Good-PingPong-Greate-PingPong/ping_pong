@@ -14,4 +14,9 @@ export const config = {
     expiresIn: '1h',
     refreshExpiresIn: '7d',
   },
+  mailer: {
+    user: env.mailerUser,
+    pass: env.mailerPass,
+    link: env.mailerLink,
+  },
 };
