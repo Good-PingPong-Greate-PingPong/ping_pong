@@ -26,7 +26,7 @@ const twoFAService = () => {
     // DB에 시크릿 저장 (아직 활성화는 X)
     await prisma.user.update({
       where: { id: userId },
-      data: { twoFactorSecret: secret.base32 },
+      data: { twoFactorSecret: secret.base32, twoFactorEnabled: true },
     });
 
     return {
