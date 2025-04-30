@@ -1,7 +1,7 @@
 import { Component } from '../core/Component';
 import logoutUrl from '../assets/logout.svg';
 import { navigate } from '../core/router';
-import { myInfoModal } from '../components/myInfoModal';
+import { MyInfoModal } from '../components/myInfoModal';
 
 export class HomePage extends Component {
 
@@ -33,7 +33,7 @@ export class HomePage extends Component {
 				</ul>
 				<div class="bg-blue-100 w-80 min-h-48">gif 삽입 위치</div>
 			</div>
-			<div data-component="myInfoModal" class="hidden flex items-center justify-center bg-blue-200 transition"></div>
+			<div data-component="myInfoModal" class="hidden flex items-center justify-center bg-blue-200"></div>
 			<footer class="w-full h-16 flex flex-row justify-end items-center">
 			<button class="mr-3" id="logoutBtn">
 				<img src="${logoutUrl}" alt="logout" class="w-8 h-8 cursor-pointer" >
@@ -49,7 +49,7 @@ export class HomePage extends Component {
 	mounted() {
 		const $myInfoModal = this.$target.querySelector('[data-component="myInfoModal"]') as HTMLElement;
 
-		new myInfoModal($myInfoModal, {
+		new MyInfoModal($myInfoModal, {
 			closeModal: this.closeModal.bind(this)
 		});
 	}

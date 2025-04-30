@@ -6,6 +6,7 @@ $state: Record<string, any> = {};  // 컴포넌트의 상태(state)
 // 생성자: 컴포넌트를 초기화하고 렌더링을 수행
 
 constructor ($target: HTMLElement, $props: Record<string, any> = {}) {
+    // console.log("constructor", $target.dataset.component)
     this.$target = $target; // 렌더링 대상 DOM 요소 저장
     this.$props = $props;   // 부모로부터 전달받은 props 저장
     this.setup();           // 초기 상태(state) 설정
