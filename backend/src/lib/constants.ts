@@ -1,3 +1,5 @@
+import { verify } from 'crypto';
+
 const ERROR_MESSAGE = {
   badRequest: {
     success: false,
@@ -28,6 +30,11 @@ const ERROR_MESSAGE = {
     success: false,
     status: 401,
     message: 'Token Expired',
+  },
+  not2FA: {
+    success: false,
+    status: 401,
+    message: 'Two-factor required',
   },
   forbidden: {
     success: false,
@@ -81,6 +88,31 @@ const SUCCESS_MESSAGE = {
     status: 201,
     success: true,
     message: 'register Success!',
+  },
+  generate2FA: {
+    status: 200,
+    success: true,
+    message: '2FA Setup Success!',
+  },
+  verify2FA: {
+    status: 200,
+    success: true,
+    message: '2FA Verify Success!',
+  },
+  need2FA: {
+    success: true,
+    status: 200,
+    message: 'tmp Login Success!',
+  },
+  sendMail: {
+    success: true,
+    status: 201,
+    message: 'send reset email Success!',
+  },
+  reset2FA: {
+    success: true,
+    status: 200,
+    message: 'reset 2FA Success!',
   },
 } as const;
 

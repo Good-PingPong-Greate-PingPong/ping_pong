@@ -20,4 +20,8 @@ export const env = {
   googleCallbackUrl: getEnv('GOOGLE_CALLBACK_URL'),
 
   jwtSecret: getEnv('JWT_SECRET'),
+
+  mailerUser: getEnv('MAILER_USER'),
+  mailerPass: getEnv('MAILER_PASS'),
+  mailerLink: getEnv('MAILER_LINK'),
 };
