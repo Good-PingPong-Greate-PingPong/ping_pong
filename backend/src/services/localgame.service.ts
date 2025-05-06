@@ -6,10 +6,9 @@ import { verifyAccessToken } from "../lib/jwt";
 import { getCurrentDate } from "../lib/timeHelper";
 
 import { CreateLocalGameRequest } from "../schema/types";
+import { prisma } from "../plugins/prisma";
 
 function localGameService() {
-    const prisma = new PrismaClient();
-
     const createLocalGame = async (createLocalGameRequest: CreateLocalGameRequest, userId:Number) => {
         try {
             const newLocalGame = {
@@ -22,7 +21,7 @@ function localGameService() {
                 scheduledAt: getCurrentDate()
             };
             await prisma.SingleMatch.create({ data: newLocalGame });
-            return {success: true, message: ""};
+            return [];
         }
         catch (error) {
             console.error("Error creating local game:", error);
