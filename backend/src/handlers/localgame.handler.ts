@@ -5,7 +5,7 @@ import {handleError} from "../lib/error.handler"
 import { CreateLocalGameRequest } from "../schema/types"
 import localGameService from "../services/localgame.service"
 
-const localGameController = () => {
+const localGameHandler = () => {
     const createLocalGame = async (
         req: FastifyRequest<{Body: CreateLocalGameRequest}>,
         rep: FastifyReply
@@ -25,4 +25,4 @@ const localGameController = () => {
     };
 };
 
-export default localGameController();
+export default localGameHandler();
