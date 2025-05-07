@@ -4,6 +4,7 @@ export const config = {
   port: parseInt(env.PORT, 10),
   databaseUrl: env.DATABASE_URL,
   host: env.HOST,
+  uploadDir: env.uploadDir,
   google: {
     clientId: env.googleClientId,
     clientSecret: env.googleClientSecret,

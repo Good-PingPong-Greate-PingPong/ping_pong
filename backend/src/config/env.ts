@@ -24,4 +24,5 @@ export const env = {
   mailerUser: getEnv('MAILER_USER'),
   mailerPass: getEnv('MAILER_PASS'),
   mailerLink: getEnv('MAILER_LINK'),
+  uploadDir: getEnv('UPLOAD_DIR)'),
 };
