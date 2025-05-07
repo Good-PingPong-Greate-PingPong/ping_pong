@@ -1,8 +1,8 @@
 import { FastifyRequest, FastifyReply } from 'fastify';
-import { profileService } from '../services';
+import { userService } from '../services';
 import { ERROR_MESSAGE, SUCCESS_MESSAGE } from '../lib';
 
-const profileHandler = () => {
+const userHandler = () => {
   /**
    * 프로필 이미지 업데이트
    */
@@ -17,7 +17,7 @@ const profileHandler = () => {
     }
 
     try {
-      const updatedUser = await profileService.updateProfileImage(
+      const updatedUser = await userService.updateProfileImage(
         userId,
         profileImage,
       );
@@ -42,4 +42,4 @@ const profileHandler = () => {
   };
 };
 
-export default profileHandler();
+export default userHandler();

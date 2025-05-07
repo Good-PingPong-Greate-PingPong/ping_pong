@@ -1,8 +1,8 @@
 import { FastifyInstance } from 'fastify';
-import profileHandler from '../handlers/profile.handler';
+import userHandler from '../handlers/user.handler';
 import { jwtUtil } from '../lib';
 
-const profileRoute = async (fastify: FastifyInstance) => {
+const userRoute = async (fastify: FastifyInstance) => {
   fastify.post(
     '/image',
     {
@@ -10,8 +10,8 @@ const profileRoute = async (fastify: FastifyInstance) => {
         await jwtUtil.verifyAccessToken(req, reply, { expectTmpToken: false });
       },
     },
-    profileHandler.updateImage,
+    userHandler.updateImage,
   );
 };
 
-export default profileRoute;
+export default userRoute;

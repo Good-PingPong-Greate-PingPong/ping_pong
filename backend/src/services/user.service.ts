@@ -1,6 +1,6 @@
 import { prisma } from '../plugins/prisma';
 
-const profileService = () => {
+const userService = () => {
   const updateProfileImage = async (userId: number, imageUrl: string) => {
     const user = await prisma.user.findUnique({ where: { id: userId } });
 
@@ -26,4 +26,4 @@ const profileService = () => {
   };
 };
 
-export default profileService();
+export default userService();
