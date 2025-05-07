@@ -106,13 +106,18 @@ const SUCCESS_MESSAGE = {
   },
   sendMail: {
     success: true,
-    status: 201,
+    status: 200,
     message: 'send reset email Success!',
   },
   reset2FA: {
     success: true,
     status: 200,
     message: 'reset 2FA Success!',
+  },
+  updateProfile: {
+    success: true,
+    status: 200,
+    message: 'update profile Success!',
   },
 } as const;
 
