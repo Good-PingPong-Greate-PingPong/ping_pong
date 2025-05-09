@@ -17,7 +17,6 @@ function localGameService() {
                 user1Score: createLocalGameRequest.user1_score,
                 user2Nickname: createLocalGameRequest.user2_nickname,
                 user2Score: createLocalGameRequest.user2_score,
-                createdAt: getCurrentDate(),
                 scheduledAt: getCurrentDate()
             };
             await prisma.SingleMatch.create({ data: newLocalGame });
