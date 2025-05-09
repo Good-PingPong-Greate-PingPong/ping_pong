@@ -71,7 +71,7 @@ h1 {
 }
 
 #localGameDiv {
-
+  position: relative;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -106,22 +106,57 @@ h1 {
 
   }
   
-  #WinMsg{
+  #ResultView {
     position: absolute;
-    width: 50%;
-    height: 30%;
-    top: calc(30% - 60px);
-    font-size: 80px;
-    font-weight: bold;
-    font-family: Nunito,sans-serif;
+    top: 0;
+    left: 0;
+    z-index: 50;
+    width: 100%;
+    height: 100%;
     display: flex;
-    flex-direction: column;
-    justify-content: center;
-    text-align: center;
-    display: none;
-    white-space: nowrap;
-    font-size: 24px;
+    flex-direction: row;
+    justify-content: space-around;
+    align-items: center;
+  햣 
+    #WinMsg {
+      display: block;
+      font-family: "Inria Sans";
+      font-size: 100px;
+      font-style: normal;
+      font-weight: 700;
+      line-height: normal;
+  
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+  
+      #WinImageBox {
+        display: flex;
+        align-items: center;
+        margin-top: 1rem;
+        min-width: 20rem;
+        min-height: 10rem;
+  
+        img {
+          width: auto;
+          height: 100%;
+        }
+      }
+    }
+  
+    #backBtn {
+      position: absolute;
+      bottom: 1.5rem;
+      right: 1.5rem;
+  
+      #BackIcon {
+        width: 2rem;
+        height: 2rem;
+      }
+    }
   }
+  
   
   button{
     padding:10px;
