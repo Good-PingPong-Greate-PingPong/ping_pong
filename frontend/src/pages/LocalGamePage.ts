@@ -47,11 +47,11 @@ export class LocalGamePage extends Component {
     const $resultTarget = this.$target.querySelector('[data-component="localGameResult"]') as HTMLElement;
     const resultComponent = new localGameResult($resultTarget, { winnerName: null });
 
-    // 컴포넌트가 렌더링된 후 작업 수행
-    const script = document.createElement("script");
-    script.src = "/src/game/localGame.ts";
-    script.type = "module";
-    document.body.appendChild(script);
+    // 게임 시작
+    const canvas = this.$target.querySelector('canvas') as HTMLCanvasElement;
+    import('../game/localGame.ts').then((module) => {
+      module.startLocalGame(canvas);
+    });
 
     // 게임 종료 시 승자 닉네임을 받는 콜백
     const handleGameOver = (winnerName: string) => {

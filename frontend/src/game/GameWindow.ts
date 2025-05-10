@@ -11,7 +11,7 @@ export class GameWindow {
   public dirX: boolean;
   public dirY: boolean;
 
-  constructor() {
+  constructor(canvas: HTMLCanvasElement) {
     this.DocHeight = window.innerHeight;
     this.DocWidth = window.innerWidth;
     this.Pad2YPos = this.DocHeight / 2 - 50;
@@ -19,7 +19,7 @@ export class GameWindow {
     this.dirX = this.generateRandomDir();
     this.dirY = this.generateRandomDir();
 
-    this.canvas = document.querySelector("canvas") as HTMLCanvasElement;
+    this.canvas = canvas;
     const ctsRes = this.canvas.getContext("2d");
     if (!ctsRes || !(ctsRes instanceof CanvasRenderingContext2D)) {
       throw new Error('Failed to get 2D context');
