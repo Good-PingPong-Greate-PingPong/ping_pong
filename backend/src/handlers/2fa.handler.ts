@@ -1,7 +1,13 @@
 import { FastifyRequest, FastifyReply } from 'fastify';
 import { twoFAService } from '../services';
 import authHandler from './auth.handler';
-import { mailer, jwtUtil, ERROR_MESSAGE, SUCCESS_MESSAGE } from '../lib';
+import {
+  mailer,
+  jwtUtil,
+  handleError,
+  ERROR_MESSAGE,
+  SUCCESS_MESSAGE,
+} from '../lib';
 
 const twoFAHandler = () => {
   /**
@@ -18,10 +24,7 @@ const twoFAHandler = () => {
         qrCode: result.qrCode,
       });
     } catch (error) {
-      req.log.error(error);
-      return reply
-        .status(ERROR_MESSAGE.serverError.status)
-        .send(ERROR_MESSAGE.serverError);
+      handleError(reply, ERROR_MESSAGE.serverError, error);
     }
   };
 
@@ -33,9 +36,8 @@ const twoFAHandler = () => {
     const { code } = req.body as { code: string };
 
     if (!code) {
-      return reply
-        .status(ERROR_MESSAGE.badRequest.status)
-        .send(ERROR_MESSAGE.badRequest);
+      handleError(reply, ERROR_MESSAGE.badRequest, 'no token');
+      return;
     }
 
     try {
@@ -53,10 +55,7 @@ const twoFAHandler = () => {
         SUCCESS_MESSAGE.verify2FA,
       );
     } catch (error) {
-      req.log.error(error);
-      return reply
-        .status(ERROR_MESSAGE.serverError.status)
-        .send(ERROR_MESSAGE.serverError);
+      handleError(reply, ERROR_MESSAGE.serverError, error);
     }
   };
 
@@ -68,9 +67,8 @@ const twoFAHandler = () => {
 
     const user = await twoFAService.findUserById(userId);
     if (!user) {
-      return reply
-        .status(ERROR_MESSAGE.notFound.status)
-        .send(ERROR_MESSAGE.notFound);
+      handleError(reply, ERROR_MESSAGE.notFound, 'no user'); // 이 경우 error 객체가 없음
+      return;
     }
 
     const resetToken = jwtUtil.signResetToken({ userId });
@@ -80,10 +78,7 @@ const twoFAHandler = () => {
         .status(SUCCESS_MESSAGE.sendMail.status)
         .send(SUCCESS_MESSAGE.sendMail);
     } catch (error) {
-      req.log.error(error);
-      return reply
-        .status(ERROR_MESSAGE.serverError.status)
-        .send(ERROR_MESSAGE.serverError);
+      handleError(reply, ERROR_MESSAGE.serverError, error);
     }
   };
 
@@ -94,9 +89,8 @@ const twoFAHandler = () => {
     const { token } = req.query;
 
     if (!token) {
-      return reply
-        .status(ERROR_MESSAGE.invalidToken.status)
-        .send(ERROR_MESSAGE.invalidToken);
+      handleError(reply, ERROR_MESSAGE.invalidToken, 'invalid token');
+      return;
     }
 
     try {
@@ -105,9 +99,7 @@ const twoFAHandler = () => {
       const userId = decoded.userId;
 
       if (!userId) {
-        return reply
-          .status(ERROR_MESSAGE.invalidToken.status)
-          .send(ERROR_MESSAGE.invalidToken);
+        handleError(reply, ERROR_MESSAGE.invalidToken, 'invalid token');
       }
 
       await twoFAService.reset2FA(userId);
@@ -116,10 +108,7 @@ const twoFAHandler = () => {
         ...SUCCESS_MESSAGE.reset2FA,
       });
     } catch (error) {
-      req.log.error(error);
-      return reply
-        .status(ERROR_MESSAGE.invalidToken.status)
-        .send(ERROR_MESSAGE.invalidToken);
+      handleError(reply, ERROR_MESSAGE.invalidToken, error);
     }
   };
   return {

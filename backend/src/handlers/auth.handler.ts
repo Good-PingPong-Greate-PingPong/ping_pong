@@ -1,5 +1,5 @@
 import { authService } from '../services';
-import { jwtUtil, SUCCESS_MESSAGE, ERROR_MESSAGE } from '../lib';
+import { jwtUtil, SUCCESS_MESSAGE, ERROR_MESSAGE, handleError } from '../lib';
 import { FastifyRequest, FastifyReply } from 'fastify';
 
 const authHandler = () => {
@@ -30,11 +30,8 @@ const authHandler = () => {
       }
 
       return finalizeLogin(reply, user.id, SUCCESS_MESSAGE.loginOK);
-    } catch (err) {
-      req.log.error(err);
-      return reply
-        .code(ERROR_MESSAGE.serverError.status)
-        .send(ERROR_MESSAGE.serverError);
+    } catch (error) {
+      handleError(reply, ERROR_MESSAGE.serverError, error);
     }
   };
 
@@ -74,9 +71,8 @@ const authHandler = () => {
   const logout = async (req: FastifyRequest, reply: FastifyReply) => {
     const refreshToken = req.cookies.refreshToken;
     if (!refreshToken) {
-      return reply
-        .code(ERROR_MESSAGE.unauthorized.status)
-        .send(ERROR_MESSAGE.unauthorized);
+      handleError(reply, ERROR_MESSAGE.unauthorized, 'unauthorized');
+      return;
     }
 
     try {
@@ -86,10 +82,8 @@ const authHandler = () => {
       return reply
         .code(SUCCESS_MESSAGE.logoutOK.status)
         .send(SUCCESS_MESSAGE.logoutOK);
-    } catch (err) {
-      return reply
-        .code(ERROR_MESSAGE.serverError.status)
-        .send(ERROR_MESSAGE.serverError);
+    } catch (error) {
+      handleError(reply, ERROR_MESSAGE.serverError, error);
     }
   };
 
