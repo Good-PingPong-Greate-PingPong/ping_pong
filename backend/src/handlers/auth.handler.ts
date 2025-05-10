@@ -38,9 +38,8 @@ const authHandler = () => {
   const refresh = async (req: FastifyRequest, reply: FastifyReply) => {
     const refreshToken = req.cookies.refreshToken;
     if (!refreshToken) {
-      return reply
-        .code(ERROR_MESSAGE.unauthorized.status)
-        .send(ERROR_MESSAGE.unauthorized);
+      handleError(reply, ERROR_MESSAGE.unauthorized, 'no refreshToken');
+      return;
     }
 
     try {
@@ -51,9 +50,8 @@ const authHandler = () => {
       );
 
       if (!tokenRecord) {
-        return reply
-          .code(ERROR_MESSAGE.invalidToken.status)
-          .send(ERROR_MESSAGE.invalidToken);
+        handleError(reply, ERROR_MESSAGE.invalidToken, 'invalid token');
+        return;
       }
 
       const newAccessToken = jwtUtil.signAccessToken({ userId });
@@ -61,10 +59,8 @@ const authHandler = () => {
         ...SUCCESS_MESSAGE.refreshToken,
         accessToken: newAccessToken,
       });
-    } catch (err) {
-      return reply
-        .code(ERROR_MESSAGE.invalidToken.status)
-        .send(ERROR_MESSAGE.invalidToken);
+    } catch (error) {
+      handleError(reply, ERROR_MESSAGE.invalidToken, error);
     }
   };
 
