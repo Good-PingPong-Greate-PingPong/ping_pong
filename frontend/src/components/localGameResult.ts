@@ -2,6 +2,7 @@ import { Component } from "../core/Component";
 import { navigate } from '../core/router';
 import back from '../assets/back.svg';
 import dancing from '../assets/dancing.gif';
+import flower from '../assets/flower.gif';
 
 export class localGameResult extends Component {
     addEvent(eventType: string, selector: string, callback: (event: Event) => void): void {
@@ -25,7 +26,9 @@ export class localGameResult extends Component {
             <div id="WinMsg">
                 <p><span id="WinPlayerName">${winnerName}</span> WIN!!</p>
                 <div id="WinImageBox">
-                    <img src="${dancing}" alt="dancing man" >
+                    <img src="${flower}" alt="flower 1">
+                    <img src="${dancing}" alt="dancing man">
+                    <img src="${flower}" alt="flower 2">
                 </div>
             </div>
 			<button id="backBtn">
