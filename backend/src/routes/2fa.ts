@@ -5,7 +5,7 @@ import {
   verify2FASchema,
   resetRequestSchema,
   resetConfirmSchema,
-} from '../schema/2fa.schema';
+} from '../schema';
 import { jwtUtil } from '../lib';
 
 const twoFARoute = async (fastify: FastifyInstance): Promise<void> => {
