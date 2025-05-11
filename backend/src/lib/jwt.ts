@@ -2,6 +2,7 @@ import jwt, { SignOptions, Secret } from 'jsonwebtoken';
 import { config } from '../config';
 import { FastifyRequest, FastifyReply, TokenPayload } from 'fastify';
 import { ERROR_MESSAGE } from './constants';
+import { handleError } from './error.handler';
 
 const jwtUtil = () => {
   const getGoogleUser = async (accessToken: string) => {
@@ -53,9 +54,8 @@ const jwtUtil = () => {
   ) => {
     const authHeader = request.headers.authorization;
     if (!authHeader?.startsWith('Bearer ')) {
-      return reply
-        .code(ERROR_MESSAGE.unauthorized.status)
-        .send(ERROR_MESSAGE.unauthorized);
+      handleError(reply, ERROR_MESSAGE.unauthorized, 'unauthorized');
+      return;
     }
 
     const token = authHeader.split(' ')[1];
@@ -63,20 +63,16 @@ const jwtUtil = () => {
     try {
       const decoded = verifyToken(token);
       if (decoded.twoFactorPending && !options.expectTmpToken) {
-        return reply
-          .code(ERROR_MESSAGE.not2FA.status)
-          .send(ERROR_MESSAGE.not2FA);
+        handleError(reply, ERROR_MESSAGE.not2FA, 'not 2fa');
+        return;
       }
       request.user = decoded;
-    } catch (err) {
-      if (err instanceof jwt.TokenExpiredError) {
-        return reply
-          .code(ERROR_MESSAGE.expired.status)
-          .send(ERROR_MESSAGE.expired);
+    } catch (error) {
+      if (error instanceof jwt.TokenExpiredError) {
+        handleError(reply, ERROR_MESSAGE.expired, error);
+      } else {
+        handleError(reply, ERROR_MESSAGE.invalidToken, error);
       }
-      return reply
-        .code(ERROR_MESSAGE.invalidToken.status)
-        .send(ERROR_MESSAGE.invalidToken);
     }
   };
 
