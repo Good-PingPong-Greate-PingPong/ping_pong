@@ -11,7 +11,7 @@ export class GameWindow {
   public dirX: boolean;
   public dirY: boolean;
 
-  constructor() {
+  constructor(canvas: HTMLCanvasElement) {
     this.DocHeight = window.innerHeight;
     this.DocWidth = window.innerWidth;
     this.Pad2YPos = this.DocHeight / 2 - 50;
@@ -19,7 +19,7 @@ export class GameWindow {
     this.dirX = this.generateRandomDir();
     this.dirY = this.generateRandomDir();
 
-    this.canvas = document.querySelector("canvas") as HTMLCanvasElement;
+    this.canvas = canvas;
     const ctsRes = this.canvas.getContext("2d");
     if (!ctsRes || !(ctsRes instanceof CanvasRenderingContext2D)) {
       throw new Error('Failed to get 2D context');
@@ -95,6 +95,14 @@ export class GameWindow {
 		this.checkCollision(ball, gameStatus);
   }
 
+  // 게임 종료 시 우승자 닉네임 결정
+  private gameOver(winnerName: string) {
+    const onLocalGameOver = (window as any).onLocalGameOver;
+    if (typeof onLocalGameOver === 'function') {
+      onLocalGameOver(winnerName);
+    }
+  }
+
   private checkCollision(ball: Ball, gameStatus: GameStatus): void {
     let LoclPad1XPos = 50 + 25;
     let distance1 = Math.abs(ball.x - LoclPad1XPos);
@@ -111,24 +119,16 @@ export class GameWindow {
 			this.dirX = false;
 
 		// 게임 종료 판정
-    if (gameStatus.Score1 > 9){
+    if (gameStatus.Score1 > 2){
       gameStatus.RequestFrame = false;
       this.canvas.onclick=()=>{};
-  
-      const winMsg = document.querySelector("#WinMsg") as HTMLElement;
-      const winPlayerId = document.querySelector('#WinPlayerId') as HTMLElement;
-      winMsg.style.display = "block";
-      winPlayerId.innerHTML = "1";
+      this.gameOver("USER 1");
     }
 
-    if (gameStatus.Score2 > 9){
+    if (gameStatus.Score2 > 2){
       gameStatus.RequestFrame = false;
       this.canvas.onclick=()=>{};
-  
-      const winMsg = document.querySelector("#WinMsg") as HTMLElement;
-      const winPlayerId = document.querySelector('#WinPlayerId') as HTMLElement;
-      winMsg.style.display = "block";
-      winPlayerId.innerHTML = "2";
+      this.gameOver("USER 2");
     }
   }
 }

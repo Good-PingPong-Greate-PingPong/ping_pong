@@ -19,7 +19,7 @@ export class Ball extends GameObject {
 
   constructor(x: number, y: number, radius: number) {
     super(x, y, radius);
-    this.speed = 10;
+    this.speed = 4;
   }
 
   public drawObject(ctx: CanvasRenderingContext2D): void {
