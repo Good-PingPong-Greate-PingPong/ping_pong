@@ -49,6 +49,17 @@ const authHandler = () => {
       }
 
       const newAccessToken = jwtUtil.signAccessToken({ userId });
+      const newRefreshToken = jwtUtil.signRefreshToken({ userId });
+
+      await authService.saveRefreshToken(userId, refreshToken);
+
+      reply.setCookie('refreshToken', newRefreshToken, {
+        httpOnly: true,
+        secure: false,
+        sameSite: 'strict',
+        path: '/',
+        maxAge: 60 * 60 * 24 * 7,
+      });
       reply.header('Authorization', `Bearer ${newAccessToken}`);
       handlerUtil.handleSuccess(reply, SUCCESS_MESSAGE.refreshToken);
     } catch (error) {
