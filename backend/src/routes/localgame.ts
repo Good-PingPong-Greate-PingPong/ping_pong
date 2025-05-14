@@ -1,11 +1,19 @@
-import { FastifyInstance } from "fastify"
+import { FastifyInstance } from 'fastify';
+import { jwtUtil } from '../lib';
+import { createLocalGameSchema } from '../schema';
+import localGameHandler from '../handlers/localgame.handler';
 
-import { verifyAccessToken } from "../lib/jwt"
-import { createLocalGameSchema } from "../schema"
-import localGameHandler from "../handlers/localgame.handler"
-
+//check : prehandler 비교
 const localGameRoute = async (fastify: FastifyInstance) => {
-    fastify.post('/create', { schema: createLocalGameSchema, preHandler: [verifyAccessToken] }, localGameHandler.createLocalGame);
-}
+  const tokenType = jwtUtil.tokenTypes;
+  fastify.post(
+    '/create',
+    {
+      schema: createLocalGameSchema,
+      preHandler: jwtUtil.verifyTokenPreHandler(tokenType.access),
+    },
+    localGameHandler.createLocalGame,
+  );
+};
 
-export default localGameRoute
+export default localGameRoute;
