@@ -51,7 +51,7 @@ const authHandler = () => {
       const newAccessToken = jwtUtil.signAccessToken({ userId });
       const newRefreshToken = jwtUtil.signRefreshToken({ userId });
 
-      await authService.saveRefreshToken(userId, refreshToken);
+      await authService.saveRefreshToken(userId, newRefreshToken);
 
       reply.setCookie('refreshToken', newRefreshToken, {
         httpOnly: true,
