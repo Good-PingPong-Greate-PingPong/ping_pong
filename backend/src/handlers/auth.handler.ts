@@ -1,5 +1,5 @@
 import { authService } from '../services';
-import { jwtUtil, SUCCESS_MESSAGE, ERROR_MESSAGE, handleError } from '../lib';
+import { jwtUtil, SUCCESS_MESSAGE, ERROR_MESSAGE, handlerUtil } from '../lib';
 import { FastifyRequest, FastifyReply } from 'fastify';
 
 const authHandler = () => {
@@ -21,65 +21,58 @@ const authHandler = () => {
       if (user.twoFactorEnabled) {
         const tmpToken = jwtUtil.signTmpToken({ userId: user.id });
 
-        return reply
-          .header('Authorization', `Bearer ${tmpToken}`)
-          .code(SUCCESS_MESSAGE.need2FA.status)
-          .send({
-            ...SUCCESS_MESSAGE.need2FA,
-          });
+        reply.header('Authorization', `Bearer ${tmpToken}`);
+        handlerUtil.handleSuccess(reply, SUCCESS_MESSAGE.need2FA);
+        return;
       }
 
       return finalizeLogin(reply, user.id, SUCCESS_MESSAGE.loginOK);
     } catch (error) {
-      handleError(reply, ERROR_MESSAGE.serverError, error);
+      handlerUtil.handleError(reply, ERROR_MESSAGE.serverError, error);
     }
   };
 
   const refresh = async (req: FastifyRequest, reply: FastifyReply) => {
     const refreshToken = req.cookies.refreshToken;
-    if (!refreshToken) {
-      handleError(reply, ERROR_MESSAGE.unauthorized, 'no refreshToken');
-      return;
-    }
 
     try {
-      const decoded = jwtUtil.verifyToken(refreshToken);
+      if (!refreshToken) {
+        throw new Error('no token');
+      }
       const { userId, tokenRecord } = await authService.findRefreshToken(
-        decoded.userId,
+        req.user.userId,
         refreshToken,
       );
 
-      if (!tokenRecord) {
-        handleError(reply, ERROR_MESSAGE.invalidToken, 'invalid token');
-        return;
+      if (!tokenRecord || tokenRecord.token !== refreshToken) {
+        throw new Error('invalid token');
       }
 
       const newAccessToken = jwtUtil.signAccessToken({ userId });
-      return reply.send({
-        ...SUCCESS_MESSAGE.refreshToken,
-        accessToken: newAccessToken,
-      });
+      reply.header('Authorization', `Bearer ${newAccessToken}`);
+      handlerUtil.handleSuccess(reply, SUCCESS_MESSAGE.refreshToken);
     } catch (error) {
-      handleError(reply, ERROR_MESSAGE.invalidToken, error);
+      handlerUtil.handleError(reply, ERROR_MESSAGE.invalidToken, error);
     }
   };
 
   const logout = async (req: FastifyRequest, reply: FastifyReply) => {
     const refreshToken = req.cookies.refreshToken;
     if (!refreshToken) {
-      handleError(reply, ERROR_MESSAGE.unauthorized, 'unauthorized');
+      handlerUtil.handleError(
+        reply,
+        ERROR_MESSAGE.unauthorized,
+        'unauthorized',
+      );
       return;
     }
 
     try {
       await authService.deleteRefreshToken(refreshToken);
       reply.clearCookie('refreshToken', { path: '/' });
-
-      return reply
-        .code(SUCCESS_MESSAGE.logoutOK.status)
-        .send(SUCCESS_MESSAGE.logoutOK);
+      handlerUtil.handleSuccess(reply, SUCCESS_MESSAGE.logoutOK);
     } catch (error) {
-      handleError(reply, ERROR_MESSAGE.serverError, error);
+      handlerUtil.handleError(reply, ERROR_MESSAGE.serverError, error);
     }
   };
 
@@ -94,7 +87,7 @@ const authHandler = () => {
     await authService.saveRefreshToken(id, refreshToken);
 
     const user = await authService.findUserById(id);
-    return reply
+    reply
       .setCookie('refreshToken', refreshToken, {
         httpOnly: true,
         secure: false,
@@ -103,7 +96,7 @@ const authHandler = () => {
         maxAge: 60 * 60 * 24 * 7,
       })
       .header('Authorization', `Bearer ${accessToken}`)
-      .code(successMessage.status)
+      .status(successMessage.status)
       .send({
         ...successMessage,
         user,
