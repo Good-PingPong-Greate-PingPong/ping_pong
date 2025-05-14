@@ -1,15 +1,15 @@
 import {
-  TLoginRequest,
-  TLoginResponse,
+  TGoogleCallbackRequest,
+  TGoogleCallbackResponse,
   TLogoutResponse,
   TRefreshRequest,
   TRefreshResponse,
 } from './auth.typebox';
 
-export const loginSchema = {
-  body: TLoginRequest,
+export const googleCallbackSchema = {
+  querystring: TGoogleCallbackRequest,
   response: {
-    201: TLoginResponse,
+    201: TGoogleCallbackResponse,
   },
 };
 
