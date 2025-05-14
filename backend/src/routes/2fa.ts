@@ -32,7 +32,7 @@ const twoFARoute = async (fastify: FastifyInstance): Promise<void> => {
   fastify.post(
     '/reset/request',
     {
-      preHandler: jwtUtil.verifyTokenPreHandler(tokenType.reset),
+      preHandler: jwtUtil.verifyTokenPreHandler(tokenType.tmp),
       schema: resetRequestSchema,
     },
     twoFAHandler.resetRequest,
