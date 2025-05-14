@@ -15,11 +15,11 @@ const twoFAHandler = () => {
    */
   const setup = async (req: FastifyRequest, reply: FastifyReply) => {
     const userId = req.user.userId;
-
+    console.log('userId', userId);
     try {
       const result = await twoFAService.generate2FASetup(userId);
       handlerUtil.handleSuccess(reply, SUCCESS_MESSAGE.generate2FA, {
-        qrcode: result.qrCode,
+        qrCode: result.qrCode,
       });
     } catch (error) {
       handlerUtil.handleError(reply, ERROR_MESSAGE.serverError, error);
@@ -84,8 +84,12 @@ const twoFAHandler = () => {
     }
   };
 
-  const resetConfirm = async (req: FastifyRequest, reply: FastifyReply) => {
+  const resetConfirm = async (
+    req: FastifyRequest<{ Querystring: { token: string } }>,
+    reply: FastifyReply,
+  ) => {
     try {
+      req.headers.authorization = `Bearer ${req.query.token}`;
       jwtUtil.verifyToken(req, reply, 'reset_token');
       const userId = req.user.userId;
 
