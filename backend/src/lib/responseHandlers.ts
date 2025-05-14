@@ -13,13 +13,12 @@ const handlerUtil = () => {
 
   const handleSuccess = (
     reply: FastifyReply,
-    successType: { status: number; message: string },
+    successType: { success: boolean; status: number; message: string },
     data?: object,
   ): void => {
     reply.status(successType.status).send({
-      success: true,
-      message: successType.message,
-      data: data || {},
+      ...successType,
+      ...data,
     });
   };
 
