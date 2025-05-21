@@ -8,6 +8,7 @@ import {
   ERROR_MESSAGE,
   SUCCESS_MESSAGE,
 } from '../lib';
+import { ResetConfirmQuery } from '../schema/type';
 
 const twoFAHandler = () => {
   /**
@@ -84,7 +85,7 @@ const twoFAHandler = () => {
   };
 
   const resetConfirm = async (
-    req: FastifyRequest<{ Querystring: { token: string } }>,
+    req: FastifyRequest<{ Querystring: ResetConfirmQuery }>,
     reply: FastifyReply,
   ) => {
     try {
