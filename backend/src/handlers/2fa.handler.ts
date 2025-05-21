@@ -15,7 +15,6 @@ const twoFAHandler = () => {
    */
   const setup = async (req: FastifyRequest, reply: FastifyReply) => {
     const userId = req.user.userId;
-    console.log('userId', userId);
     try {
       const result = await twoFAService.generate2FASetup(userId);
       handlerUtil.handleSuccess(reply, SUCCESS_MESSAGE.generate2FA, {

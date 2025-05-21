@@ -3,7 +3,6 @@ import { jwtUtil } from '../lib';
 import { createLocalGameSchema } from '../schema';
 import localGameHandler from '../handlers/localgame.handler';
 
-//check : prehandler 비교
 const localGameRoute = async (fastify: FastifyInstance) => {
   const tokenType = jwtUtil.tokenTypes;
   fastify.post(
