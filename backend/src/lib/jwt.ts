@@ -2,6 +2,7 @@ import jwt, { SignOptions, Secret } from 'jsonwebtoken';
 import { config } from '../config';
 import { FastifyRequest, FastifyReply, TokenPayload } from 'fastify';
 import { ERROR_MESSAGE } from './constants';
+import { handlerUtil } from './';
 
 const jwtUtil = () => {
   const getGoogleUser = async (accessToken: string) => {
@@ -15,71 +16,101 @@ const jwtUtil = () => {
     return await res.json();
   };
 
+  // Access Token - 서비스용
   const signAccessToken = (payload: object) => {
     const secret: Secret = config.jwt.secret as Secret;
     const options: SignOptions = {
       expiresIn: config.jwt.expiresIn as SignOptions['expiresIn'],
     };
-    return jwt.sign(payload, secret, options);
+    return jwt.sign({ ...payload, tokenType: 'access_token' }, secret, options);
   };
 
+  // Tmp Token - 2FA 인증용
   const signTmpToken = (payload: object) => {
     const secret: Secret = config.jwt.secret as Secret;
-    return jwt.sign({ ...payload, twoFactorPending: true }, secret, {
+    return jwt.sign({ ...payload, tokenType: 'tmp_token' }, secret, {
       expiresIn: '5m',
     });
   };
 
+  // Refresh Token - Access Token 갱신용
   const signRefreshToken = (payload: object) => {
     const secret: Secret = config.jwt.secret as Secret;
     const options: SignOptions = {
       expiresIn: config.jwt.refreshExpiresIn as SignOptions['expiresIn'],
     };
-    return jwt.sign(payload, secret, options);
+    return jwt.sign(
+      { ...payload, tokenType: 'refresh_token' },
+      secret,
+      options,
+    );
   };
+
+  // Reset Token - 2FA 초기화용
   const signResetToken = (payload: { userId: number }) => {
     const secret = config.jwt.secret;
-    return jwt.sign(payload, secret, { expiresIn: '5m' });
+    return jwt.sign({ ...payload, tokenType: 'reset_token' }, secret, {
+      expiresIn: '5m',
+    });
   };
 
-  const verifyToken = (token: string): TokenPayload => {
-    return jwt.verify(token, config.jwt.secret) as TokenPayload;
+  const verifyValidToken = (token: string): TokenPayload => {
+    try {
+      return jwt.verify(token, config.jwt.secret) as TokenPayload;
+    } catch {
+      throw new Error('Invalid token!');
+    }
   };
 
-  const verifyAccessToken = async (
-    request: FastifyRequest,
-    reply: FastifyReply,
-    options: { expectTmpToken: boolean },
-  ) => {
-    const authHeader = request.headers.authorization;
+  const extractTokenFromHeader = (req: FastifyRequest, reply: FastifyReply) => {
+    const authHeader = req.headers.authorization;
     if (!authHeader?.startsWith('Bearer ')) {
-      return reply
-        .code(ERROR_MESSAGE.unauthorized.status)
-        .send(ERROR_MESSAGE.unauthorized);
+      throw new Error('token is not included');
     }
 
-    const token = authHeader.split(' ')[1];
+    return authHeader.split(' ')[1];
+  };
 
+  const checkTokenType = (decoded: TokenPayload, expectedType: string) => {
+    if (decoded.tokenType !== expectedType) {
+      throw new Error(
+        `Invalid token type. Expected ${expectedType}, got ${decoded.tokenType}`,
+      );
+    }
+  };
+
+  const verifyToken = async (
+    request: FastifyRequest,
+    reply: FastifyReply,
+    codetype: string,
+  ) => {
     try {
-      const decoded = verifyToken(token);
-      if (decoded.twoFactorPending && !options.expectTmpToken) {
-        return reply
-          .code(ERROR_MESSAGE.not2FA.status)
-          .send(ERROR_MESSAGE.not2FA);
-      }
+      const token = extractTokenFromHeader(request, reply);
+      const decoded = verifyValidToken(token);
+      checkTokenType(decoded, codetype);
+
       request.user = decoded;
     } catch (err) {
       if (err instanceof jwt.TokenExpiredError) {
-        return reply
-          .code(ERROR_MESSAGE.expired.status)
-          .send(ERROR_MESSAGE.expired);
+        handlerUtil.handleError(reply, ERROR_MESSAGE.expired, err);
+      } else {
+        handlerUtil.handleError(reply, ERROR_MESSAGE.invalidToken, err);
       }
-      return reply
-        .code(ERROR_MESSAGE.invalidToken.status)
-        .send(ERROR_MESSAGE.invalidToken);
     }
   };
 
+  const verifyTokenPreHandler = (codetype: string) => {
+    return async (req: FastifyRequest, reply: FastifyReply) => {
+      await verifyToken(req, reply, codetype);
+    };
+  };
+
+  const tokenTypes = {
+    access: 'access_token',
+    reset: 'reset_token',
+    tmp: 'tmp_token',
+    refresh: 'refresh_token',
+  };
   return {
     getGoogleUser,
     signAccessToken,
@@ -87,7 +118,8 @@ const jwtUtil = () => {
     signResetToken,
     signTmpToken,
     verifyToken,
-    verifyAccessToken,
+    verifyTokenPreHandler,
+    tokenTypes,
   };
 };
 
