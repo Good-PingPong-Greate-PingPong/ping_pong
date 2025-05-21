@@ -1,5 +1,3 @@
-import { verify } from 'crypto';
-
 const ERROR_MESSAGE = {
   badRequest: {
     success: false,
@@ -101,7 +99,7 @@ const SUCCESS_MESSAGE = {
   },
   need2FA: {
     success: true,
-    status: 200,
+    status: 206,
     message: 'tmp Login Success!',
   },
   sendMail: {

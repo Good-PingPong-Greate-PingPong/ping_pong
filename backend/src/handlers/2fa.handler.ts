@@ -1,7 +1,14 @@
 import { FastifyRequest, FastifyReply } from 'fastify';
 import { twoFAService } from '../services';
 import authHandler from './auth.handler';
-import { mailer, jwtUtil, ERROR_MESSAGE, SUCCESS_MESSAGE } from '../lib';
+import {
+  mailer,
+  jwtUtil,
+  handlerUtil,
+  ERROR_MESSAGE,
+  SUCCESS_MESSAGE,
+} from '../lib';
+import { ResetConfirmQuery } from '../schema/type';
 
 const twoFAHandler = () => {
   /**
@@ -9,19 +16,13 @@ const twoFAHandler = () => {
    */
   const setup = async (req: FastifyRequest, reply: FastifyReply) => {
     const userId = req.user.userId;
-
     try {
       const result = await twoFAService.generate2FASetup(userId);
-
-      return reply.status(SUCCESS_MESSAGE.generate2FA.status).send({
-        ...SUCCESS_MESSAGE.generate2FA,
+      handlerUtil.handleSuccess(reply, SUCCESS_MESSAGE.generate2FA, {
         qrCode: result.qrCode,
       });
     } catch (error) {
-      req.log.error(error);
-      return reply
-        .status(ERROR_MESSAGE.serverError.status)
-        .send(ERROR_MESSAGE.serverError);
+      handlerUtil.handleError(reply, ERROR_MESSAGE.serverError, error);
     }
   };
 
@@ -33,18 +34,19 @@ const twoFAHandler = () => {
     const { code } = req.body as { code: string };
 
     if (!code) {
-      return reply
-        .status(ERROR_MESSAGE.badRequest.status)
-        .send(ERROR_MESSAGE.badRequest);
+      handlerUtil.handleError(reply, ERROR_MESSAGE.badRequest, 'no token');
+      return;
     }
 
     try {
       const isVerified = await twoFAService.verify2FACode(userId, code);
 
       if (!isVerified) {
-        return reply
-          .status(ERROR_MESSAGE.invalidToken.status)
-          .send(ERROR_MESSAGE.invalidToken);
+        handlerUtil.handleError(
+          reply,
+          ERROR_MESSAGE.invalidToken,
+          'invalid token',
+        );
       }
 
       return authHandler.finalizeLogin(
@@ -53,10 +55,7 @@ const twoFAHandler = () => {
         SUCCESS_MESSAGE.verify2FA,
       );
     } catch (error) {
-      req.log.error(error);
-      return reply
-        .status(ERROR_MESSAGE.serverError.status)
-        .send(ERROR_MESSAGE.serverError);
+      handlerUtil.handleError(reply, ERROR_MESSAGE.serverError, error);
     }
   };
 
@@ -67,59 +66,40 @@ const twoFAHandler = () => {
     const userId = req.user.userId;
 
     const user = await twoFAService.findUserById(userId);
-    if (!user) {
-      return reply
-        .status(ERROR_MESSAGE.notFound.status)
-        .send(ERROR_MESSAGE.notFound);
+    try {
+      if (!user) {
+        throw new Error('No user');
+      }
+    } catch (error) {
+      handlerUtil.handleError(reply, ERROR_MESSAGE.notFound, error);
+      return;
     }
 
     const resetToken = jwtUtil.signResetToken({ userId });
     try {
       await mailer.sendResetEmail(user.email, resetToken);
-      return reply
-        .status(SUCCESS_MESSAGE.sendMail.status)
-        .send(SUCCESS_MESSAGE.sendMail);
+      handlerUtil.handleSuccess(reply, SUCCESS_MESSAGE.sendMail);
     } catch (error) {
-      req.log.error(error);
-      return reply
-        .status(ERROR_MESSAGE.serverError.status)
-        .send(ERROR_MESSAGE.serverError);
+      handlerUtil.handleError(reply, ERROR_MESSAGE.serverError, error);
     }
   };
 
   const resetConfirm = async (
-    req: FastifyRequest<{ Querystring: { token: string } }>,
+    req: FastifyRequest<{ Querystring: ResetConfirmQuery }>,
     reply: FastifyReply,
   ) => {
-    const { token } = req.query;
-
-    if (!token) {
-      return reply
-        .status(ERROR_MESSAGE.invalidToken.status)
-        .send(ERROR_MESSAGE.invalidToken);
-    }
-
     try {
-      const decoded = jwtUtil.verifyToken(token);
+      req.headers.authorization = `Bearer ${req.query.token}`;
+      jwtUtil.verifyToken(req, reply, 'reset_token');
+      const userId = req.user.userId;
 
-      const userId = decoded.userId;
-
-      if (!userId) {
-        return reply
-          .status(ERROR_MESSAGE.invalidToken.status)
-          .send(ERROR_MESSAGE.invalidToken);
-      }
+      if (!userId) throw new Error('Invalid token');
 
       await twoFAService.reset2FA(userId);
 
-      return reply.code(200).send({
-        ...SUCCESS_MESSAGE.reset2FA,
-      });
+      handlerUtil.handleSuccess(reply, SUCCESS_MESSAGE.reset2FA);
     } catch (error) {
-      req.log.error(error);
-      return reply
-        .status(ERROR_MESSAGE.invalidToken.status)
-        .send(ERROR_MESSAGE.invalidToken);
+      handlerUtil.handleError(reply, ERROR_MESSAGE.invalidToken, error);
     }
   };
   return {
