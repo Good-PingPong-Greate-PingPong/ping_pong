@@ -1,12 +1,6 @@
 import { FastifyRequest, FastifyReply } from 'fastify';
-import fs from 'fs';
-import path from 'path';
-import { promisify } from 'util';
-import { pipeline } from 'stream';
-import { config } from '../config';
-import { ERROR_MESSAGE } from '../lib';
-
-const pump = promisify(pipeline);
+import { ERROR_MESSAGE, SUCCESS_MESSAGE, handlerUtil } from '../lib';
+import { uploadService } from '../services';
 
 const uploadHandler = () => {
   const uploadProfileImage = async (
@@ -14,28 +8,29 @@ const uploadHandler = () => {
     reply: FastifyReply,
   ) => {
     if (!req.isMultipart()) {
-      return reply.status(ERROR_MESSAGE.badRequest.status).send({
-        ...ERROR_MESSAGE.badRequest,
-        message: 'multipart/form-data가 아닙니다',
-      });
+      handlerUtil.handleError(
+        reply,
+        ERROR_MESSAGE.badRequest,
+        'multipart/form-data 형식이 아닙니다',
+      );
+      return;
     }
 
     const parts = req.parts();
 
     for await (const part of parts) {
       if (part.type === 'file' && part.fieldname === 'profileImage') {
-        const fileName = `${Date.now()}-${part.filename}`;
-        const filePath = path.join(
-          __dirname,
-          `../../${config.uploadDir}`,
-          fileName,
-        );
-
-        await pump(part.file, fs.createWriteStream(filePath));
-
-        const imageUrl = `/${config.uploadDir}/${fileName}`;
-
-        return reply.code(200).send({ url: imageUrl });
+        try {
+          const imageUrl = await uploadService.saveProfileImage(
+            part.file,
+            part.filename,
+          );
+          handlerUtil.handleSuccess(reply, SUCCESS_MESSAGE.uploadProfileImage, {
+            imageUrl,
+          });
+        } catch (error) {
+          handlerUtil.handleError(reply, ERROR_MESSAGE.serverError, error);
+        }
       }
     }
 
