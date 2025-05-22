@@ -117,6 +117,11 @@ const SUCCESS_MESSAGE = {
     status: 200,
     message: 'update profile Success!',
   },
+  uploadProfileImage: {
+    success: true,
+    status: 200,
+    message: 'upload profile image Success!',
+  },
 } as const;
 
 export { ERROR_MESSAGE, SUCCESS_MESSAGE };
