@@ -159,21 +159,102 @@ h1 {
   
   
   button{
+    display: block;
     padding:10px;
     border-radius: 20px;
     border:none;
-    background-color: #15814e;
+    /* background-color: #15814e; */
     color:white;
     font-weight: 900;
     margin:auto;
-    cursor:pointer
-  
-  }
-  button:hover{
-    background-color:#20c076 ;
+    cursor:pointer;
   }
 
 }
+
+#gameModal{
+  width: 70%;
+  height: 60%;
+  top: 13rem; /* inset-y-32 */
+  position: fixed;
+  min-width: 1100px;
+  min-height: 500px;
+  border-radius: 20px;
+  border: 6px solid #302C2C;
+  background: #FFF;
+  transition: all 150ms ease-in-out;
+
+  font-size: 2rem;        /* text-6xl → 60px (Tailwind 기준) */
+  font-weight: bold;         /* font-bold */
+  font-family: 'Inria Sans', sans-serif; /* font-['Inria_Sans'] */
+  font-style: normal;
+  line-height: normal;
+
+  #xBtn{
+    position: absolute;
+    margin: 0 auto;
+    width: 4rem;
+    height: 4rem;
+    right: 1rem;
+    top: 1rem;
+    transform-origin: top left;         /* origin-top-left */
+    transform: rotate(360deg);       /* rotate-[134.46deg] */
+    fill: #302C2C;
+  }
+
+  #modalTitle{
+    margin-top: 5rem;
+    height: 5rem;               /* h-20 → 20 * 0.25rem = 5rem */
+    text-align: center;        /* text-center */
+    color: #302C2C;   /* text-mainColor → CSS 변수로 가정 */
+    font-size: 4rem;        /* text-6xl → 60px (Tailwind 기준) */
+  }
+
+  #nickInputForm{
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    height: 30%;
+    width: 100%;
+    align-items: center;
+
+    #player1Form{
+      border: 3px solid #302C2C;
+      border-radius: 11px;
+      background-color: white; /* input 내부 배경 흰색 */
+      color: #302C2C;             /* 입력된 글씨는 검정 */
+    }
+
+    #player2Form{
+      border: 3px solid #302C2C;
+      border-radius: 11px;
+      background-color: white; /* input 내부 배경 흰색 */
+      color: #302C2C;             /* 입력된 글씨는 검정 */
+    }
+  }
+
+  #startBtn {
+    position: absolute;
+    width: 25%;
+    height: 12%;
+    bottom: 5rem;
+
+    background-color: #302C2C;
+    margin:auto;
+    text-align: center;
+      
+    transform: translateX(150%);
+    /* 글씨 */
+    color: #FFFFFF;
+  }
+  #startBtn:hover{
+    /* background-color:#20c076 ; */
+    color: #302C2C;
+    background-color:#FFFFFF;
+    border: 3px solid #302C2C;
+  }
+}
+
 
 
 /* button {
