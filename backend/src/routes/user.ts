@@ -3,10 +3,10 @@ import { userHandler } from '../handlers';
 import { jwtUtil } from '../lib';
 import { updateUserProfileSchema } from '../schema';
 
-const uploadRoute = async (fastify: FastifyInstance) => {
+const userRoute = async (fastify: FastifyInstance) => {
   const tokenType = jwtUtil.tokenTypes;
   fastify.post(
-    '/profile',
+    '/info',
     {
       preHandler: jwtUtil.verifyTokenPreHandler(tokenType.access),
       schema: updateUserProfileSchema,
@@ -15,4 +15,4 @@ const uploadRoute = async (fastify: FastifyInstance) => {
   );
 };
 
-export default uploadRoute;
+export default userRoute;

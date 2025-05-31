@@ -2,12 +2,12 @@ import { FastifyInstance } from 'fastify';
 import authRoute from './auth';
 import localGameRoute from './localgame';
 import twoFARoute from './2fa';
-import uploadRoute from './upload';
+import userRoute from './user';
 
 const routes = async (fastify: FastifyInstance): Promise<void> => {
   fastify.register(authRoute, { prefix: '/api/auth' });
   fastify.register(twoFARoute, { prefix: '/api/2fa' });
-  fastify.register(uploadRoute, { prefix: '/api/upload' });
+  fastify.register(userRoute, { prefix: '/api/users' });
   fastify.register(localGameRoute, { prefix: '/api/localgame' });
 };
 
