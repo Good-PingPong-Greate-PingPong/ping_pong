@@ -1,45 +1,53 @@
+// handlers/profile.handler.ts
 import { FastifyRequest, FastifyReply } from 'fastify';
-import { userService } from '../services';
+import { handlerUtil, userUtil } from '../lib';
+import userService from '../services/user.service';
 import { ERROR_MESSAGE, SUCCESS_MESSAGE } from '../lib';
 
-const userHandler = () => {
-  /**
-   * 프로필 이미지 업데이트
-   */
-  const updateImage = async (req: FastifyRequest, reply: FastifyReply) => {
-    const userId = req.user.userId;
-    const { profileImage } = req.body as { profileImage: string };
-
-    if (!profileImage) {
-      return reply
-        .status(ERROR_MESSAGE.badRequest.status)
-        .send(ERROR_MESSAGE.badRequest);
+const profileHandler = () => {
+  const uploadProfileInfo = async (
+    req: FastifyRequest,
+    reply: FastifyReply,
+  ) => {
+    if (!req.isMultipart()) {
+      handlerUtil.handleError(
+        reply,
+        ERROR_MESSAGE.badRequest,
+        'Multipart 요청이 아닙니다',
+      );
     }
 
     try {
-      const updatedUser = await userService.updateProfileImage(
+      const userId = req.user.userId;
+      const parts = req.parts();
+
+      const updateData = await userUtil.parseUserProfileParts(parts);
+
+      if (Object.keys(updateData).length === 0) {
+        handlerUtil.handleError(
+          reply,
+          ERROR_MESSAGE.badRequest,
+          '업데이트할 정보가 없습니다',
+        );
+        return;
+      }
+
+      const updatedUser = await userService.updateUserProfileInfo(
         userId,
-        profileImage,
+        updateData,
       );
 
-      return reply.status(SUCCESS_MESSAGE.updateProfile.status).send({
-        ...SUCCESS_MESSAGE.updateProfile,
-        data: updatedUser,
+      return handlerUtil.handleSuccess(reply, SUCCESS_MESSAGE.updateProfile, {
+        user: updatedUser,
       });
-    } catch (error) {
-      req.log.error(error);
-      return reply
-        .status(ERROR_MESSAGE.serverError.status)
-        .send(ERROR_MESSAGE.serverError);
+    } catch (err) {
+      return handlerUtil.handleError(reply, ERROR_MESSAGE.serverError, err);
     }
   };
 
   return {
-    updateImage,
-    // 앞으로 여기에 추가할 항목들
-    // getProfile,
-    // updateProfileInfo,
+    uploadProfileInfo,
   };
 };
 
-export default userHandler();
+export default profileHandler();
