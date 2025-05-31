@@ -1,16 +1,17 @@
 import { FastifyInstance } from 'fastify';
-import uploadHandler from '../handlers/upload.handler';
+import { userHandler } from '../handlers';
 import { jwtUtil } from '../lib';
+import { updateUserProfileSchema } from '../schema';
 
 const uploadRoute = async (fastify: FastifyInstance) => {
+  const tokenType = jwtUtil.tokenTypes;
   fastify.post(
     '/profile',
     {
-      preHandler: async (req, reply) => {
-        await jwtUtil.verifyAccessToken(req, reply, { expectTmpToken: false });
-      },
+      preHandler: jwtUtil.verifyTokenPreHandler(tokenType.access),
+      schema: updateUserProfileSchema,
     },
-    uploadHandler.uploadProfileImage,
+    userHandler.uploadProfileInfo,
   );
 };
 
