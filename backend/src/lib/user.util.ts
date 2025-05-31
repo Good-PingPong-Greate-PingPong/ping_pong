@@ -51,9 +51,6 @@ const userUtil = () => {
           case 'nickname':
             updateData.nickname = value;
             break;
-          case 'email':
-            updateData.email = value;
-            break;
           case 'twoFactorEnabled':
             updateData.twoFactorEnabled = value === 'true';
             break;
