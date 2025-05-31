@@ -1,28 +1,34 @@
+import { Prisma } from '@prisma/client';
 import { prisma } from '../plugins/prisma';
+import { UpdateUserProfileRequest } from '../schema/type';
 
 const userService = () => {
-  const updateProfileImage = async (userId: number, imageUrl: string) => {
-    const user = await prisma.user.findUnique({ where: { id: userId } });
+  const updateUserProfileInfo = async (
+    userId: number,
+    updateFields: UpdateUserProfileRequest,
+  ) => {
+    const updateData: Partial<Prisma.UserUpdateInput> = {
+      ...updateFields,
+    };
 
-    if (!user) {
-      throw new Error('User not found');
-    }
+    const user = await prisma.user.findUnique({ where: { id: userId } });
+    if (!user) throw new Error('User not found');
 
     return prisma.user.update({
       where: { id: userId },
-      data: {
-        profileImage: imageUrl,
-      },
+      data: updateData,
       select: {
         id: true,
         nickname: true,
+        email: true,
         profileImage: true,
+        twoFactorEnabled: true,
       },
     });
   };
 
   return {
-    updateProfileImage,
+    updateUserProfileInfo,
   };
 };
 
