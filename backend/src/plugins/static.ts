@@ -1,11 +1,10 @@
 import fp from 'fastify-plugin';
 import fastifyStatic from '@fastify/static';
 import path from 'path';
-import { fileURLToPath } from 'url';
 import { env } from '../config/env';
+import { userUtil } from '../lib';
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
+const __dirname = userUtil.getDirname(import.meta.url);
 
 export default fp(async (fastify) => {
   fastify.register(fastifyStatic, {
