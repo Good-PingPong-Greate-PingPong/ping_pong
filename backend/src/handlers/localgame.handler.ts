@@ -13,8 +13,25 @@ const localGameHandler = () => {
     }
   };
 
+  type listQuery = {
+    page: number,
+    offset: number
+  };
+
+  const readLocalGame = async (req: FastifyRequest<{Querystring: listQuery}>, rep: FastifyReply) => {
+    try {
+      const page = Number(req.query.page);
+      const offset = Number(req.query.offset);
+      const result = await localGameService.readLocalGame(req.user.userId, page, offset);
+      handlerUtil.handleSuccess(rep, SUCCESS_MESSAGE.registerOK, result);
+    } catch(error) {
+      handlerUtil.handleError(rep, ERROR_MESSAGE.badRequest, error);
+    }
+  }
+
   return {
     createLocalGame,
+    readLocalGame
   };
 };
 
