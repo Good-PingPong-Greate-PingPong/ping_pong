@@ -1,11 +1,13 @@
 import { FastifyInstance } from 'fastify';
 import { jwtUtil } from '../lib';
 import { localGameHandler } from '../handlers';
-import { createLocalGameSchema, readLocalGameSchema, listQuerySchema } from '../schema';
+import { createLocalGameSchema, readLocalGameSchema } from '../schema';
+import { CreateLocalGameRoute, listQueryRoute } from '../schema/type/index';
+
 
 const localGameRoute = async (fastify: FastifyInstance) => {
   const tokenType = jwtUtil.tokenTypes;
-  fastify.post(
+  fastify.post< CreateLocalGameRoute >(
     '/create',
     {
       schema: createLocalGameSchema,
@@ -14,7 +16,7 @@ const localGameRoute = async (fastify: FastifyInstance) => {
     localGameHandler.createLocalGame,
   );
 
-  fastify.get<{Querystring: listQuerySchema}>(
+  fastify.get< listQueryRoute >(
     '/results',
     {
       schema: readLocalGameSchema,
