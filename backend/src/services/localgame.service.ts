@@ -1,34 +1,51 @@
-// import { transactionManager } from "../global/database/transaction.manager";
-
-import { PrismaClient, Prisma } from "@prisma/client"
-
-import { verifyAccessToken } from "../lib/jwt";
 import { getCurrentDate } from "../lib/timeHelper";
 
-import { CreateLocalGameRequest } from "../schema/types";
+import { CreateLocalGameRequest } from "../schema/type";
 import { prisma } from "../plugins/prisma";
 
 function localGameService() {
-    const createLocalGame = async (createLocalGameRequest: CreateLocalGameRequest, userId:Number) => {
-        try {
-            const newLocalGame = {
-                userId: userId,
-                user1Nickname: createLocalGameRequest.user1_nickname,
-                user1Score: createLocalGameRequest.user1_score,
-                user2Nickname: createLocalGameRequest.user2_nickname,
-                user2Score: createLocalGameRequest.user2_score,
-                scheduledAt: getCurrentDate()
-            };
-            await prisma.SingleMatch.create({ data: newLocalGame });
-            return [];
-        }
-        catch (error) {
-            console.error("Error creating local game:", error);
-            throw new Error("게임 저장 중 오류가 발생했습니다.");
-        }
+    const createLocalGame = async (createLocalGameRequest: CreateLocalGameRequest, userId:number) => {
+        const newLocalGame = {
+            userId: userId,
+            user1Nickname: createLocalGameRequest.user1_nickname,
+            user1Score: createLocalGameRequest.user1_score,
+            user2Nickname: createLocalGameRequest.user2_nickname,
+            user2Score: createLocalGameRequest.user2_score,
+            scheduledAt: getCurrentDate()
+        };
+        await prisma.singleMatch.create({ data: newLocalGame });
+        return [];
     };
 
-    return { createLocalGame };
+    const readLocalGame = async (userId: number, current_page:number, offset:number) => {
+        const skip = (current_page - 1) * offset;
+
+        let records = await prisma.singleMatch.findMany({
+            where: {userId},
+            orderBy: {createdAt: 'desc'},
+            skip: skip,
+            take: offset
+        });
+
+        const total_records = await prisma.singleMatch.count({
+            where: {userId}
+        });
+
+        const total_page = Math.ceil(total_records / offset);
+
+        return {
+            data: {
+                total_page,
+                current_page,
+                records
+            }
+        };
+    };
+
+    return { 
+        createLocalGame,
+        readLocalGame
+    };
 };
 
 export default localGameService()
