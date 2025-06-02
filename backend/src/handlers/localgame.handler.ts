@@ -13,12 +13,7 @@ const localGameHandler = () => {
     }
   };
 
-  type listQuery = {
-    page: number,
-    offset: number
-  };
-
-  const readLocalGame = async (req: FastifyRequest<{Querystring: listQuery}>, rep: FastifyReply) => {
+  const readLocalGame = async (req: FastifyRequest<{Querystring: {page: number, offset: number}}>, rep: FastifyReply) => {
     try {
       const page = Number(req.query.page);
       const offset = Number(req.query.offset);
