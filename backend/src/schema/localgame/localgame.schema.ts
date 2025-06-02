@@ -1,4 +1,4 @@
-import { TCreateLocalGameRequest, TCreateLocalGameResponse } from './localgame.typebox'
+import { TCreateLocalGameRequest, TCreateLocalGameResponse, TlistQuery, TReadLocalGameRequest, TReadLocalGameResponse } from './localgame.typebox'
 
 const createLocalGameSchema = {
     body: TCreateLocalGameRequest,
@@ -7,4 +7,20 @@ const createLocalGameSchema = {
     }
 };
 
-export { createLocalGameSchema }
+const readLocalGameSchema = {
+    queryString: TReadLocalGameRequest,
+    response: {
+        201: TReadLocalGameResponse
+    }
+}
+
+type listQuerySchema = {
+    page: number,
+    offset: number
+};
+
+export { 
+    createLocalGameSchema,
+    readLocalGameSchema,
+    listQuerySchema
+}
