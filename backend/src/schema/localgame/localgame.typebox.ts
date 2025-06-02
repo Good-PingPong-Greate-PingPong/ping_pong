@@ -6,11 +6,6 @@ const TBaseResponse = Type.Object({
     message: Type.String()
 });
 
-const TBaseQueryString = Type.Object({
-    page: Type.Number(),
-    offset: Type.Number()
-})
-
 //
 
 const TCreateLocalGameRequest = Type.Object({
@@ -29,24 +24,25 @@ const TCreateLocalGameResponse = Type.Object({
 //
 
 const TReadLocalGameRequest = Type.Object({
-    TBaseQueryString
+    page: Type.Number(),
+    offset: Type.Number()
+})
+
+const Tresult = Type.Object({
+    id: Type.Number(),
+    userId: Type.Number(),
+    user1Nickname: Type.String(),
+    user1Score: Type.Number(),
+    user2Nickname: Type.String(),
+    user2Score: Type.Number(),
+    createdAt: Type.String()
 })
 
 const TResults = Type.Object({
     data: Type.Object({
         total_page: Type.Number(),
         current_page: Type.Number(),
-        records: Type.Array(
-            Type.Object({
-                id: Type.Number(),
-                userId: Type.Number(),
-                user1Nickname: Type.String(),
-                user1Score: Type.Number(),
-                user2Nickname: Type.String(),
-                user2Score: Type.Number(),
-                createdAt: Type.String()
-            })
-        )
+        records: Type.Array(Tresult)
     })
 });
 
@@ -64,6 +60,5 @@ export {
     TCreateLocalGameRequest,
     TCreateLocalGameResponse,
     TReadLocalGameRequest,
-    TReadLocalGameResponse,
-    TlistQuery
+    TReadLocalGameResponse
 };
