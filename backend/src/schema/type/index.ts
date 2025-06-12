@@ -17,19 +17,18 @@ type CreateLocalGameRoute = {
   Body: CreateLocalGameRequest;
 };
 
-type listQueryRoute = {
+type ListQueryRoute = {
   Querystring: {
-      page: number,
-      offset: number
-  }
+    page: number;
+    offset: number;
+  };
 };
 
-export { 
+export {
   CreateLocalGameRequest,
   CreateLocalGameResponse,
   ReadLocalGameResponse,
   ResetConfirmQuery,
-  
   CreateLocalGameRoute,
-  listQueryRoute
+  ListQueryRoute,
 };
