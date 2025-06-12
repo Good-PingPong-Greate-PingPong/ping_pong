@@ -2,10 +2,13 @@ import { FastifyReply, FastifyRequest } from 'fastify';
 import { ERROR_MESSAGE, SUCCESS_MESSAGE } from '../lib/constants';
 import { handlerUtil } from '../lib';
 import localGameService from '../services/localgame.service';
-import { CreateLocalGameRoute, listQueryRoute } from '../schema/type/index';
+import { CreateLocalGameRoute, ListQueryRoute } from '../schema/type/index';
 
 const localGameHandler = () => {
-  const createLocalGame = async (req: FastifyRequest< CreateLocalGameRoute >, rep: FastifyReply) => {
+  const createLocalGame = async (
+    req: FastifyRequest<CreateLocalGameRoute>,
+    rep: FastifyReply,
+  ) => {
     try {
       await localGameService.createLocalGame(req.body, req.user.userId);
       handlerUtil.handleSuccess(rep, SUCCESS_MESSAGE.registerOK);
@@ -14,20 +17,27 @@ const localGameHandler = () => {
     }
   };
 
-  const readLocalGame = async (req: FastifyRequest< listQueryRoute >, rep: FastifyReply) => {
+  const readLocalGame = async (
+    req: FastifyRequest<ListQueryRoute>,
+    rep: FastifyReply,
+  ) => {
     try {
       const page = Number(req.query.page);
       const offset = Number(req.query.offset);
-      const result = await localGameService.readLocalGame(req.user.userId, page, offset);
+      const result = await localGameService.readLocalGame(
+        req.user.userId,
+        page,
+        offset,
+      );
       handlerUtil.handleSuccess(rep, SUCCESS_MESSAGE.registerOK, result);
-    } catch(error) {
+    } catch (error) {
       handlerUtil.handleError(rep, ERROR_MESSAGE.badRequest, error);
     }
-  }
+  };
 
   return {
     createLocalGame,
-    readLocalGame
+    readLocalGame,
   };
 };
 
