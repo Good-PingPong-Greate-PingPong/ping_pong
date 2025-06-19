@@ -13,19 +13,38 @@ const TUpdateUserProfileRequest = Type.Partial(
 );
 
 /**
+ * 🔹 유저 프로필 응답 공통 스키마
+ */
+const TUserProfileData = Type.Object({
+  id: Type.Number(),
+  nickname: Type.String(),
+  email: Type.String(),
+  profileImage: Type.Optional(Type.String()),
+  twoFactorEnabled: Type.Boolean(),
+});
+
+/**
  * 🔹 유저 프로필 업데이트 성공 응답 스키마
  */
 const TUpdateUserProfileResponse = Type.Object({
   success: Type.Boolean(),
   status: Type.Number(),
   message: Type.String(),
-  user: Type.Object({
-    id: Type.Number(),
-    nickname: Type.String(),
-    email: Type.String(),
-    profileImage: Type.Optional(Type.String()),
-    twoFactorEnabled: Type.Boolean(),
-  }),
+  user: TUserProfileData,
 });
 
-export { TUpdateUserProfileRequest, TUpdateUserProfileResponse };
+/**
+ * 🔹 유저 프로필 조회 성공 응답 스키마
+ */
+const TGetUserProfileResponse = Type.Object({
+  success: Type.Boolean(),
+  status: Type.Number(),
+  message: Type.String(),
+  user: TUserProfileData,
+});
+
+export {
+  TUpdateUserProfileRequest,
+  TUpdateUserProfileResponse,
+  TGetUserProfileResponse,
+};
