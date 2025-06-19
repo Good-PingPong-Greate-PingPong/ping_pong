@@ -11,4 +11,16 @@ type CreateLocalGameRequest = Static<typeof TCreateLocalGameRequest>;
 type CreateLocalGameResponse = Static<typeof TCreateLocalGameResponse>;
 type ResetConfirmQuery = Static<typeof TResetConfirmQuery>;
 
-export { CreateLocalGameRequest, CreateLocalGameResponse, ResetConfirmQuery };
+type ListQueryRoute = {
+  Querystring: {
+    page: number;
+    offset: number;
+  };
+};
+
+export {
+  CreateLocalGameRequest,
+  CreateLocalGameResponse,
+  ResetConfirmQuery,
+  ListQueryRoute,
+};
