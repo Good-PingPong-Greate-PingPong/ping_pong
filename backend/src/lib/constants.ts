@@ -1,5 +1,3 @@
-import { get } from 'http';
-
 const ERROR_MESSAGE = {
   badRequest: {
     success: false,
