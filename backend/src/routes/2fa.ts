@@ -1,5 +1,5 @@
 import { FastifyInstance } from 'fastify';
-import twoFAHandler from '../handlers/2fa.handler';
+import { twoFAHandler } from '../handlers';
 import {
   generate2FASchema,
   verify2FASchema,

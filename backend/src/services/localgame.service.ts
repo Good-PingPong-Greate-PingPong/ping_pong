@@ -1,25 +1,19 @@
-// import { transactionManager } from "../global/database/transaction.manager";
-
-import { PrismaClient, Prisma } from "@prisma/client"
-
-import { verifyAccessToken } from "../lib/jwt";
 import { getCurrentDate } from "../lib/timeHelper";
-
-import { CreateLocalGameRequest } from "../schema/types";
+import { CreateLocalGameRequest } from "../schema/type";
 import { prisma } from "../plugins/prisma";
 
 function localGameService() {
     const createLocalGame = async (createLocalGameRequest: CreateLocalGameRequest, userId:Number) => {
         try {
             const newLocalGame = {
-                userId: userId,
+                userId: Number(userId), //type check
                 user1Nickname: createLocalGameRequest.user1_nickname,
                 user1Score: createLocalGameRequest.user1_score,
                 user2Nickname: createLocalGameRequest.user2_nickname,
                 user2Score: createLocalGameRequest.user2_score,
                 scheduledAt: getCurrentDate()
             };
-            await prisma.SingleMatch.create({ data: newLocalGame });
+            await prisma.singleMatch.create({ data: newLocalGame });
             return [];
         }
         catch (error) {
