@@ -8,6 +8,7 @@ export async function buildApp() {
   await app.register(plugin.googleOAuth2);
   await app.register(plugin.staticPlugin);
   await app.register(plugin.multipartPlugin);
+  await app.register(plugin.websocketPlugin);
   await app.register(routes);
   return app;
 }
