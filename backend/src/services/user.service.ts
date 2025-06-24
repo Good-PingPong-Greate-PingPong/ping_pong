@@ -27,8 +27,22 @@ const userService = () => {
     });
   };
 
+  const getUserProfile = async (userId: number) => {
+    return prisma.user.findUnique({
+      where: { id: userId },
+      select: {
+        id: true,
+        nickname: true,
+        email: true,
+        profileImage: true,
+        twoFactorEnabled: true,
+      },
+    });
+  };
+
   return {
     updateUserProfileInfo,
+    getUserProfile,
   };
 };
 

@@ -122,6 +122,26 @@ const SUCCESS_MESSAGE = {
     status: 200,
     message: 'upload profile image Success!',
   },
+  getProfile: {
+    success: true,
+    status: 200,
+    message: 'get profile Success!',
+  },
+  addFriend: {
+    success: true,
+    status: 200,
+    message: 'add friend Success!',
+  },
+  cancelFriend: {
+    success: true,
+    status: 200,
+    message: 'cancel friend Success!',
+  },
+  getFriendsList: {
+    success: true,
+    status: 200,
+    message: 'get friends list Success!',
+  },
 } as const;
 
 export { ERROR_MESSAGE, SUCCESS_MESSAGE };

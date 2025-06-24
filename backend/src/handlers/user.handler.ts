@@ -44,9 +44,31 @@ const profileHandler = () => {
       return handlerUtil.handleError(reply, ERROR_MESSAGE.serverError, err);
     }
   };
+  const getProfileInfo = async (req: FastifyRequest, reply: FastifyReply) => {
+    try {
+      const userId = req.user.userId;
+
+      const profile = await userService.getUserProfile(userId);
+
+      if (!profile) {
+        return handlerUtil.handleError(
+          reply,
+          ERROR_MESSAGE.notFound,
+          '유저 정보 없음',
+        );
+      }
+
+      return handlerUtil.handleSuccess(reply, SUCCESS_MESSAGE.getProfile, {
+        user: profile,
+      });
+    } catch (err) {
+      return handlerUtil.handleError(reply, ERROR_MESSAGE.serverError, err);
+    }
+  };
 
   return {
     uploadProfileInfo,
+    getProfileInfo,
   };
 };
 
