@@ -65,10 +65,46 @@ const profileHandler = () => {
       return handlerUtil.handleError(reply, ERROR_MESSAGE.serverError, err);
     }
   };
+  const getUsersProfileInfo = async (
+    req: FastifyRequest,
+    reply: FastifyReply,
+  ) => {
+    try {
+      const userId = req.user.userId;
+      const { nickname = '', page = 1 } = req.query as {
+        nickname: string;
+        page?: number;
+      };
+
+      if (!nickname) {
+        return handlerUtil.handleError(
+          reply,
+          ERROR_MESSAGE.badRequest,
+          'no nickname',
+        );
+      }
+
+      const result = await userService.searchUsersList(
+        userId,
+        nickname,
+        page,
+        10, // page size
+      );
+
+      return handlerUtil.handleSuccess(
+        reply,
+        SUCCESS_MESSAGE.getProfile,
+        result,
+      );
+    } catch (err) {
+      return handlerUtil.handleError(reply, ERROR_MESSAGE.serverError, err);
+    }
+  };
 
   return {
     uploadProfileInfo,
     getProfileInfo,
+    getUsersProfileInfo,
   };
 };
 
