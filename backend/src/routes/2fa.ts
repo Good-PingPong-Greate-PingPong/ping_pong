@@ -1,12 +1,9 @@
 import { FastifyInstance } from 'fastify';
 import { twoFAHandler } from '../handlers';
-import {
-  generate2FASchema,
-  verify2FASchema,
-  resetRequestSchema,
-  resetConfirmSchema,
-} from '../schema';
+import { twoFASchema } from '../schema';
 import { jwtUtil } from '../lib';
+
+const schema = twoFASchema;
 
 const twoFARoute = async (fastify: FastifyInstance): Promise<void> => {
   const tokenType = jwtUtil.tokenTypes;
@@ -15,7 +12,7 @@ const twoFARoute = async (fastify: FastifyInstance): Promise<void> => {
     '/setup',
     {
       preHandler: jwtUtil.verifyTokenPreHandler(tokenType.access),
-      schema: generate2FASchema,
+      schema: schema.generate2FASchema,
     },
     twoFAHandler.setup,
   );
@@ -24,7 +21,7 @@ const twoFARoute = async (fastify: FastifyInstance): Promise<void> => {
     '/verify',
     {
       preHandler: jwtUtil.verifyTokenPreHandler(tokenType.tmp),
-      schema: verify2FASchema,
+      schema: schema.verify2FASchema,
     },
     twoFAHandler.verify,
   );
@@ -33,14 +30,14 @@ const twoFARoute = async (fastify: FastifyInstance): Promise<void> => {
     '/reset/request',
     {
       preHandler: jwtUtil.verifyTokenPreHandler(tokenType.tmp),
-      schema: resetRequestSchema,
+      schema: schema.resetRequestSchema,
     },
     twoFAHandler.resetRequest,
   );
 
   fastify.get(
     '/reset/confirm',
-    { schema: resetConfirmSchema },
+    { schema: schema.resetConfirmSchema },
     twoFAHandler.resetConfirm,
   );
 };
