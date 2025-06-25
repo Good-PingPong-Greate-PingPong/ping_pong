@@ -84,7 +84,7 @@ const profileHandler = () => {
         );
       }
 
-      const result = await userService.searchUsersList(
+      const result = await userService.getUsersProfileList(
         userId,
         nickname,
         page,
