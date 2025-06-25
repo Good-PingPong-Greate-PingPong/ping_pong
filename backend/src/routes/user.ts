@@ -24,12 +24,12 @@ const userRoute = async (fastify: FastifyInstance) => {
     userHandler.getProfileInfo,
   );
   fastify.get(
-    '/info/users',
+    '/info/list',
     {
       preHandler: jwtUtil.verifyTokenPreHandler(tokenType.access),
       schema: schema.getUsersProfileSchema,
     },
-    userHandler.getUsersProfile,
+    userHandler.getUsersProfileInfo,
   );
 };
 
