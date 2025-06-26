@@ -14,14 +14,6 @@ export function startLocalGame(canvas: HTMLCanvasElement) {
     if (e.key === "s") gameStatus.SKeyState = true;
     if (e.key === "ArrowUp") gameStatus.OKeyState = true;
     if (e.key === "ArrowDown") gameStatus.LKeyState = true;
-    if (e.key === "Enter") {
-      if (!gameStatus.RequestFrame) {
-        const ball = new Ball(gameWindow.DocWidth / 2, gameWindow.DocHeight / 2, 30);
-        ball.drawObject(gameWindow.ctx);
-        gameStatus.RequestFrame = true;
-        MoveBallLoop(ball);
-      }
-    }
   });
 
   document.addEventListener('keyup', (e) => {
