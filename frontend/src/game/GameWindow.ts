@@ -122,13 +122,17 @@ export class GameWindow {
     if (gameStatus.Score1 > 2){
       gameStatus.RequestFrame = false;
       this.canvas.onclick=()=>{};
-      this.gameOver("USER 1");
+      const winnerNickname = document.querySelector("#Player1Nick") as HTMLElement;
+      console.log(winnerNickname.innerText);
+      this.gameOver(winnerNickname.innerText);
     }
 
     if (gameStatus.Score2 > 2){
       gameStatus.RequestFrame = false;
       this.canvas.onclick=()=>{};
-      this.gameOver("USER 2");
+      const winnerNickname = document.querySelector("#Player2Nick") as HTMLElement;
+      console.log(winnerNickname.innerText);
+      this.gameOver(winnerNickname.innerText);
     }
   }
 }
