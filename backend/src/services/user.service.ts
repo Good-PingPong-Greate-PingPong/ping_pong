@@ -4,12 +4,8 @@ import { UpdateUserProfileRequest } from '../schema/type';
 const userService = () => {
   const updateUserProfileInfo = async (
     userId: number,
-    updateFields: UpdateUserProfileRequest,
+    updateData: UpdateUserProfileRequest,
   ) => {
-    const updateData: Partial<Prisma.UserUpdateInput> = {
-      ...updateFields,
-    };
-
     const user = await prisma.user.findUnique({ where: { id: userId } });
     if (!user) throw new Error('User not found');
 
