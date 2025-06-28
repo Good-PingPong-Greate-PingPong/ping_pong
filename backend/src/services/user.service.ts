@@ -1,4 +1,3 @@
-import { Prisma } from '@prisma/client';
 import { prisma } from '../plugins/prisma';
 import { UpdateUserProfileRequest } from '../schema/type';
 
