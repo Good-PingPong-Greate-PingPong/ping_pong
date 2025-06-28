@@ -1,4 +1,4 @@
-export * as authSchema from './auth/auth.schema';
-export * as twoFASchema from './2fa/2fa.schema';
-export * as localGameSchema from './localgame/localgame.schema';
-export * as userSchema from './user/user.schema';
+export * from './auth/auth.schema';
+export * from './2fa/2fa.schema';
+export * from './localgame/localgame.schema';
+export * from './user/user.schema';

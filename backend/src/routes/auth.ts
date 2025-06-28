@@ -1,9 +1,7 @@
 import { FastifyInstance } from 'fastify';
 import { authHandler } from '../handlers';
-import { authSchema } from '../schema';
+import { googleCallbackSchema, refreshSchema, logoutSchema } from '../schema';
 import { jwtUtil } from '../lib';
-
-const schema = authSchema;
 
 const authRoute = async (fastify: FastifyInstance): Promise<void> => {
   const tokenType = jwtUtil.tokenTypes;
@@ -11,18 +9,18 @@ const authRoute = async (fastify: FastifyInstance): Promise<void> => {
   fastify.get('/login', authHandler.login);
   fastify.get(
     '/google/callback',
-    { schema: schema.googleCallbackSchema },
+    { schema: googleCallbackSchema },
     authHandler.googleCallback,
   );
   fastify.post(
     '/refresh',
     {
       preHandler: jwtUtil.verifyTokenPreHandler(tokenType.refresh),
-      schema: schema.refreshSchema,
+      schema: refreshSchema,
     },
     authHandler.refresh,
   );
-  fastify.get('/logout', { schema: schema.logoutSchema }, authHandler.logout);
+  fastify.get('/logout', { schema: logoutSchema }, authHandler.logout);
 };
 
 export default authRoute;
