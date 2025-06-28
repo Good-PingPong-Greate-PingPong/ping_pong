@@ -79,6 +79,12 @@ const jwtUtil = () => {
     }
   };
 
+  const coreVerifyToken = (token: string, codetype: string) => {
+    const decoded = verifyValidToken(token);
+    checkTokenType(decoded, codetype);
+    return decoded;
+  };
+
   const verifyToken = async (
     request: FastifyRequest,
     reply: FastifyReply,
@@ -86,9 +92,7 @@ const jwtUtil = () => {
   ) => {
     try {
       const token = extractTokenFromHeader(request, reply);
-      const decoded = verifyValidToken(token);
-      checkTokenType(decoded, codetype);
-
+      const decoded = coreVerifyToken(token, codetype);
       request.user = decoded;
     } catch (err) {
       if (err instanceof jwt.TokenExpiredError) {
@@ -119,6 +123,7 @@ const jwtUtil = () => {
     signTmpToken,
     verifyToken,
     verifyTokenPreHandler,
+    coreVerifyToken,
     tokenTypes,
   };
 };
