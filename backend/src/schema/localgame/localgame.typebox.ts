@@ -9,10 +9,10 @@ const TBaseResponse = Type.Object({
 //
 
 const TCreateLocalGameRequest = Type.Object({
-  user1_nickname: Type.String(),
-  user1_score: Type.Number(),
-  user2_nickname: Type.String(),
-  user2_score: Type.Number(),
+  user1Nickname: Type.String(),
+  user1Score: Type.Number(),
+  user2Nickname: Type.String(),
+  user2Score: Type.Number(),
 });
 
 const TCreateLocalGameResponse = Type.Object({
@@ -29,19 +29,17 @@ const TReadLocalGameRequest = Type.Object({
 });
 
 const TResult = Type.Object({
-  id: Type.Number(),
-  userId: Type.Number(),
   user1Nickname: Type.String(),
-  user1Score: Type.Number(),
   user2Nickname: Type.String(),
+  user1Score: Type.Number(),
   user2Score: Type.Number(),
   createdAt: Type.String(),
 });
 
 const TResults = Type.Object({
   data: Type.Object({
-    total_page: Type.Number(),
-    current_page: Type.Number(),
+    totalPage: Type.Number(),
+    currentPage: Type.Number(),
     records: Type.Array(TResult),
   }),
 });
