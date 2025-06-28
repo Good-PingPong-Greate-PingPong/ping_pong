@@ -1,5 +1,6 @@
 import { prisma } from '../plugins/prisma';
 import { UpdateUserProfileRequest } from '../schema/type';
+import { userOnlineUtil } from '../lib';
 
 const userService = () => {
   const updateUserProfileInfo = async (
@@ -77,7 +78,7 @@ const userService = () => {
       nickname: user.nickname,
       profile_image: user.profileImage,
       isFriend: friendSet.has(user.id),
-      isLogin: isUserOnline(user.id),
+      isLogin: userOnlineUtil.isUserOnline(user.id),
     }));
 
     return {
