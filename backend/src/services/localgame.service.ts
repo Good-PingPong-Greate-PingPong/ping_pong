@@ -3,17 +3,26 @@ import { getCurrentDate } from '../lib/timeHelper';
 import { CreateLocalGameRequest } from '../schema/type';
 import { prisma } from '../plugins/prisma';
 
+import { Prisma } from '@prisma/client';
+
 function localGameService() {
   const createLocalGame = async (
     createLocalGameRequest: CreateLocalGameRequest,
     userId: number,
   ) => {
-    const newLocalGame = {
+    const user = await prisma.user.findUnique({
+      where: { id: userId },
+    });
+    if (!user) {
+      throw new Error('User not found');
+    }
+
+    const newLocalGame: Prisma.SingleMatchUncheckedCreateInput = {
       userId: userId,
-      user1Nickname: createLocalGameRequest.user1_nickname,
-      user1Score: createLocalGameRequest.user1_score,
-      user2Nickname: createLocalGameRequest.user2_nickname,
-      user2Score: createLocalGameRequest.user2_score,
+      user1Nickname: createLocalGameRequest.user1Nickname,
+      user1Score: createLocalGameRequest.user1Score,
+      user2Nickname: createLocalGameRequest.user2Nickname,
+      user2Score: createLocalGameRequest.user2Score,
       scheduledAt: getCurrentDate(),
     };
     await prisma.singleMatch.create({ data: newLocalGame });
