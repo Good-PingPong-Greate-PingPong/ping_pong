@@ -203,5 +203,6 @@ $RECYCLE.BIN/
 # SQLite 데이터베이스 파일 무시
 *.db
 *.db-journal
+images
 
 # End of https://www.toptal.com/developers/gitignore/api/node,macos,windows

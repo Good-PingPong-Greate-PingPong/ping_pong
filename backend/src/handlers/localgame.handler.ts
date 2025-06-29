@@ -10,7 +10,7 @@ const localGameHandler = () => {
     rep: FastifyReply,
   ) => {
     try {
-      await localGameService.createLocalGame(req.body, req.user.userId);
+      await localGameService.createLocalGame(req.body, req.user.userId); // req.body에서 오류발생
       handlerUtil.handleSuccess(rep, SUCCESS_MESSAGE.registerOK);
     } catch (error) {
       handlerUtil.handleError(rep, ERROR_MESSAGE.badRequest, error);
