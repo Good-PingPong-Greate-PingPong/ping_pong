@@ -1,7 +1,11 @@
 import { FastifyInstance } from 'fastify';
 import { userHandler } from '../handlers';
 import { jwtUtil } from '../lib';
-import { getUserProfileSchema, updateUserProfileSchema } from '../schema';
+import {
+  updateUserProfileSchema,
+  getUserProfileSchema,
+  getUsersProfileSchema,
+} from '../schema';
 
 const userRoute = async (fastify: FastifyInstance) => {
   const tokenType = jwtUtil.tokenTypes;
@@ -20,6 +24,14 @@ const userRoute = async (fastify: FastifyInstance) => {
       schema: getUserProfileSchema,
     },
     userHandler.getProfileInfo,
+  );
+  fastify.get(
+    '/info/list',
+    {
+      preHandler: jwtUtil.verifyTokenPreHandler(tokenType.access),
+      schema: getUsersProfileSchema,
+    },
+    userHandler.getUsersProfileInfo,
   );
 };
 

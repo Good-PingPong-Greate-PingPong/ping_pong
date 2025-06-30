@@ -22,3 +22,11 @@ declare module 'fastify' {
     userId: number;
   }
 }
+
+declare module 'fastify' {
+  interface WebSocketQuery {
+    Querystring: {
+      token: string;
+    };
+  }
+}

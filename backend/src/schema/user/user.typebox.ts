@@ -24,6 +24,37 @@ const TUserProfileData = Type.Object({
 });
 
 /**
+ * 🔹 유저 목록 응답용 단일 유저 정보
+ */
+const TUserSummary = Type.Object({
+  id: Type.Number(),
+  nickname: Type.String(),
+  profileImage: Type.Optional(Type.String()),
+  isFriend: Type.Boolean(),
+  isLogin: Type.Boolean(),
+});
+
+/**
+ * 🔹 유저 목록 조회 요청 쿼리
+ */
+const TGetUsersProfileQuery = Type.Object({
+  nickname: Type.String(),
+  page: Type.Optional(Type.Integer({ minimum: 1, default: 1 })),
+});
+
+/**
+ * 🔹 유저 목록 조회 성공 응답 스키마
+ */
+const TGetUsersProfileResponse = Type.Object({
+  success: Type.Boolean(),
+  status: Type.Number(),
+  message: Type.String(),
+  total_page: Type.Number(),
+  current_page: Type.Number(),
+  users: Type.Array(TUserSummary),
+});
+
+/**
  * 🔹 유저 프로필 업데이트 성공 응답 스키마
  */
 const TUpdateUserProfileResponse = Type.Object({
@@ -44,7 +75,8 @@ const TGetUserProfileResponse = Type.Object({
 });
 
 export {
-  TUpdateUserProfileRequest,
   TUpdateUserProfileResponse,
   TGetUserProfileResponse,
+  TGetUsersProfileResponse,
+  TGetUsersProfileQuery,
 };
