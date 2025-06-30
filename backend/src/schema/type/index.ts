@@ -38,4 +38,6 @@ export {
   ResetConfirmQuery,
   CreateLocalGameRoute,
   ListQueryRoute,
+  UpdateUserProfileRequest,
+  UpdateUserProfileResponse,
 };
