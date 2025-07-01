@@ -10,20 +10,6 @@ declare module 'fastify' {
     googleOAuth2: OAuth2Namespace;
   }
 
-  // ✅ 친구 목록 요청용 타입
-  interface FriendListQuery {
-    Querystring: {
-      page?: number;
-    };
-  }
-
-  // ✅ 친구 추가/삭제 요청용 타입
-  interface ModifyFriendBody {
-    Body: {
-      receiverId: number;
-    };
-  }
-
   interface FastifyRequest {
     user: TokenPayload;
     isMultipart: () => boolean;
