@@ -95,4 +95,4 @@ const friendsService = () => {
   return { getFriendsList, addFriend, removeFriend };
 };
 
-export default friendsService;
+export default friendsService();
