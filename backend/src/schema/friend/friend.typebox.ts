@@ -3,7 +3,7 @@ import { Type } from '@sinclair/typebox';
 /**
  * 🔹 친구 목록 조회 요청 쿼리 (페이지네이션)
  */
-export const TGetFriendsListRequest = Type.Object({
+export const TGetfriendListRequest = Type.Object({
   page: Type.Optional(Type.Integer({ minimum: 1, default: 1 })),
 });
 
@@ -19,14 +19,14 @@ export const TFriend = Type.Object({
 /**
  * 🔹 친구 목록 조회 응답
  */
-export const TGetFriendsListResponse = Type.Object({
+export const TGetfriendListResponse = Type.Object({
   success: Type.Boolean(),
   status: Type.Number(),
   message: Type.String(),
   data: Type.Object({
     total_page: Type.Number(),
     current_page: Type.Number(),
-    friends: Type.Array(TFriend),
+    friend: Type.Array(TFriend),
   }),
 });
 

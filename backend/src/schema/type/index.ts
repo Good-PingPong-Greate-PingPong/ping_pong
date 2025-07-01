@@ -14,11 +14,11 @@ import {
 } from '../user/user.typebox';
 
 import {
-  TGetFriendsListRequest,
-  TGetFriendsListResponse,
+  TGetfriendListRequest,
+  TGetfriendListResponse,
   TModifyFriendRequest,
   TModifyFriendResponse,
-} from '../friend/friends.typebox';
+} from '../friend/friend.typebox';
 
 type CreateLocalGameRequest = Static<typeof TCreateLocalGameRequest>;
 type CreateLocalGameResponse = Static<typeof TCreateLocalGameResponse>;
@@ -26,8 +26,8 @@ type ReadLocalGameResponse = Static<typeof TReadLocalGameResponse>;
 type ResetConfirmQuery = Static<typeof TResetConfirmQuery>;
 type UpdateUserProfileRequest = Static<typeof TUpdateUserProfileRequest>;
 type UpdateUserProfileResponse = Static<typeof TUpdateUserProfileResponse>;
-type GetFriendsListRequest = Static<typeof TGetFriendsListRequest>;
-type GetFriendsListResponse = Static<typeof TGetFriendsListResponse>;
+type GetfriendListRequest = Static<typeof TGetfriendListRequest>;
+type GetfriendListResponse = Static<typeof TGetfriendListResponse>;
 type ModifyFriendRequest = Static<typeof TModifyFriendRequest>;
 type ModifyFriendResponse = Static<typeof TModifyFriendResponse>;
 
@@ -42,8 +42,8 @@ type ListQueryRoute = {
   };
 };
 
-type GetFriendsListRoute = {
-  Querystring: GetFriendsListRequest;
+type GetfriendListRoute = {
+  Querystring: GetfriendListRequest;
 };
 
 type ModifyFriendRoute = {
@@ -58,6 +58,6 @@ export {
   ListQueryRoute,
   UpdateUserProfileRequest,
   UpdateUserProfileResponse,
-  GetFriendsListRoute,
+  GetfriendListRoute,
   ModifyFriendRoute,
 };

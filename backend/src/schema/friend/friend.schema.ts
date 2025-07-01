@@ -1,24 +1,24 @@
 import {
-  TGetFriendsListResponse,
-  TGetFriendsListRequest,
+  TGetfriendListResponse,
+  TGetfriendListRequest,
   TModifyFriendRequest,
   TModifyFriendResponse,
-} from './friends.typebox';
+} from './friend.typebox';
 
 /**
  * 🔹 친구 목록 조회 스키마
  */
-export const getFriendsListSchema = {
-  querystring: TGetFriendsListRequest,
+export const getfriendListSchema = {
+  querystring: TGetfriendListRequest,
   response: {
-    200: TGetFriendsListResponse,
+    200: TGetfriendListResponse,
   },
 };
 
 /**
  * 🔹 친구 추가 스키마
  */
-export const addFriendSchema = {
+export const addfriendchema = {
   body: TModifyFriendRequest,
   response: {
     200: TModifyFriendResponse,
@@ -28,7 +28,7 @@ export const addFriendSchema = {
 /**
  * 🔹 친구 삭제 스키마
  */
-export const removeFriendSchema = {
+export const removefriendchema = {
   body: TModifyFriendRequest,
   response: {
     200: TModifyFriendResponse,

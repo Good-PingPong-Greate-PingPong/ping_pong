@@ -137,10 +137,10 @@ const SUCCESS_MESSAGE = {
     status: 200,
     message: 'cancel friend Success!',
   },
-  getFriendsList: {
+  getfriendList: {
     success: true,
     status: 200,
-    message: 'get friends list Success!',
+    message: 'get friend list Success!',
   },
 } as const;
 

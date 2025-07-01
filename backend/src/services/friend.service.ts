@@ -1,8 +1,8 @@
 import { prisma } from '../plugins/prisma';
 import { userOnlineUtil } from '../lib';
 
-const friendsService = () => {
-  const getFriendsList = async (
+const friendService = () => {
+  const getfriendList = async (
     userId: number,
     page: number,
     pageSize: number,
@@ -14,7 +14,7 @@ const friendsService = () => {
     };
 
     // senderId 기준으로 친구(receiver) 목록 조회
-    const [friends, totalCount] = await Promise.all([
+    const [friend, totalCount] = await Promise.all([
       prisma.friend.findMany({
         where,
         skip,
@@ -39,7 +39,7 @@ const friendsService = () => {
     return {
       total_page: totalPage,
       current_page: page,
-      friends: friends.map(({ receiver }) => ({
+      friend: friend.map(({ receiver }) => ({
         id: receiver.id,
         nickname: receiver.nickname,
         profile_image: receiver.profileImage,
@@ -92,7 +92,7 @@ const friendsService = () => {
       data: { isDeleted: true },
     });
   };
-  return { getFriendsList, addFriend, removeFriend };
+  return { getfriendList, addFriend, removeFriend };
 };
 
-export default friendsService();
+export default friendService();

@@ -1,12 +1,12 @@
 import { FastifyRequest, FastifyReply } from 'fastify';
-import { friendsService } from '../services';
+import { friendService } from '../services';
 import { ERROR_MESSAGE, handlerUtil, SUCCESS_MESSAGE } from '../lib';
-import { GetFriendsListRoute, ModifyFriendRoute } from '../schema/type';
+import { GetfriendListRoute, ModifyFriendRoute } from '../schema/type';
 
-const friendsHandler = () => {
+const friendHandler = () => {
   //친구 목록 조회
-  const getFriendsList = async (
-    req: FastifyRequest<GetFriendsListRoute>,
+  const getfriendList = async (
+    req: FastifyRequest<GetfriendListRoute>,
     reply: FastifyReply,
   ) => {
     try {
@@ -15,9 +15,9 @@ const friendsHandler = () => {
         page?: number;
       };
 
-      const data = await friendsService.getFriendsList(userId, page, 10);
+      const data = await friendService.getfriendList(userId, page, 10);
 
-      return handlerUtil.handleSuccess(reply, SUCCESS_MESSAGE.getFriendsList, {
+      return handlerUtil.handleSuccess(reply, SUCCESS_MESSAGE.getfriendList, {
         data,
       });
     } catch (err) {
@@ -34,7 +34,7 @@ const friendsHandler = () => {
       const senderId = req.user.userId;
       const { receiverId } = req.body;
 
-      await friendsService.addFriend(senderId, receiverId);
+      await friendService.addFriend(senderId, receiverId);
 
       return handlerUtil.handleSuccess(reply, SUCCESS_MESSAGE.addFriend);
     } catch (err) {
@@ -51,7 +51,7 @@ const friendsHandler = () => {
       const senderId = req.user.userId;
       const { receiverId } = req.body;
 
-      await friendsService.removeFriend(senderId, receiverId);
+      await friendService.removeFriend(senderId, receiverId);
 
       return handlerUtil.handleSuccess(reply, SUCCESS_MESSAGE.cancelFriend);
     } catch (err) {
@@ -60,10 +60,10 @@ const friendsHandler = () => {
   };
 
   return {
-    getFriendsList,
+    getfriendList,
     addFriend,
     removeFriend,
   };
 };
 
-export default friendsHandler();
+export default friendHandler();
