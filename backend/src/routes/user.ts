@@ -5,7 +5,7 @@ import {
   updateUserProfileSchema,
   getUserProfileSchema,
   getUsersProfileSchema,
-} from '../schema';
+} from '../schema/user/user.schema';
 
 const userRoute = async (fastify: FastifyInstance) => {
   const tokenType = jwtUtil.tokenTypes;
