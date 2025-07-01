@@ -31,12 +31,15 @@ export const TGetfriendListResponse = Type.Object({
 });
 
 /**
- * 🔹 친구 추가/삭제 요청 (receiverId 필요)
+ * 🔹 친구 추가/삭제 요청 (nickname, receiverId 필요)
  */
-export const TModifyFriendRequest = Type.Object({
-  receiverId: Type.Number(),
+export const TAddFriendRequest = Type.Object({
+  nickname: Type.String(),
 });
 
+export const TRemoveFriendRequest = Type.Object({
+  receiverId: Type.Number(),
+});
 /**
  * 🔹 친구 추가/삭제 성공 응답
  */

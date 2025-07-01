@@ -48,7 +48,16 @@ const friendService = () => {
     };
   };
 
-  const addFriend = async (senderId: number, receiverId: number) => {
+  const addFriend = async (senderId: number, nickname: string) => {
+    const receiver = await prisma.user.findUnique({
+      where: { nickname },
+      select: { id: true },
+    });
+    if (!receiver) {
+      throw new Error('존재하지 않는 유저입니다.');
+    }
+    const receiverId = receiver.id;
+
     if (senderId === receiverId) {
       throw new Error('자기 자신을 친구로 추가할 수 없습니다.');
     }

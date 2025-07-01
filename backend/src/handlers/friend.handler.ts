@@ -1,7 +1,11 @@
 import { FastifyRequest, FastifyReply } from 'fastify';
 import { friendService } from '../services';
 import { ERROR_MESSAGE, handlerUtil, SUCCESS_MESSAGE } from '../lib';
-import { GetfriendListRoute, ModifyFriendRoute } from '../schema/type';
+import {
+  addFriendRoute,
+  GetfriendListRoute,
+  removeFriendRoute,
+} from '../schema/type';
 
 const friendHandler = () => {
   //친구 목록 조회
@@ -27,14 +31,14 @@ const friendHandler = () => {
 
   //친구 추가
   const addFriend = async (
-    req: FastifyRequest<ModifyFriendRoute>,
+    req: FastifyRequest<addFriendRoute>,
     reply: FastifyReply,
   ) => {
     try {
       const senderId = req.user.userId;
-      const { receiverId } = req.body;
+      const { nickname } = req.query;
 
-      await friendService.addFriend(senderId, receiverId);
+      await friendService.addFriend(senderId, nickname);
 
       return handlerUtil.handleSuccess(reply, SUCCESS_MESSAGE.addFriend);
     } catch (err) {
@@ -44,7 +48,7 @@ const friendHandler = () => {
 
   //친구 삭제
   const removeFriend = async (
-    req: FastifyRequest<ModifyFriendRoute>,
+    req: FastifyRequest<removeFriendRoute>,
     reply: FastifyReply,
   ) => {
     try {

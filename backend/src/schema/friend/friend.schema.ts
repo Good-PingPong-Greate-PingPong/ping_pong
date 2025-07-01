@@ -1,7 +1,8 @@
 import {
   TGetfriendListResponse,
   TGetfriendListRequest,
-  TModifyFriendRequest,
+  TAddFriendRequest,
+  TRemoveFriendRequest,
   TModifyFriendResponse,
 } from './friend.typebox';
 
@@ -19,7 +20,7 @@ export const getfriendListSchema = {
  * 🔹 친구 추가 스키마
  */
 export const addfriendchema = {
-  body: TModifyFriendRequest,
+  querystring: TAddFriendRequest,
   response: {
     200: TModifyFriendResponse,
   },
@@ -29,7 +30,7 @@ export const addfriendchema = {
  * 🔹 친구 삭제 스키마
  */
 export const removefriendchema = {
-  body: TModifyFriendRequest,
+  body: TRemoveFriendRequest,
   response: {
     200: TModifyFriendResponse,
   },
