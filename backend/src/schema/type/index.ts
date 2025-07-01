@@ -18,7 +18,7 @@ import {
   TGetFriendsListResponse,
   TModifyFriendRequest,
   TModifyFriendResponse,
-} from '../friend/friend.typebox';
+} from '../friend/friends.typebox';
 
 type CreateLocalGameRequest = Static<typeof TCreateLocalGameRequest>;
 type CreateLocalGameResponse = Static<typeof TCreateLocalGameResponse>;

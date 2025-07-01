@@ -3,7 +3,7 @@ import {
   TGetFriendsListRequest,
   TModifyFriendRequest,
   TModifyFriendResponse,
-} from './friend.typebox';
+} from './friends.typebox';
 
 /**
  * 🔹 친구 목록 조회 스키마
