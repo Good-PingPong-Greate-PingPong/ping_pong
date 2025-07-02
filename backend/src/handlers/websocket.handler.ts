@@ -3,7 +3,7 @@ import { jwtUtil, userOnlineUtil } from '../lib';
 import * as WS from 'ws';
 
 const websocketHandler = () => {
-  const socketConnect = async (
+  const userSocketConnect = async (
     socket: WS.WebSocket,
     req: FastifyRequest<WebSocketQuery>,
   ) => {
@@ -25,7 +25,7 @@ const websocketHandler = () => {
     }
   };
 
-  return { socketConnect };
+  return { userSocketConnect };
 };
 
 export default websocketHandler();

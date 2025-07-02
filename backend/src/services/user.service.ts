@@ -67,6 +67,7 @@ const userService = () => {
       where: {
         senderId: requesterId,
         receiverId: { in: users.map((u) => u.id) },
+        isDeleted: false,
       },
       select: { receiverId: true },
     });

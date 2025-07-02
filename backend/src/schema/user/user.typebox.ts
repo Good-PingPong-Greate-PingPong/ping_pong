@@ -75,6 +75,7 @@ const TGetUserProfileResponse = Type.Object({
 });
 
 export {
+  TUpdateUserProfileRequest,
   TUpdateUserProfileResponse,
   TGetUserProfileResponse,
   TGetUsersProfileResponse,
