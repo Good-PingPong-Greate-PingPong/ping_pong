@@ -70,7 +70,7 @@ h1 {
 
 }
 
-#localGameDiv {
+#gameDiv {
   position: relative;
   display: flex;
   flex-direction: column;
@@ -210,6 +210,15 @@ h1 {
     font-size: 4rem;        /* text-6xl → 60px (Tailwind 기준) */
   }
 
+  #modalContent{
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    color: #302C2C;
+    font-size: 2rem;
+  }
+
   #nickInputForm{
     display: flex;
     flex-direction: row;
@@ -254,8 +263,6 @@ h1 {
     border: 3px solid #302C2C;
   }
 }
-
-
 
 /* button {
   /* border-radius: 8px;

@@ -4,7 +4,7 @@ import { nicknameInputModal } from "../components/nicknameInputModal.ts";
 
 export class LocalGamePage extends Component {
   template () { return `
-    <div id="localGameDiv">
+    <div id="gameDiv">
       <div data-component="nicknameInputModal" class="flex items-center justify-center transition"></div>
       <div id="ScoreDiv">
         <p id="Player1Nick">PLAYER 1</p>
@@ -29,7 +29,7 @@ export class LocalGamePage extends Component {
 
     // 게임 시작
     const canvas = this.$target.querySelector('canvas') as HTMLCanvasElement;
-    import('../game/localGame.ts').then((module) => {
+    import('../localGame/localGame.ts').then((module) => {
       module.startLocalGame(canvas);
     });
 
