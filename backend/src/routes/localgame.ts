@@ -1,7 +1,10 @@
 import { FastifyInstance } from 'fastify';
 import { jwtUtil } from '../lib';
 import { localGameHandler } from '../handlers/index';
-import { createLocalGameSchema, readLocalGameSchema } from '../schema';
+import {
+  createLocalGameSchema,
+  readLocalGameSchema,
+} from '../schema/localgame/localgame.schema';
 import { CreateLocalGameRoute, ListQueryRoute } from '../schema/type/index';
 
 const localGameRoute = async (fastify: FastifyInstance) => {
