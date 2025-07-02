@@ -1,7 +1,6 @@
 import 'fastify';
 import { PrismaClient } from '@prisma/client';
 import { OAuth2Namespace } from '@fastify/oauth2';
-import { Multipart, MultipartFile } from '@fastify/multipart';
 import { JwtPayload } from 'jsonwebtoken';
 
 declare module 'fastify' {

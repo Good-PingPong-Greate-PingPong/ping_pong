@@ -63,7 +63,7 @@ const userService = () => {
 
     const totalPage = Math.ceil(totalCount / pageSize);
 
-    const friend = await prisma.friend.findMany({
+    const friends = await prisma.friend.findMany({
       where: {
         senderId: requesterId,
         receiverId: { in: users.map((u) => u.id) },
@@ -72,13 +72,13 @@ const userService = () => {
       select: { receiverId: true },
     });
 
-    const friendet = new Set(friend.map((f) => f.receiverId));
+    const friendSet = new Set(friends.map((f) => f.receiverId));
 
     const userList = users.map((user) => ({
       id: user.id,
       nickname: user.nickname,
       profile_image: user.profileImage,
-      isFriend: friendet.has(user.id),
+      isFriend: friendSet.has(user.id),
       isLogin: userOnlineUtil.isUserOnline(user.id),
     }));
 

@@ -13,7 +13,7 @@ const friendRoute = async (fastify: FastifyInstance) => {
   fastify.get('/friend', {
     preHandler: jwtUtil.verifyTokenPreHandler(tokenType.access),
     schema: getfriendListSchema,
-    handler: friendHandler.getfriendList,
+    handler: friendHandler.getFriendList,
   });
 
   fastify.post('/friend', {

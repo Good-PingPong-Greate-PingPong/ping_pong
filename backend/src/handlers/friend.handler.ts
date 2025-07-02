@@ -9,7 +9,7 @@ import {
 
 const friendHandler = () => {
   //친구 목록 조회
-  const getfriendList = async (
+  const getFriendList = async (
     req: FastifyRequest<GetfriendListRoute>,
     reply: FastifyReply,
   ) => {
@@ -19,9 +19,9 @@ const friendHandler = () => {
         page?: number;
       };
 
-      const data = await friendService.getfriendList(userId, page, 10);
+      const data = await friendService.getFriendList(userId, page, 10);
 
-      return handlerUtil.handleSuccess(reply, SUCCESS_MESSAGE.getfriendList, {
+      return handlerUtil.handleSuccess(reply, SUCCESS_MESSAGE.getFriendList, {
         data,
       });
     } catch (err) {
@@ -64,7 +64,7 @@ const friendHandler = () => {
   };
 
   return {
-    getfriendList,
+    getFriendList,
     addFriend,
     removeFriend,
   };

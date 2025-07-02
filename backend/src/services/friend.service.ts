@@ -2,7 +2,7 @@ import { prisma } from '../plugins/prisma';
 import { userOnlineUtil } from '../lib';
 
 const friendService = () => {
-  const getfriendList = async (
+  const getFriendList = async (
     userId: number,
     page: number,
     pageSize: number,
@@ -101,7 +101,7 @@ const friendService = () => {
       data: { isDeleted: true },
     });
   };
-  return { getfriendList, addFriend, removeFriend };
+  return { getFriendList, addFriend, removeFriend };
 };
 
 export default friendService();
