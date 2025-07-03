@@ -1,34 +1,48 @@
-import { Component } from "../core/Component";
+import { Component } from '../core/Component';
 
 export class Friend extends Component {
-    setup() {
-        const { id, nickname, profile_img } = this.$props.friendData;
-        // console.log(this.$props)
-        // console.log(id, nickname);
+  setup() {
+    const { id, nickname, profileImage } = this.$props.friendData;
 
-        this.setState({
-            id:id,
-            nickname:nickname,
-            profile_img:profile_img,
-        })
-    }
-    template(): string {
-        const {id, nickname, profile_image} = this.$state;
-        return `
-        <div data-property-1="1" class="w-80 h-16 relative rounded-lg">
-            <div class="w-72 left-[-0.10px] top-[-1.34px] absolute bg-white rounded-md inline-flex justify-between items-center">
-                <div class="w-16 h-16 py-3 rounded-tl-md rounded-bl-md flex justify-end items-center gap-1.5">
-                    <img class="w-12 h-12 rounded-[52.97px] outline outline-2 outline-mainColor" src="${profile_image}" />
-                </div>
-                <div class="justify-start text-black text-2xl font-extrabold font-['Inter']">${nickname} : ${id}</div>
-                <div class="w-10 h-10 relative overflow-hidden">
-                    <div class="w-8 h-8 left-[4.45px] top-[4.45px] absolute bg-mainColor"></div>
-                </div>
-                <div class="w-12 self-stretch bg-mainColor rounded-tr-md rounded-br-md flex justify-center items-center gap-1.5">
-                    <div class="w-5 h-5 origin-top-left rotate-[43.75deg] bg-white border-[0.67px] border-black"></div>
+    this.setState({
+      id: id,
+      nickname: nickname,
+      profileImage: profileImage,
+    });
+  }
+  template(): string {
+    const { nickname, profileImage } = this.$state;
+    return `
+    <div data-property-1="1" class="w-80 h-16 relative m-2">
+        <!-- 메인 컨테이너 - 보라색 테두리 -->
+        <div class="w-full h-full  rounded-lg bg-white flex">
+            <!-- 프로필 이미지 섹션 -->
+            <div class="w-16 h-16 flex justify-center items-center ">
+                <div class="w-12 h-12 rounded-full flex justify-center items-center overflow-hidden">
+                      <img src="${profileImage}" class=""/>
                 </div>
             </div>
+            
+            <!-- 사용자명 섹션 -->
+            <div class="flex-1 flex justify-center items-center ">
+                <span class="text-black text-xl font-bold">${nickname}</span>
+            </div>
+            
+            <!-- 분할 아이콘 섹션 -->
+            <div class="w-16 h-16 flex justify-center items-center ">
+                <div class="flex flex-col items-center gap-1">
+                    <div class="w-3 h-3 bg-black rounded-full"></div>
+                    <div class="w-4 h-0.5 bg-black"></div>
+                    <div class="w-3 h-3 bg-black rounded-full"></div>
+                </div>
+            </div>
+            
+            <!-- X 버튼 섹션 -->
+            <div class="w-16 h-16 bg-black flex justify-center items-center rounded-tr-lg rounded-br-lg">
+                <div class="text-white text-2xl font-bold">×</div>
+            </div>
         </div>
+    </div>
         `;
-    }
+  }
 }

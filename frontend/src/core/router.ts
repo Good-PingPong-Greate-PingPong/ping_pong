@@ -1,3 +1,4 @@
+import { store } from "./store";
 
 interface RouteDefinition {
     fragmentRegExp: RegExp;
@@ -77,6 +78,16 @@ private checkRoutes(): void {
 
     const currentHash = window.location.hash.replace('#', '') || '/';
 
+      // 인증이 필요한 경로 목록 (예시)
+    const protectedRoutes = ['/', '/tournament-game', '/local-game'];
+    if (protectedRoutes.includes(currentHash)) {
+        const { user } = store.getState();
+        if (!user) {
+            window.location.hash = '#/login';
+            return;
+        }
+    }
+
     const currentRoute = this.routes.find(route => route.fragmentRegExp.test(currentHash)); // 정규표현식과 일치하면 true, #을 제거하고 빈 문자열도 처리
     if (currentRoute) {
     if (currentRoute.params.length) {
@@ -108,6 +119,7 @@ private checkRoutes(): void {
 }
 
 export function navigate(fragment: string, replace: boolean = false) {
+
 
 	if (replace) {
         // 뒤로가기 막기

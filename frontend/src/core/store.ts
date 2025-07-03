@@ -1,20 +1,22 @@
-import { AppState } from '../types';
+import { IAppState, Language } from '../types';
 
 class Store {
-  private state: AppState;
+  private state: IAppState;
   private listeners: (() => void)[];
   
   constructor() {
     this.state = {
       user: null,
-      isLoading: false,
-      error: null,
-      theme: 'light'
+      accessToken : null,
+      language : Language.KR,
+      // isLoading: false,
+      // error: null,
     };
     this.listeners = [];
   }
   
   init(): void {
+    // TODO : 임시로 로컬스토리지에 저장중. JWT 만 저장하는 방식으로 수정 예정
     // 로컬 스토리지에서 상태 복원 등의 초기화 작업
     const savedState = localStorage.getItem('app-state');
     if (savedState) {
@@ -27,14 +29,15 @@ class Store {
     }
   }
   
-  getState(): AppState {
+  getState(): IAppState {
     return { ...this.state };
   }
   
-  setState(partialState: Partial<AppState>): void {
+  //Partial<IAppState> : IAppState 의 속성을 optional 로 만듬. 부분 상태만 업데이트 가능
+  setState(partialState: Partial<IAppState>): void {
     this.state = { ...this.state, ...partialState };
     
-    // 상태 변경 시 로컬 스토리지에 저장
+    // TODO : 임시로 로컬스토리지에 저장중. 상태 변경 시 로컬 스토리지에 저장
     localStorage.setItem('app-state', JSON.stringify(this.state));
     
     // 구독자들에게 알림

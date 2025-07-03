@@ -1,15 +1,18 @@
 import { Component } from "../core/Component";
+import { store } from "../core/store";
+import { LanguageSetting } from "./ LanguageSetting";
 import { FriendsList } from "./FriendList";
 import { GameHistory } from "./GameHistory";
 import { Profile } from "./profile";
 
 
 export class MyInfoModal extends Component {
+    private unsubscribe?: () => void;
 
     setup() {
         // console.log("myInfoModal: setup")
         this.setState({ activeTab : 0 });
-        this.setState({componentsInit: false})
+        // this.setState({componentsInit: false})
 
     }
     addEvent(eventType: string, selector: string, callback: (event: Event) => void): void {
@@ -37,53 +40,52 @@ export class MyInfoModal extends Component {
     } 
 
     render () {
-        // console.log("myInfoModal: render", "this.$state.componentsInit : ",this.$state.componentsInit)
         this.$target.innerHTML = this.template(); // template() 메서드로 HTML 생성 후 렌더링
         this.mounted(); // 렌더링 후 추가 작업 수행
     }
     template() {
         const { activeTab } = this.$state;
-        // console.log("myInfoModal : template ",activeTab)
         return `
         <div id="modalOverlay" class="w-full h-full absolute top-0 bg-black opacity-20 transition">
         </div>
-        <div class="w-[800px] fixed inset-y-32 transition">
+        <div class="w-[800px] fixed inset-y-32 transition ">
             <div class="flex flex-row ">
-                <div class="tab-item trapezoid-shape w-[199px] h-[52px] rounded-tl-lg flex justify-center items-center text-center ${activeTab === 0 ? 'active-tab' : ''}" data-tab-index="0">내 정보</div>
-                <div class="tab-item trapezoid-shape w-[199px] h-[52px] rounded-tl-lg flex justify-center items-center text-center ${activeTab === 1 ? 'active-tab' : ''}" data-tab-index="1">친구 목록</div>
-                <div class="tab-item trapezoid-shape w-[199px] h-[52px] rounded-tl-lg flex justify-center items-center text-center ${activeTab === 2 ? 'active-tab' : ''}" data-tab-index="2">게임 기록</div>
+                <div class="tab-item ${activeTab === 0 ? 'bg-backgroundColor' : 'bg-neutral-300 cursor-pointer'}  trapezoid-shape w-[200px] h-[52px] rounded-tl-lg flex justify-center items-center text-center ${activeTab === 0 ? 'active-tab' : ''}" data-tab-index="0">내 정보</div>
+                <div class="tab-item ${activeTab === 1 ? 'bg-backgroundColor' : 'bg-neutral-300 cursor-pointer'} trapezoid-shape w-[200px] h-[52px] rounded-tl-lg flex justify-center items-center text-center ${activeTab === 1 ? 'active-tab' : ''}" data-tab-index="1">친구 목록</div>
+                <div class="tab-item ${activeTab === 2 ? 'bg-backgroundColor' : 'bg-neutral-300 cursor-pointer'} trapezoid-shape w-[200px] h-[52px] rounded-tl-lg flex justify-center items-center text-center ${activeTab === 2 ? 'active-tab' : ''}" data-tab-index="2">게임 기록</div>
+                <div class="tab-item ${activeTab === 3 ? 'bg-backgroundColor' : 'bg-neutral-300 cursor-pointer'} trapezoid-shape w-[200px] h-[52px] rounded-tl-lg flex justify-center items-center text-center ${activeTab === 3 ? 'active-tab' : ''}" data-tab-index="3">언어 설정</div>
             </div>
             <div data-component="myInfo" class="${activeTab === 0 ? '' : 'hidden'} w-full h-full rounded-b-lg rounded-tr-lg"></div>
-            <div data-component="myFriends" class="${activeTab === 1 ? '' : 'hidden'} bg-white w-full h-full rounded-b-lg rounded-tr-lg"></div>
-            <div data-component="myLogs" class="${activeTab === 2 ? '' : 'hidden'} bg-white w-full h-full rounded-b-lg rounded-tr-lg"></div>
+            <div data-component="myFriends" class="${activeTab === 1 ? '' : 'hidden'} w-full h-full rounded-b-lg rounded-tr-lg"></div>
+            <div data-component="myLogs" class="${activeTab === 2 ? '' : 'hidden'} w-full h-full rounded-b-lg rounded-tr-lg"></div>
+            <div data-component="myLanguage" class="${activeTab === 3 ? '' : 'hidden'} w-full h-full rounded-b-lg rounded-tr-lg"></div>
         </div>
         `;
     }
 
     mounted() {
-        // console.log("myInfoModal: mounted")
-        // const { activeTab } = this.$state;
-            // this.setState({componentsInit: true})
+        const user = store.getState().user; // store에서 user 정보 가져오기
+        // 구독 시 수행할 함수를 인자로 넘기고 구독 해지 함수를 반환받는다.
+        this.unsubscribe = store.subscribe(() => this.render());
         
         // 초기 탭 컴포넌트 마운트
         const $myInfo = this.$target.querySelector('[data-component="myInfo"]') as HTMLElement;
         const $myFriends = this.$target.querySelector('[data-component="myFriends"]') as HTMLElement;
         const $myLogs = this.$target.querySelector('[data-component="myLogs"]') as HTMLElement;
+        const $myLanguage = this.$target.querySelector('[data-component="myLanguage"]') as HTMLElement;
         
         // 처음 렌더링 시에만 컴포넌트 생성
-        // console.log(this.$state.componentsInit)
-        // if (!this.$state.componentsInit) {
-            // console.log("myInfoModal: componentsInit : ", this.$state.componentsInit)
-            new Profile($myInfo);
-            new FriendsList($myFriends);
-            new GameHistory($myLogs);
-            
-            // setState를 사용하여 상태 업데이트
-            // this.setState({ componentsInit: true });
-            // 여기서 setState를 사용하면 render()가 다시 호출되어 무한 루프가 될 수 있으므로
-            // 상태 업데이트 후 바로 반환
-            // return;
-        // }
+            new Profile($myInfo, {user});
+            new FriendsList($myFriends, {user});
+            new GameHistory($myLogs, {user});
+            new LanguageSetting($myLanguage);
+    }
+
+    Unmount() {
+      //구독 해제
+      if (this.unsubscribe) {
+        this.unsubscribe();
+      }
     }
 
 
