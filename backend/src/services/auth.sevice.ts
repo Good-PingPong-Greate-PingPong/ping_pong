@@ -7,8 +7,10 @@ const authService = () => {
     let user = await prisma.user.findUnique({ where: { email } });
 
     if (!user) {
+      const maxLength = 16;
       let rawNickname = (name || email.split('@')[0]).trim();
-      let uniqueNickname = rawNickname.slice(0, 16);
+      let baseNickname = rawNickname.slice(0, maxLength);
+      let uniqueNickname = baseNickname;
       let suffix = 1;
 
       while (
@@ -16,12 +18,10 @@ const authService = () => {
           where: { nickname: uniqueNickname },
         })
       ) {
-        uniqueNickname = `${rawNickname}_${suffix}`;
-        if (uniqueNickname.length > 16) {
-          const trimLength = 16 - `_${suffix}`.length;
-          rawNickname = rawNickname.slice(0, trimLength);
-          uniqueNickname = `${rawNickname}_${suffix}`;
-        }
+        const suffixStr = `_${suffix}`;
+        const trimLength = maxLength - suffixStr.length;
+        baseNickname = rawNickname.slice(0, trimLength);
+        uniqueNickname = `${baseNickname}${suffixStr}`;
         suffix++;
       }
 
