@@ -1,6 +1,10 @@
 import { FastifyInstance } from 'fastify';
 import { authHandler } from '../handlers';
-import { refreshSchema, logoutSchema, googleCallbackSchema } from '../schema';
+import {
+  googleCallbackSchema,
+  refreshSchema,
+  logoutSchema,
+} from '../schema/auth/auth.schema';
 import { jwtUtil } from '../lib';
 
 const authRoute = async (fastify: FastifyInstance): Promise<void> => {

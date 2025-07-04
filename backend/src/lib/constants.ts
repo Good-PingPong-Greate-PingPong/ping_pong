@@ -104,13 +104,43 @@ const SUCCESS_MESSAGE = {
   },
   sendMail: {
     success: true,
-    status: 201,
+    status: 200,
     message: 'send reset email Success!',
   },
   reset2FA: {
     success: true,
     status: 200,
     message: 'reset 2FA Success!',
+  },
+  updateProfile: {
+    success: true,
+    status: 200,
+    message: 'update profile Success!',
+  },
+  uploadProfileImage: {
+    success: true,
+    status: 200,
+    message: 'upload profile image Success!',
+  },
+  getProfile: {
+    success: true,
+    status: 200,
+    message: 'get profile Success!',
+  },
+  addFriend: {
+    success: true,
+    status: 200,
+    message: 'add friend Success!',
+  },
+  cancelFriend: {
+    success: true,
+    status: 200,
+    message: 'cancel friend Success!',
+  },
+  getFriendList: {
+    success: true,
+    status: 200,
+    message: 'get friend list Success!',
   },
 } as const;
 
