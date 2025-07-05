@@ -8,11 +8,13 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "npm run dev",
     "dev": "npx tsx src/main.ts",
+    "seed": "npx prisma db seed",
     "dev:live": "nodemon --watch 'src/' --exec node --loader ts-node/esm src/main.ts --verbose"
   },
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "@faker-js/faker": "^9.9.0",
     "@fastify/cookie": "^11.0.2",
     "@fastify/multipart": "^9.0.3",
     "@fastify/oauth2": "^8.1.2",
@@ -21,6 +23,7 @@
     "@fastify/websocket": "^11.1.0",
     "@prisma/client": "^6.4.1",
     "@sinclair/typebox": "^0.34.31",
+    "bcrypt": "^6.0.0",
     "dotenv": "^16.4.7",
     "fastify": "^5.2.1",
     "fastify-plugin": "^5.0.1",
@@ -29,7 +32,11 @@
     "qrcode": "^1.5.4",
     "speakeasy": "^2.0.0"
   },
+  "prisma": {
+    "seed": "npx tsx src/seed.ts"
+  },
   "devDependencies": {
+    "@types/bcrypt": "^5.0.2",
     "@types/dotenv": "^8.2.3",
     "@types/jsonwebtoken": "^9.0.9",
     "@types/node": "^22.13.9",
