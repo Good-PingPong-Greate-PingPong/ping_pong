@@ -13,8 +13,8 @@ services:
   backend:
     build: ./backend
     container_name: backend
-    expose:
-      - "3000"
+    volumes:
+      - sqlite-data:/app/prisma
     networks:
       - transcendence
     restart: unless-stopped
@@ -35,6 +35,7 @@ services:
 
 volumes:
   frontend_dist:
+  sqlite-data:
 
 networks:
   transcendence:
