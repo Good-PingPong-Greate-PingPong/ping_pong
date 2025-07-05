@@ -1,4 +1,6 @@
+
 import { store } from "./store";
+
 
 interface RouteDefinition {
     fragmentRegExp: RegExp;
@@ -57,6 +59,7 @@ start(): void {
     checkRoutes();
 }
 
+
 // URL 파라미터 추출 메서드
 private getUrlParams(route: RouteDefinition, hash: string): Record<string, string> {
     const params: Record<string, string> = {};
@@ -87,6 +90,7 @@ private checkRoutes(): void {
             return;
         }
     }
+
 
     const currentRoute = this.routes.find(route => route.fragmentRegExp.test(currentHash)); // 정규표현식과 일치하면 true, #을 제거하고 빈 문자열도 처리
     if (currentRoute) {
@@ -119,6 +123,8 @@ private checkRoutes(): void {
 }
 
 export function navigate(fragment: string, replace: boolean = false) {
+
+
 
 
 	if (replace) {

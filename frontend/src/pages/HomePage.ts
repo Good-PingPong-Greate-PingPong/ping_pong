@@ -1,8 +1,10 @@
 import { Component } from '../core/Component';
+
 import logoutIcon from '../assets/logout.svg';
 import { navigate } from '../core/router';
 import { MyInfoModal } from '../components/myInfoModal';
 import { store } from '../core/store';
+
 
 export class HomePage extends Component {
 
@@ -16,11 +18,13 @@ export class HomePage extends Component {
 	}
 	setEvent(){
 		this.addEvent("click", ".navigate-tournament", ()=> navigate("/tournament-game"))
+
 		this.addEvent("click", "#logoutBtn", ()=> {
       store.setState({user:null});
       localStorage.removeItem('app-state');
       navigate("/login", true)
     })
+
 		this.addEvent("click", "#myInfoBtn", ()=> this.openModal('[data-component="myInfoModal"]'))
 		
 	}
@@ -36,6 +40,7 @@ export class HomePage extends Component {
 					<li class="min-w-40 min-h-14 bg-black rounded-lg flex flex-col justify-around"><a href="#/tournament-game">토너먼트</a></li>
 					<li id="myInfoBtn" class="min-w-40 min-h-14 bg-black rounded-lg flex flex-col justify-around"><a >내 정보</a></li>
 				</ul>
+
 				<div class="bg-blue-100 w-80 min-h-48">gif 삽입 위치
         <img src ="https://picsum.photos/200/300" />
         </div>
@@ -45,6 +50,7 @@ export class HomePage extends Component {
 			<footer class="w-full h-16 flex flex-row justify-end items-center">
 			<button class="mr-3" id="logoutBtn">
 				<img src="${logoutIcon}" alt="logout" class="w-8 h-8 cursor-pointer" >
+
 			</button>
 			</footer>
 		</div>
@@ -57,13 +63,17 @@ export class HomePage extends Component {
 	mounted() {
 		const $myInfoModal = this.$target.querySelector('[data-component="myInfoModal"]') as HTMLElement;
 
+
 		new MyInfoModal($myInfoModal, {
+
 			closeModal: this.closeModal.bind(this)
 		});
 	}
 
 	closeModal($target : HTMLElement) {
+
 		
+
 		$target.classList.add("hidden");
 	}
 

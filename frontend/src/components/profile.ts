@@ -1,3 +1,4 @@
+
 import { Component } from '../core/Component';
 import settingIcon from '../assets/setting.svg';
 import saveIcon from '../assets/save.svg';
@@ -253,3 +254,4 @@ export class Profile extends Component {
     }
   }
 }
+

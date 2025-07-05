@@ -1,4 +1,5 @@
 import { Component } from "../core/Component";
+
 import { store } from "../core/store";
 import { LanguageSetting } from "./ LanguageSetting";
 import { FriendsList } from "./FriendList";
@@ -15,6 +16,7 @@ export class MyInfoModal extends Component {
         // this.setState({componentsInit: false})
 
     }
+
     addEvent(eventType: string, selector: string, callback: (event: Event) => void): void {
 		this.$target.addEventListener(eventType, (event: Event) => {
 		  // 이벤트가 발생한 요소가 selector와 일치하지 않으면 무시
@@ -25,6 +27,7 @@ export class MyInfoModal extends Component {
 	}
 
     setEvent (){
+
         // 모달 외부 클릭 시 닫기 이벤트
         const { closeModal } = this.$props;
         this.addEvent('click', '#modalOverlay', () => {
@@ -59,11 +62,13 @@ export class MyInfoModal extends Component {
             <div data-component="myFriends" class="${activeTab === 1 ? '' : 'hidden'} w-full h-full rounded-b-lg rounded-tr-lg"></div>
             <div data-component="myLogs" class="${activeTab === 2 ? '' : 'hidden'} w-full h-full rounded-b-lg rounded-tr-lg"></div>
             <div data-component="myLanguage" class="${activeTab === 3 ? '' : 'hidden'} w-full h-full rounded-b-lg rounded-tr-lg"></div>
+
         </div>
         `;
     }
 
     mounted() {
+
         const user = store.getState().user; // store에서 user 정보 가져오기
         // 구독 시 수행할 함수를 인자로 넘기고 구독 해지 함수를 반환받는다.
         this.unsubscribe = store.subscribe(() => this.render());
@@ -87,6 +92,7 @@ export class MyInfoModal extends Component {
         this.unsubscribe();
       }
     }
+
 
 
 }
