@@ -5,8 +5,8 @@ export interface BaseSocketMessage {
 }
 
 export interface TournamentTreeMessage extends BaseSocketMessage {
-  type: "game";
-  subtype: "tournament_tree";
+  type: 'game';
+  subtype: 'tournament_tree';
   data: {
     winner: [] | [string, string];
     bracket: [string, string][];
@@ -14,18 +14,18 @@ export interface TournamentTreeMessage extends BaseSocketMessage {
 }
 
 interface SessionInfoMessage extends BaseSocketMessage {
-  type: "game";
-  subtype: "session_info";
+  type: 'game';
+  subtype: 'session_info';
   data: {
-    round: "semi" | "final";
+    round: 'semi' | 'final';
     nickname1: string;
     nickname2: string;
   };
 }
 
 interface MatchRunMessage extends BaseSocketMessage {
-  type: "game";
-  subtype: "match_run";
+  type: 'game';
+  subtype: 'match_run';
   match_id: number;
   data: {
     ball: {
@@ -49,8 +49,8 @@ interface MatchRunMessage extends BaseSocketMessage {
 }
 
 interface MatchInitSettingMessage extends BaseSocketMessage {
-  type: "game";
-  subtype: "match_init_setting";
+  type: 'game';
+  subtype: 'match_init_setting';
   data: {
     ball: {
       x: number;
@@ -77,30 +77,36 @@ interface MatchInitSettingMessage extends BaseSocketMessage {
 }
 
 interface MatchEndMessage extends BaseSocketMessage {
-  type: "game";
-  subtype: "match_end";
+  type: 'game';
+  subtype: 'match_end';
   data: {
-    round: "semi" | "final";
+    round: 'semi' | 'final';
     score: {
       player1: number;
       player2: number;
-    }
+    };
     winner: string;
   };
 }
 
 export interface KeyMessage extends BaseSocketMessage {
-  type: "game";
-  subtype: "key_down";
-  message: "key!";
+  type: 'game';
+  subtype: 'key_down';
+  message: 'key!';
   data: {
     key_set: string;
-  }
+  };
 }
 
 interface ConnectionMessage extends BaseSocketMessage {
-  type: "connection";
-  subtype: "success" | "failed";
+  type: 'connection';
+  subtype: 'success' | 'failed';
 }
 
-export type TournamentMessage = TournamentTreeMessage | SessionInfoMessage | MatchRunMessage | MatchInitSettingMessage | ConnectionMessage| MatchEndMessage;
+export type TournamentMessage =
+  | TournamentTreeMessage
+  | SessionInfoMessage
+  | MatchRunMessage
+  | MatchInitSettingMessage
+  | ConnectionMessage
+  | MatchEndMessage;

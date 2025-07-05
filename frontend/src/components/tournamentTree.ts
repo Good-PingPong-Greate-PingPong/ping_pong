@@ -1,16 +1,16 @@
-import { Component } from "../core/Component";
-import { TournamentMessage } from '../webSocket/TournamentMessage.ts'
+import { Component } from '../core/Component';
+import { TournamentMessage } from '../webSocket/TournamentMessage.ts';
 import tree from '../assets/tree.svg';
 
 export class tournamentTree extends Component {
   addEvent(eventType: string, selector: string, callback: (event: Event) => void): void {
-		this.$target.addEventListener(eventType, (event: Event) => {
-		  // 이벤트가 발생한 요소가 selector와 일치하지 않으면 무시
-		const target = event.target as Element;
-		if (!target.closest(selector)) return false;
-		  callback(event); // selector와 일치하면 콜백 실행
-		});
-	}
+    this.$target.addEventListener(eventType, (event: Event) => {
+      // 이벤트가 발생한 요소가 selector와 일치하지 않으면 무시
+      const target = event.target as Element;
+      if (!target.closest(selector)) return false;
+      callback(event); // selector와 일치하면 콜백 실행
+    });
+  }
 
   template() {
     return `
@@ -39,8 +39,8 @@ export class tournamentTree extends Component {
   }
 
   update(msg: TournamentMessage) {
-    console.log("Tournament 트리 데이터 수신:", msg);
-    if (msg.subtype !== "tournament_tree") return ;
+    console.log('Tournament 트리 데이터 수신:', msg);
+    if (msg.subtype !== 'tournament_tree') return;
     const $player1 = this.$target.querySelector('#player1') as HTMLElement;
     $player1.textContent = msg.data.bracket[0][0];
     const $player2 = this.$target.querySelector('#player2') as HTMLElement;

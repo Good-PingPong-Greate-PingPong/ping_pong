@@ -1,10 +1,11 @@
-import { Component } from "../core/Component";
+import { Component } from '../core/Component';
 
-import { localGameResult } from "../components/localGameResult";
-import { nicknameInputModal } from "../components/nicknameInputModal.ts";
+import { localGameResult } from '../components/localGameResult';
+import { nicknameInputModal } from '../components/nicknameInputModal.ts';
 
 export class LocalGamePage extends Component {
-  template () { return `
+  template() {
+    return `
     <div id="gameDiv">
       <div data-component="nicknameInputModal" class="flex items-center justify-center transition"></div>
 
@@ -16,18 +17,21 @@ export class LocalGamePage extends Component {
       <canvas></canvas>
       <div data-component="localGameResult"></div>
     </div>
-  `; 
+  `;
   }
 
   mounted() {
+    const $nicknameModal = this.$target.querySelector(
+      '[data-component="nicknameInputModal"]',
+    ) as HTMLElement;
 
-    const $nicknameModal = this.$target.querySelector('[data-component="nicknameInputModal"]') as HTMLElement;
-    
     new nicknameInputModal($nicknameModal, {
-      closeModal: this.closeModal.bind(this)
+      closeModal: this.closeModal.bind(this),
     });
 
-    const $resultTarget = this.$target.querySelector('[data-component="localGameResult"]') as HTMLElement;
+    const $resultTarget = this.$target.querySelector(
+      '[data-component="localGameResult"]',
+    ) as HTMLElement;
     const resultComponent = new localGameResult($resultTarget, { winnerName: null });
 
     // 게임 시작
@@ -46,18 +50,18 @@ export class LocalGamePage extends Component {
 
     // 커스텀 이벤트 수신
     window.addEventListener('startLocalGame', (e: Event) => {
-    const { player1, player2 } = (e as CustomEvent).detail;
+      const { player1, player2 } = (e as CustomEvent).detail;
 
-    const $p1 = this.$target.querySelector('#Player1Nick');
-    const $p2 = this.$target.querySelector('#Player2Nick');
-    if ($p1 && $p2) {
-      $p1.textContent = player1 || 'PLAYER 1';
-      $p2.textContent = player2 || 'PLAYER 2';
-    }});
+      const $p1 = this.$target.querySelector('#Player1Nick');
+      const $p2 = this.$target.querySelector('#Player2Nick');
+      if ($p1 && $p2) {
+        $p1.textContent = player1 || 'PLAYER 1';
+        $p2.textContent = player2 || 'PLAYER 2';
+      }
+    });
   }
 
-  closeModal($target : HTMLElement) {
-    $target.classList.add("hidden");
-
+  closeModal($target: HTMLElement) {
+    $target.classList.add('hidden');
   }
 }

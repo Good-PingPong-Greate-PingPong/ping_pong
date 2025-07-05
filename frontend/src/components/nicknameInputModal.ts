@@ -1,31 +1,31 @@
-import { Component } from "../core/Component";
+import { Component } from '../core/Component';
 import { navigate } from '../core/router';
 import x_button from '../assets/x_button.svg';
 
 export class nicknameInputModal extends Component {
   addEvent(eventType: string, selector: string, callback: (event: Event) => void): void {
-		this.$target.addEventListener(eventType, (event: Event) => {
-		  // 이벤트가 발생한 요소가 selector와 일치하지 않으면 무시
-		const target = event.target as Element;
-		if (!target.closest(selector)) return false;
-		  callback(event); // selector와 일치하면 콜백 실행
-		});
-	}
+    this.$target.addEventListener(eventType, (event: Event) => {
+      // 이벤트가 발생한 요소가 selector와 일치하지 않으면 무시
+      const target = event.target as Element;
+      if (!target.closest(selector)) return false;
+      callback(event); // selector와 일치하면 콜백 실행
+    });
+  }
 
   setEvent() {
-    this.addEvent('click', '#xBtn', ()=> navigate("/"));
+    this.addEvent('click', '#xBtn', () => navigate('/'));
     const { closeModal } = this.$props;
     this.addEvent('click', '#startBtn', () => {
       const player1 = (this.$target.querySelector('#player1Form') as HTMLInputElement).value;
       const player2 = (this.$target.querySelector('#player2Form') as HTMLInputElement).value;
 
       const event = new CustomEvent('startLocalGame', {
-        detail: { player1, player2 }
+        detail: { player1, player2 },
       });
 
       window.dispatchEvent(event); // 또는 this.$target.dispatchEvent(event); 로 지역화 가능
       closeModal(this.$target);
-    })
+    });
   }
 
   template() {
