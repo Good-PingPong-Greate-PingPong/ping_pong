@@ -10,6 +10,18 @@ const userService = () => {
     const user = await prisma.user.findUnique({ where: { id: userId } });
     if (!user) throw new Error('User not found');
 
+    if (updateData.nickname) {
+      const existing = await prisma.user.findFirst({
+        where: {
+          nickname: updateData.nickname,
+          NOT: { id: userId },
+        },
+      });
+      if (existing) {
+        throw new Error('이미 존재하는 닉네임입니다');
+      }
+    }
+
     return prisma.user.update({
       where: { id: userId },
       data: updateData,

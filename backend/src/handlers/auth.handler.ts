@@ -4,7 +4,7 @@ import { FastifyRequest, FastifyReply } from 'fastify';
 
 const authHandler = () => {
   const login = async (req: FastifyRequest, reply: FastifyReply) => {
-    reply.redirect('/auth/google');
+    reply.redirect('/api/auth/google');
   };
 
   const googleCallback = async (req: FastifyRequest, reply: FastifyReply) => {

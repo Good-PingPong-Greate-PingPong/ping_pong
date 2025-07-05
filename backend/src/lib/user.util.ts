@@ -36,6 +36,17 @@ const userUtil = () => {
 
     for await (const part of parts) {
       if (part.type === 'file' && part.fieldname.trim() === 'profileImage') {
+        const validTypes = ['image/jpeg', 'image/png'];
+        const maxSize = 2 * 1024 * 1024; // 2MB
+
+        if (!validTypes.includes(part.mimetype)) {
+          throw new Error(`지원하지 않는 이미지 타입입니다: ${part.mimetype}`);
+        }
+
+        if (part.file.truncated || part.file.readableLength > maxSize) {
+          throw new Error('파일 크기가 너무 큽니다 (최대 2MB)');
+        }
+
         const imageUrl = await saveProfileImage(part.file, part.filename);
         updateData.profileImage = imageUrl;
       } else if (part.type === 'field') {
@@ -48,9 +59,16 @@ const userUtil = () => {
         }
 
         switch (fieldname) {
-          case 'nickname':
-            updateData.nickname = value;
+          case 'nickname': {
+            const trimmed = value.trim();
+            if (!trimmed || trimmed.length < 2 || trimmed.length > 16) {
+              throw new Error(
+                '닉네임은 2~16자의 공백이 아닌 문자열이어야 합니다',
+              );
+            }
+            updateData.nickname = trimmed;
             break;
+          }
           case 'twoFactorEnabled':
             updateData.twoFactorEnabled = value === 'true';
             break;
@@ -61,7 +79,6 @@ const userUtil = () => {
     }
     return updateData;
   };
-
   return {
     saveProfileImage,
     parseUserProfileParts,
