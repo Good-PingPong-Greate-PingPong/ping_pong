@@ -1,4 +1,7 @@
 
+import { store } from "./store";
+
+
 interface RouteDefinition {
     fragmentRegExp: RegExp;
     component: ComponentConstructor;
@@ -56,6 +59,7 @@ start(): void {
     checkRoutes();
 }
 
+
 // URL 파라미터 추출 메서드
 private getUrlParams(route: RouteDefinition, hash: string): Record<string, string> {
     const params: Record<string, string> = {};
@@ -76,6 +80,17 @@ private getUrlParams(route: RouteDefinition, hash: string): Record<string, strin
 private checkRoutes(): void {
 
     const currentHash = window.location.hash.replace('#', '') || '/';
+
+      // 인증이 필요한 경로 목록 (예시)
+    const protectedRoutes = ['/', '/tournament-game', '/local-game'];
+    if (protectedRoutes.includes(currentHash)) {
+        const { user } = store.getState();
+        if (!user) {
+            window.location.hash = '#/login';
+            return;
+        }
+    }
+
 
     const currentRoute = this.routes.find(route => route.fragmentRegExp.test(currentHash)); // 정규표현식과 일치하면 true, #을 제거하고 빈 문자열도 처리
     if (currentRoute) {
@@ -108,6 +123,9 @@ private checkRoutes(): void {
 }
 
 export function navigate(fragment: string, replace: boolean = false) {
+
+
+
 
 	if (replace) {
         // 뒤로가기 막기

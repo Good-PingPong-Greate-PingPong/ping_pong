@@ -1,4 +1,5 @@
 import { Component } from "../core/Component";
+
 import { localGameResult } from "../components/localGameResult";
 import { nicknameInputModal } from "../components/nicknameInputModal.ts";
 
@@ -6,6 +7,7 @@ export class LocalGamePage extends Component {
   template () { return `
     <div id="localGameDiv">
       <div data-component="nicknameInputModal" class="flex items-center justify-center transition"></div>
+
       <div id="ScoreDiv">
         <p id="Player1Nick">PLAYER 1</p>
         <p id="Player1">0</p> : <p id="Player2">0</p>
@@ -18,6 +20,7 @@ export class LocalGamePage extends Component {
   }
 
   mounted() {
+
     const $nicknameModal = this.$target.querySelector('[data-component="nicknameInputModal"]') as HTMLElement;
     
     new nicknameInputModal($nicknameModal, {
@@ -55,5 +58,6 @@ export class LocalGamePage extends Component {
 
   closeModal($target : HTMLElement) {
     $target.classList.add("hidden");
+
   }
 }

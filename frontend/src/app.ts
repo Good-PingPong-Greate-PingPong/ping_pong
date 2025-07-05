@@ -6,12 +6,20 @@ import { TournamentGamePage } from './pages/TournamentGamePage';
 import { LoginPage } from './pages/LoginPage';
 import { LocalGamePage } from './pages/LocalGamePage';
 
+import { TwoFactorPage } from './pages/TwoFactorPage';
+import { store } from './core/store';
+
 export class App extends Component {
   setup() {
+    store.init();
+
     if (this.$target) {
       const router = new Router(this.$target);
       router.addRoute("/", HomePage)
       .addRoute("/login", LoginPage)
+
+      .addRoute("/login/two-factor", TwoFactorPage)
+
       .addRoute("/tournament-game", TournamentGamePage)
       .addRoute("/local-game", LocalGamePage)
       .setNotFound(NotFoundPage)
