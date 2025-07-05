@@ -79,7 +79,7 @@ h1 {
   width: 100%;
   height: 100%;
 
-  #ScoreDiv {
+  #scoreDiv {
     display: flex;
     height: 80px;
     width: 60%;
@@ -106,11 +106,10 @@ h1 {
 
   }
   
-  #ResultView {
-    position: absolute;
+  #resultView {
+    position: fixed;
     top: 0;
     left: 0;
-    z-index: 50;
     width: 100%;
     height: 100%;
     display: flex;
@@ -118,7 +117,7 @@ h1 {
     justify-content: space-around;
     align-items: center;
  
-    #WinMsg {
+    #winMsg {
       display: block;
       font-family: "Inria Sans";
       font-size: 100px;
@@ -131,7 +130,7 @@ h1 {
       justify-content: center;
       align-items: center;
   
-      #WinImageBox {
+      #winImageBox {
         display: flex;
         align-items: center;
         margin-top: 1rem;
@@ -145,6 +144,39 @@ h1 {
       }
     }
   
+    #tournamentWinMsg {
+      display: block;
+      font-family: "Inria Sans";
+      font-size: 100px;
+      font-style: normal;
+      font-weight: 700;
+      line-height: normal;
+      width: 100%;
+      height: 100%;
+      color: white;
+  
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+  
+      #tournamentWinImageBox {
+        position: fixed;
+        display: flex;
+        justify-content: space-around;
+        align-items: center;
+        margin-top: 1rem;
+        min-width: 20rem;
+        min-height: 10rem;
+        width:100%;
+
+        img {
+          width: auto;
+          height: 100%;
+        }
+      }
+    }
+
     #backBtn {
       position: absolute;
       bottom: 1.5rem;
@@ -217,6 +249,18 @@ h1 {
     align-items: center;
     color: #302C2C;
     font-size: 2rem;
+    position: relative;
+
+    width: 100%;
+    height: 60%;
+    #playerNickname{
+      top: 15%;
+      width: 90%;
+      height: 80%;
+      align-items: center;
+      position: absolute;
+      justify-content: center;
+    }
   }
 
   #nickInputForm{

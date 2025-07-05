@@ -22,10 +22,10 @@ export class localGameResult extends Component {
     console.log("winnerName: " + winnerName);
     if (!winnerName) return '';
     return `
-    <div id="ResultView">
-      <div id="WinMsg">
+    <div id="resultView">
+      <div id="winMsg">
         <p><span id="WinPlayerName">${winnerName}</span> WIN!!</p>
-        <div id="WinImageBox">
+        <div id="winImageBox">
           <img src="${flower}" alt="flower 1">
           <img src="${dancing}" alt="dancing man">
           <img src="${flower}" alt="flower 2">

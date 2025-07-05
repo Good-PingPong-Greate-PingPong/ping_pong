@@ -1,5 +1,6 @@
 import { Component } from "../core/Component";
-import { TreeMessage } from '../types/webSocket/TreeMessage.ts'
+import { TournamentMessage } from '../webSocket/TournamentMessage.ts'
+import tree from '../assets/tree.svg';
 
 export class tournamentTree extends Component {
   addEvent(eventType: string, selector: string, callback: (event: Event) => void): void {
@@ -16,7 +17,17 @@ export class tournamentTree extends Component {
     <div id="modalOverlay" class="w-full h-full absolute top-0 bg-black opacity-20 transition"></div>
     <div id="gameModal">
       <p id="modalTitle">토너먼트 게임</p>
-      
+      <div id="modalContent">
+        <img src="${tree}" alt="tree" class="w-[80%] h-[100%] justify-center" >
+        <div id="playerNickname">
+          <div id="player1" class="absolute top-3 left-2 bg-white w-[250px] break-words text-center">Player1</div>
+          <div id="player2" class="absolute bottom-5 left-2 bg-white w-[250px] break-words text-center">Player2</div>
+          <div id="player3" class="absolute top-3 right-2 bg-white w-[250px] break-words text-center">Player3</div>
+          <div id="player4" class="absolute bottom-5 right-2 bg-white w-[250px] break-words text-center">Player4</div>
+          <div id="player5" class="absolute top-[40%] left-[26%] bg-white w-[150px] break-words text-center"></div>
+          <div id="player6" class="absolute top-[40%] right-[26%] bg-white w-[150px] break-words text-center"></div>
+        </div>
+      </div>
     </div>
     `;
   }
@@ -27,9 +38,22 @@ export class tournamentTree extends Component {
     });
   }
 
-  update(data: TreeMessage["data"]) {
-    // 트리 UI 업데이트 로직
-    console.log("Tournament 트리 데이터 수신:", data);
-    // ... 실제 렌더링 로직
+  update(msg: TournamentMessage) {
+    console.log("Tournament 트리 데이터 수신:", msg);
+    if (msg.subtype !== "tournament_tree") return ;
+    const $player1 = this.$target.querySelector('#player1') as HTMLElement;
+    $player1.textContent = msg.data.bracket[0][0];
+    const $player2 = this.$target.querySelector('#player2') as HTMLElement;
+    $player2.textContent = msg.data.bracket[0][1];
+    const $player3 = this.$target.querySelector('#player3') as HTMLElement;
+    $player3.textContent = msg.data.bracket[1][0];
+    const $player4 = this.$target.querySelector('#player4') as HTMLElement;
+    $player4.textContent = msg.data.bracket[1][1];
+    if (msg.data.winner.length) {
+      const $player5 = this.$target.querySelector('#player5') as HTMLElement;
+      $player5.textContent = msg.data.winner[0];
+      const $player6 = this.$target.querySelector('#player6') as HTMLElement;
+      $player6.textContent = msg.data.winner[1];
+    }
   }
 }
