@@ -1,5 +1,7 @@
 FROM node:20
 
+RUN apt-get update && apt-get install -y sqlite3
+
 WORKDIR /app
 
 # 1. 패키지 설치
