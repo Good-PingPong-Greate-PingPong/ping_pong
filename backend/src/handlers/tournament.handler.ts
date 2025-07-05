@@ -23,3 +23,5 @@ const tournamentHandler = () => {
 
   return { readTournament };
 };
+
+export default tournamentHandler();
