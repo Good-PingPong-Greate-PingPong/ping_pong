@@ -16,4 +16,6 @@ const tournamentRoute = async (fastify: FastifyInstance) => {
     tournamentHandler.readTournament,
   );
 };
+
 export default tournamentRoute;
+

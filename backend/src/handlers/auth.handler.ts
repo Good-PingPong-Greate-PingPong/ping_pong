@@ -36,7 +36,9 @@ const authHandler = () => {
           window.opener.postMessage({
             status: 206,
             token: '${tmpToken}'
+
           }, '${env.frontendOrigin}');
+
           window.close();
         </script>
       `);
@@ -49,6 +51,7 @@ const authHandler = () => {
           status: 500,
           message: '로그인 중 오류가 발생했습니다.'
         }, '${env.frontendOrigin}');
+
         window.close();
       </script>
     `);
@@ -134,6 +137,7 @@ const authHandler = () => {
         status: ${successMessage.status},
         user: ${JSON.stringify(user)},
         token: '${accessToken}'
+
       }, '${env.frontendOrigin}');
       window.close();
       </script>
