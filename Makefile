@@ -1,9 +1,9 @@
 FRONT_DIR=frontend
 NGINX_CERT_DIR=nginx/cert
 
-.PHONY: all cert up down clean re
+.PHONY: all cert frontend up down clean re
 
-all: cert up
+all: cert frontend up
 
 cert:
 	@echo "🔐 인증서 생성 (Docker + mkcert)..."
@@ -13,6 +13,15 @@ cert:
 	else \
 		echo "✅ 인증서 이미 존재합니다."; \
 	fi
+
+frontend:
+	@echo "⚙️ 프론트엔드 로컬 빌드 중..."
+	cd $(FRONT_DIR) && npm ci
+	cd $(FRONT_DIR) && npm run build
+	@echo "📦 dist 폴더를 nginx에 복사 중..."
+	rm -rf nginx/html
+	mkdir -p nginx/html
+	cp -r $(FRONT_DIR)/dist/* nginx/html/
 
 up:
 	@echo "🚀 Docker Compose 실행 (with build)"
@@ -26,6 +35,7 @@ clean:
 	@echo "🧹 정리 중..."
 	rm -rf $(FRONT_DIR)/dist
 	rm -rf $(FRONT_DIR)/node_modules
+	rm -rf nginx/html
 	docker volume prune -f
 
 re: down clean all

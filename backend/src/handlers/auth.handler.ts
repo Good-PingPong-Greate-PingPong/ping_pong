@@ -21,7 +21,7 @@ const authHandler = () => {
       if (user.twoFactorEnabled) {
         const tmpToken = jwtUtil.signTmpToken({ userId: user.id });
 
-        return reply.type('text/html').send(`
+        return reply.type('text/html; charset=UTF-8').send(`
         <script>
           window.opener.postMessage({
             status: 206,
@@ -33,7 +33,7 @@ const authHandler = () => {
       }
       return finalizeLogin(reply, user.id, SUCCESS_MESSAGE.loginOK);
     } catch (error) {
-      return reply.type('text/html').send(`
+      return reply.type('text/html; charset=UTF-8').send(`
       <script>
         window.opener.postMessage({
           status: 500,
@@ -118,11 +118,12 @@ const authHandler = () => {
       path: '/',
       maxAge: 60 * 60 * 24 * 7,
     });
-    return reply.type('text/html').send(`
+    return reply.type('text/html; charset=UTF-8').send(`
     <script>
       window.opener.postMessage({
         status: ${successMessage.status},
-        user: ${JSON.stringify(user)}
+        user: ${JSON.stringify(user)},
+        token: '${accessToken}'
       }, window.location.origin);
       window.close();
       </script>

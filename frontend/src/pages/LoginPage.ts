@@ -27,6 +27,7 @@ export class LoginPage extends Component {
         if (event.origin !== window.location.origin) return;
 
         const data = event.data;
+        console.log('로그인 응답:', data);
 
         if (data.status === 206) {
           // 2FA 필요
@@ -35,6 +36,7 @@ export class LoginPage extends Component {
         } else if (data.status === 201) {
           // 로그인 성공
           store.setState({ user: data.user });
+          store.setState({ accessToken: data.token });
           window.location.replace('#/');
         } else {
           alert(data.message || '로그인 실패');

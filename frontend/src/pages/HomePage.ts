@@ -5,48 +5,46 @@ import { navigate } from '../core/router';
 import { MyInfoModal } from '../components/myInfoModal';
 import { store } from '../core/store';
 
-
 export class HomePage extends Component {
+  addEvent(eventType: string, selector: string, callback: (event: Event) => void): void {
+    this.$target.addEventListener(eventType, (event: Event) => {
+      // 이벤트가 발생한 요소가 selector와 일치하지 않으면 무시
+      const target = event.target as Element;
+      if (!target.closest(selector)) return false;
+      callback(event); // selector와 일치하면 콜백 실행
+    });
+  }
+  setEvent() {
+    this.addEvent('click', '.navigate-tournament', () => navigate('/tournament-game'));
 
-	addEvent(eventType: string, selector: string, callback: (event: Event) => void): void {
-		this.$target.addEventListener(eventType, (event: Event) => {
-		  // 이벤트가 발생한 요소가 selector와 일치하지 않으면 무시
-		const target = event.target as Element;
-		if (!target.closest(selector)) return false;
-		  callback(event); // selector와 일치하면 콜백 실행
-		});
-	}
-	setEvent(){
-		this.addEvent("click", ".navigate-tournament", ()=> navigate("/tournament-game"))
-
-		this.addEvent("click", "#logoutBtn", ()=> {
-      store.setState({user:null});
+    this.addEvent('click', '#logoutBtn', () => {
+      store.setState({ user: null });
       localStorage.removeItem('app-state');
-      navigate("/login", true)
-    })
+      navigate('/login', true);
+    });
 
-		this.addEvent("click", "#myInfoBtn", ()=> this.openModal('[data-component="myInfoModal"]'))
-		
-	}
-	
-	setup () {
-		console.log("home")
-	};
-	template () {
-		const user = store.getState().user;
-    	if (!user) {
-      		return `<div>🔒 로그인 후 이용해주세요.</div>
+    this.addEvent('click', '#myInfoBtn', () => this.openModal('[data-component="myInfoModal"]'));
+  }
+
+  setup() {
+    console.log('home');
+  }
+  template() {
+    const user = store.getState().user;
+    const accessToken = store.getState().accessToken;
+    if (!user) {
+      return `<div>🔒 로그인 후 이용해주세요.</div>
 						<footer class="w-full h-16 flex flex-row justify-end items-center">
 			<button class="mr-3" id="logoutBtn">
 				<img src="${logoutIcon}" alt="logout" class="w-8 h-8 cursor-pointer" >
 
 			</button>
 			</footer>`;
-    	}
-		return `
+    }
+    return `
 		<div class="p-6">
         	<h1 class="text-2xl">🎉 환영합니다, ${user.nickname}님!</h1>
-        	<p>이메일: ${user.email}</p>
+        	<p>이메일: ${user.email}, 토큰: ${accessToken}</p>
       	</div>
 		<div class="w-full h-full flex flex-col justify-between ">
 			<div class="flex flex-row justify-around items-center border-2 w-full h-full">
@@ -69,32 +67,28 @@ export class HomePage extends Component {
 			</button>
 			</footer>
 		</div>
-	`; 
-	}
-	render () {
-		this.$target.innerHTML = this.template(); // template() 메서드로 HTML 생성 후 렌더링
-		this.mounted()
-	}
-	mounted() {
-		const $myInfoModal = this.$target.querySelector('[data-component="myInfoModal"]') as HTMLElement;
+	`;
+  }
+  render() {
+    this.$target.innerHTML = this.template(); // template() 메서드로 HTML 생성 후 렌더링
+    this.mounted();
+  }
+  mounted() {
+    const $myInfoModal = this.$target.querySelector(
+      '[data-component="myInfoModal"]',
+    ) as HTMLElement;
 
+    new MyInfoModal($myInfoModal, {
+      closeModal: this.closeModal.bind(this),
+    });
+  }
 
-		new MyInfoModal($myInfoModal, {
+  closeModal($target: HTMLElement) {
+    $target.classList.add('hidden');
+  }
 
-			closeModal: this.closeModal.bind(this)
-		});
-	}
-
-	closeModal($target : HTMLElement) {
-
-		
-
-		$target.classList.add("hidden");
-	}
-
-	openModal(target : string) {
-		const $target = document.querySelector(target) as HTMLElement;
-		$target.classList.remove("hidden");
-	}
+  openModal(target: string) {
+    const $target = document.querySelector(target) as HTMLElement;
+    $target.classList.remove('hidden');
+  }
 }
-

@@ -54,6 +54,13 @@ const authService = () => {
   const findUserById = async (userId: number) => {
     return await prisma.user.findUnique({
       where: { id: userId },
+      select: {
+        id: true,
+        nickname: true,
+        email: true,
+        profileImage: true,
+        twoFactorEnabled: true,
+      },
     });
   };
   const findRefreshToken = async (userId: number, refreshToken: string) => {
