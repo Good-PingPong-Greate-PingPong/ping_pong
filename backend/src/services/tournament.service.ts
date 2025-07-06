@@ -2,8 +2,9 @@ import { prisma } from '../plugins/prisma';
 import * as WS from 'ws';
 import { Prisma } from '@prisma/client';
 import { tournamentManager, tournamentWaitingRoom } from '../lib/global.util';
+import { pingpongUtil } from '../lib';
 
-function tournamentService() {
+const tournamentService = () => {
   const readTournament = async (userId: number, currentPage: number) => {
     const user = await prisma.user.findUnique({ where: { id: userId } });
     if (!user) {
@@ -110,102 +111,124 @@ function tournamentService() {
     };
   };
 
-  const startTournament = async (userId: number, socket: WS.WebSocket) => {
-    const user = await prisma.user.findUnique({ where: { id: userId } });
-    if (!user) {
-      throw new Error('');
-    }
-
-    //대기방 입장
-    tournamentWaitingRoom.addPlayer(userId, socket, user.nickname);
-    if (tournamentWaitingRoom.size() === 4) {
-      const players = [...tournamentWaitingRoom.getAll()];
-
-      const result = await prisma.$transaction(
-        async (tx: Prisma.TransactionClient) => {
-          //토너먼트 생성
-          const tournament = await tx.tournament.create({
-            data: {
-              status: prisma.tournamentStatus.ongoing,
-            },
-          });
-
-          //참여자 DB에 저장
-          const participants = await Promise.all(
-            players.map(([userId, socket]) =>
-              tx.participant.create({
-                data: {
-                  userId,
-                  tournamentId: tournament.id,
-                },
-              }),
-            ),
-          );
-
-          //match DB에 저장
-          const match1 = await tx.match.create({
-            data: {
-              tournamentId: result.tournament.id,
-              round: prisma.matchRound.semi, // 준결승
-              participant1Id: participants[0].id,
-              participant2Id: participants[1].id,
-              status: prisma.matchStatus.ongoing,
-            },
-          });
-
-          const match2 = await tx.match.create({
-            data: {
-              tournamentId: result.tournament.id,
-              round: prisma.matchRound.semi, // 준결승
-              participant1Id: participants[2].id,
-              participant2Id: participants[3].id,
-              status: prisma.matchStatus.ongoing,
-            },
-          });
-
-          const finalMatch = await tx.match.create({
-            data: {
-              tournamentId: result.tournament.id,
-              round: prisma.matchRound.final, // 결승
-              status: prisma.matchStatus.upcoming, // 결과 기다림
-            },
-          });
-
-          return { tournament, participants, match1, match2, finalMatch };
+  const createTournament = async (
+    players: [number, WS.WebSocket, string][],
+  ) => {
+    return await prisma.$transaction(async (tx) => {
+      const tournament = await tx.tournament.create({
+        data: {
+          status: 'ongoing',
+          startDatetime: new Date(),
+          endDatetime: new Date(Date.now() + 15 * 60 * 1000),
         },
-      );
-      //Room 생성 및 participant 저장
-      tournamentManager.createRoom(
-        result.tournament.id,
-        tournamentWaitingRoom.getAll(),
-      );
-      //대기방 초기화
-      tournamentWaitingRoom.clear();
-      //2-1. 클라이언트로 게임 대진표 정보 전송
-      tournamentManager.boradcasting(
-        result.tournament.id,
-        JSON.stringify({
-          type: 'game',
-          subtype: 'tournament_tree',
-          message: '',
-          data: {
-            winner: ['', ''],
-            bracket: [
-              [players[0], players[1]],
-              [players[2], players[3]],
-            ],
-          },
-        }),
-      );
-      //5초 대기
-      setTimeout(() => {}, 5000);
-      //3-1. 게임 시작 알림
+      });
 
-      //4-1. 클라이언트로 매치 초기화 정보 전송
+      const participants = await Promise.all(
+        players.map(([userId]) =>
+          tx.participant.create({
+            data: {
+              userId,
+              tournamentId: tournament.id,
+            },
+          }),
+        ),
+      );
 
-      return result;
-    }
-    return null;
+      const match1 = await tx.match.create({
+        data: {
+          tournamentId: tournament.id,
+          round: 'semi',
+          participant1Id: participants[0].id,
+          participant2Id: participants[1].id,
+          scheduledAt: new Date(),
+          status: 'ongoing',
+        },
+      });
+
+      const match2 = await tx.match.create({
+        data: {
+          tournamentId: tournament.id,
+          round: 'semi',
+          participant1Id: participants[2].id,
+          participant2Id: participants[3].id,
+          scheduledAt: new Date(),
+          status: 'ongoing',
+        },
+      });
+
+      const finalMatch = await tx.match.create({
+        data: {
+          tournamentId: tournament.id,
+          round: 'final',
+          scheduledAt: new Date(),
+          status: 'upcoming',
+        },
+      });
+
+      return { tournament, participants, match1, match2, finalMatch };
+    });
+  };
+
+  const startTournament = async (userId: number, socket: WS.WebSocket) => {
+    const user = await prisma.user.findUnique({
+      where: { id: userId },
+    });
+    if (!user) throw new Error('User not found');
+
+    tournamentWaitingRoom.addPlayer(userId, socket, user.nickname);
+    socket.on('close', () => {
+      tournamentWaitingRoom.removePlayer(userId);
+    });
+    if (tournamentWaitingRoom.size() < 4) return null;
+
+    const players: [number, WS.WebSocket, string][] = Array.from(
+      tournamentWaitingRoom.getAll(),
+    ).map(([userId, info]) => [userId, info.socket, info.nickname]);
+
+    const { tournament, participants, match1, match2, finalMatch } =
+      await createTournament(players);
+
+    tournamentManager.createRoom(tournament.id, tournamentWaitingRoom.getAll());
+    tournamentWaitingRoom.clear();
+
+    // 📡 2-1. 대진표 전송
+    tournamentManager.boradcasting(
+      tournament.id,
+      JSON.stringify({
+        type: 'game',
+        subtype: 'tournament_tree',
+        message: '',
+        data: {
+          winner: ['', ''],
+          bracket: [
+            [players[0][2], players[1][2]],
+            [players[2][2], players[3][2]],
+          ],
+        },
+      }),
+    );
+
+    // ⏱ 3초 후 초기 정보 전송
+    setTimeout(() => {
+      // match1
+      const [userId1A, , nickname1A] = players[0];
+      const [userId1B, , nickname1B] = players[1];
+      pingpongUtil.sendSessionInfo(tournament.id, nickname1A, nickname1B);
+      pingpongUtil.sendMatchInitSetting(tournament.id, nickname1A, nickname1B);
+
+      // match2
+      const [userId2A, , nickname2A] = players[2];
+      const [userId2B, , nickname2B] = players[3];
+      pingpongUtil.sendSessionInfo(tournament.id, nickname2A, nickname2B);
+      pingpongUtil.sendMatchInitSetting(tournament.id, nickname2A, nickname2B);
+    }, 3000);
+
+    return {
+      tournament,
+      match1,
+      match2,
+      finalMatch,
+    };
   };
 
   const startGame = async (tournamentId: number) => {};
@@ -214,6 +237,6 @@ function tournamentService() {
     readTournament,
     startTournament,
   };
-}
+};
 
 export default tournamentService();

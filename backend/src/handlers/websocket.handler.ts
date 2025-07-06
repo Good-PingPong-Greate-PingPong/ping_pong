@@ -1,5 +1,7 @@
 import { FastifyRequest, WebSocketQuery } from 'fastify';
 import { jwtUtil, userOnlineUtil } from '../lib';
+import { tournamentManager, tournamentWaitingRoom } from '../lib/global.util';
+import tournamentService from '../services/tournament.service';
 import * as WS from 'ws';
 
 const websocketHandler = () => {
@@ -35,31 +37,12 @@ const websocketHandler = () => {
       const userId = decoded.userId;
 
       const result = await tournamentService.startTournament(userId, socket);
+      const tournament = result?.tournament.id;
 
-      const tournamentId = result.tournament.id;
-
-      socket.on('message', (data) => {
-        try {
-          const msg = JSON.parse(data.toString());
-
-          switch (msg.type) {
-            case 'game':
-              tournamentService.startGame(tournamentId, userId);
-              break;
-            case 'disconnect':
-              tournamentService.endTournament();
-              break;
-            default:
-              console.warn('❓ 알 수 없는 메시지:', msg);
-          }
-        } catch (error) {
-          console.error('❌ JSON 파싱 실패:', error);
-        }
-      });
-
+      // 연결 종료 이벤트 감지
       socket.on('close', () => {
         console.log(`🔴 User ${userId} disconnected`);
-        userGameUtil.removeGameUser(userId);
+        tournamentWaitingRoom.removePlayer(userId);
       });
     } catch (err) {
       console.error('❌ Tournament WebSocket connection error:', err);

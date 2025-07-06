@@ -3,14 +3,14 @@ import { prisma } from '../plugins/prisma';
 
 type Info = {
   socket: WS.WebSocket;
-  nickname: String;
+  nickname: string;
 };
 
 class TournamentWaitingRoom {
   private waitingPlayers = new Map<number, Info>();
 
   //참가자 추가
-  addPlayer(userId: number, socket: WS.WebSocket, nickname: String) {
+  addPlayer(userId: number, socket: WS.WebSocket, nickname: string) {
     // 중복 참가 방지
     if (this.waitingPlayers.has(userId) || tournamentManager.isPlayer(userId)) {
       //1-3. 커넥션 연결 실패 메시지 전송
