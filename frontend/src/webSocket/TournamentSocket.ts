@@ -1,4 +1,5 @@
 import { TournamentMessage } from './TournamentMessage.ts';
+import { sendError } from '../errorHandling/sendError.ts';
 
 export class TournamentSocket {
   public socket: WebSocket;
@@ -9,16 +10,24 @@ export class TournamentSocket {
     this.msg = {} as TournamentMessage;
   }
 
-  public checkWebSocketOpen() {
-    this.socket.onerror = (event: Event) => {
-      console.error('websocket 오류 발생: ', event);
-      return '서버와의 연결 중 오류가 발생했습니다.';
-    };
-    this.socket.onclose = (event: CloseEvent) => {
-      console.warn('websocket 연결 종료: ', event.code, event.reason);
-      return '서버와의 연결이 종료되었습니다.';
-    };
-    return '';
+  public waitForOpen(): Promise<void> {
+    return new Promise((resolve, reject) => {
+      if (this.socket.readyState === WebSocket.OPEN) return resolve();
+
+      this.socket.onopen = () => resolve();
+
+      this.socket.onerror = (event) => {
+        console.error('WebSocket 연결 오류:', event);
+        sendError('서버와의 연결 중 오류가 발생했습니다.');
+        reject(new Error('WebSocket 연결 오류'));
+      };
+
+      this.socket.onclose = (event) => {
+        console.warn('WebSocket 연결 종료:', event.code, event.reason);
+        sendError('서버와의 연결이 종료되었습니다.');
+        reject(new Error('WebSocket 연결 종료'));
+      };
+    });
   }
 
   public sendMessage(msg: TournamentMessage) {

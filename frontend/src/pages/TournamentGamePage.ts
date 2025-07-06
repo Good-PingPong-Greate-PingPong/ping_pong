@@ -15,8 +15,8 @@ export class TournamentGamePage extends Component {
 
   template() {
     return `
-		<div id="loading" class="w-full h-full absolute">서버에 연결 중입니다...</div>
-		<div id="gameDiv">
+		<div id="loading" class="w-full h-full top-0 absolute" >서버에 연결 중입니다...</div>
+		<div id="gameDiv" class="opacity-0" >
 			<div data-component="waitingModal" class="hidden flex items-center justify-center transition"></div>
 			<div data-component="tournamentTree" class="hidden flex items-center justify-center transition"></div>
       <div data-component="nicknameInputModal" class="flex items-center justify-center transition"></div>
@@ -45,29 +45,35 @@ export class TournamentGamePage extends Component {
     ) as HTMLElement;
     const canvas = this.$target.querySelector('canvas') as HTMLCanvasElement;
 
-    this.gameStartSetting($waitingModal);
-    this.setWebSocket();
-
-    await this.listenMessageLoop($waitingModal, $tournamentTree, $resultTarget, canvas);
+    try {
+      await this.setWebSocket();
+      await this.gameStartSetting($waitingModal);
+      await this.listenMessageLoop($waitingModal, $tournamentTree, $resultTarget, canvas);
+    } catch (e) {}
   }
 
-  setWebSocket() {
+  async setWebSocket() {
     // const token = getAccessToekn(); // 임의로 작성해둠
     const token: string = 'tmp';
     this.socket = new TournamentSocket(token);
-    const returnMsg: string = this.socket.checkWebSocketOpen();
-    if (returnMsg !== '') sendError(returnMsg);
+    try {
+      await this.socket.waitForOpen();
+    } catch (error) {
+      console.error('WebSocket 연결 실패로 인해 setWebSocket 종료됨');
+      throw error;
+    }
   }
 
   checkConnection(msg: TournamentMessage) {
     if (msg.subtype === 'failed') sendError(msg.message);
   }
 
-  gameStartSetting($waitingModal: HTMLElement) {
+  async gameStartSetting($waitingModal: HTMLElement) {
     const $loading = this.$target.querySelector('#loading') as HTMLElement;
     const $scoreDiv = this.$target.querySelector('#scoreDiv') as HTMLElement;
     const $gameDiv = this.$target.querySelector('#gameDiv') as HTMLElement;
-
+    
+    $gameDiv.classList.add('opacity-0');
     this.closeModal($loading);
     this.openModal($scoreDiv);
     this.openModal($gameDiv);
