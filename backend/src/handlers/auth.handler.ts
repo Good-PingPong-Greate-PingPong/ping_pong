@@ -27,32 +27,20 @@ const authHandler = () => {
       const googleUser = await jwtUtil.getGoogleUser(access_token);
       const user = await authService.saveUser(googleUser);
 
-      // if (user.twoFactorEnabled) {
-      //   const tmpToken = jwtUtil.signTmpToken({ userId: user.id });
+      // front test : 
+      if (user.twoFactorEnabled) {
+        const tmpToken = jwtUtil.signTmpToken({ userId: user.id });
 
-      //   return reply.type('text/html; charset=UTF-8').send(`
-      //   <script>
-      //     window.opener.postMessage({
-      //       status: 201,
-      //       token: '${access_token}'
-      //     }, '${env.frontendOrigin}');
-      //     window.close();
-      //   </script>
-      // `);
-      // }
-      // if (user.twoFactorEnabled) {
-      //   const tmpToken = jwtUtil.signTmpToken({ userId: user.id });
-
-      //   return reply.type('text/html; charset=UTF-8').send(`
-      //   <script>
-      //     window.opener.postMessage({
-      //       status: 206,
-      //       token: '${tmpToken}'
-      //     }, '${env.frontendOrigin}');
-      //     window.close();
-      //   </script>
-      // `);
-      // }
+        return reply.type('text/html; charset=UTF-8').send(`
+        <script>
+          window.opener.postMessage({
+            status: 206,
+            token: '${tmpToken}'
+          }, '${env.frontendOrigin}');
+          window.close();
+        </script>
+      `);
+      }
       return finalizeLogin(reply, user.id, SUCCESS_MESSAGE.loginOK);
     } catch (error) {
       return reply.type('text/html; charset=UTF-8').send(`
