@@ -1,5 +1,7 @@
 import { FastifyRequest, WebSocketQuery } from 'fastify';
 import { jwtUtil, userOnlineUtil } from '../lib';
+import { tournamentManager, tournamentWaitingRoom } from '../lib/global.util';
+import tournamentService from '../services/tournament.service';
 import * as WS from 'ws';
 
 const websocketHandler = () => {
@@ -35,31 +37,55 @@ const websocketHandler = () => {
       const userId = decoded.userId;
 
       const result = await tournamentService.startTournament(userId, socket);
-
-      const tournamentId = result.tournament.id;
+      if (!result) {
+        console.warn('❌ 토너먼트 시작 실패');
+        socket.close();
+        return;
+      }
 
       socket.on('message', (data) => {
         try {
           const msg = JSON.parse(data.toString());
+          if (msg.type === 'game') {
+            switch (msg.subtype) {
+              case 'match_start': {
+                tournamentService.handleMatchStart(msg.data.match_id, userId);
+                break;
+              }
 
-          switch (msg.type) {
-            case 'game':
-              tournamentService.startGame(tournamentId, userId);
-              break;
-            case 'disconnect':
-              tournamentService.endTournament();
-              break;
-            default:
-              console.warn('❓ 알 수 없는 메시지:', msg);
+              case 'key_down':
+              case 'key_up': {
+                tournamentService.handleKeyInput(
+                  msg.data.match_id,
+                  userId,
+                  msg,
+                );
+                break;
+              }
+
+              default:
+                console.warn('❓ 알 수 없는 subtype:', msg.subtype);
+            }
+          } else if (msg.type === 'disconnect') {
+            console.log(`🔴 User ${userId} disconnected from tournament`);
+            socket.close();
+          } else {
+            console.warn('❓ 알 수 없는 메시지 type:', msg.type);
           }
         } catch (error) {
           console.error('❌ JSON 파싱 실패:', error);
         }
       });
 
+      // ❌ 소켓 연결 종료 시
       socket.on('close', () => {
         console.log(`🔴 User ${userId} disconnected`);
-        userGameUtil.removeGameUser(userId);
+
+        if (tournamentWaitingRoom.findPlayer(userId)) {
+          tournamentWaitingRoom.removePlayer(userId);
+        } else {
+          tournamentService.endTournament(userId);
+        }
       });
     } catch (err) {
       console.error('❌ Tournament WebSocket connection error:', err);

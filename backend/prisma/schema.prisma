@@ -45,23 +45,33 @@ model Tournament {
   createdAt     DateTime         @default(now())
   updatedAt     DateTime         @updatedAt
   isDeleted     Boolean          @default(false)
+
   participants  Participant[]
+  matches       Match[]
 }
 
+
+
 model Match {
-  id             Int          @id @default(autoincrement())
-  participant1Id Int
-  participant2Id Int
+  id             Int           @id @default(autoincrement())
+
+  tournamentId   Int
+  participant1Id Int?
+  participant2Id Int?
   round          MatchRound
   status         MatchStatus
-  scheduledAt    DateTime
+  scheduledAt    DateTime      @default(now())
+
   createdAt      DateTime      @default(now())
   updatedAt      DateTime      @updatedAt
   isDeleted      Boolean       @default(false)
-  participant1   Participant   @relation("MatchParticipant1", fields: [participant1Id], references: [id])
-  participant2   Participant   @relation("MatchParticipant2", fields: [participant2Id], references: [id])
+
+  tournament     Tournament    @relation(fields: [tournamentId], references: [id])
+  participant1   Participant?  @relation("MatchParticipant1", fields: [participant1Id], references: [id])
+  participant2   Participant?  @relation("MatchParticipant2", fields: [participant2Id], references: [id])
   matchResults   MatchResult[]
 }
+
 
 model Participant {
   id           Int           @id @default(autoincrement())
