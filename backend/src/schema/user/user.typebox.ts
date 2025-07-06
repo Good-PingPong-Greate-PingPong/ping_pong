@@ -49,8 +49,8 @@ const TGetUsersProfileResponse = Type.Object({
   success: Type.Boolean(),
   status: Type.Number(),
   message: Type.String(),
-  total_page: Type.Number(),
-  current_page: Type.Number(),
+  totalPage: Type.Number(),
+  currentPage: Type.Number(),
   users: Type.Array(TUserSummary),
 });
 

@@ -10,6 +10,8 @@ function getEnv(key: string, required = true): string {
   return value || '';
 }
 
+const isDev = process.env.NODE_ENV !== 'production'; // front test
+
 export const env = {
   PORT: process.env.PORT || '3000',
   DATABASE_URL: process.env.DATABASE_URL || 'file:./dev.db',
@@ -17,7 +19,11 @@ export const env = {
 
   googleClientId: getEnv('GOOGLE_CLIENT_ID'),
   googleClientSecret: getEnv('GOOGLE_CLIENT_SECRET'),
-  googleCallbackUrl: getEnv('GOOGLE_CALLBACK_URL'),
+  // googleCallbackUrl: getEnv('GOOGLE_CALLBACK_URL'),
+    googleCallbackUrl: isDev
+    ? getEnv('GOOGLE_CALLBACK_URL_DEV')
+    : getEnv('GOOGLE_CALLBACK_URL'),
+  frontendOrigin: process.env.FRONTEND_ORIGIN || 'http://localhost:5173',
 
   jwtSecret: getEnv('JWT_SECRET'),
 

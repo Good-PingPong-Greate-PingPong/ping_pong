@@ -61,7 +61,14 @@ const userService = () => {
 
     const [users, totalCount] = await Promise.all([
       prisma.user.findMany({
-        where,
+        where: {
+          nickname: {
+            contains: nickname, // mode: "insensitive" 제거!
+          },
+          NOT: {
+            id: requesterId,
+          },
+        },
         skip: (page - 1) * pageSize,
         take: pageSize,
         select: {
@@ -70,7 +77,16 @@ const userService = () => {
           profileImage: true,
         },
       }),
-      prisma.user.count({ where }),
+      prisma.user.count({
+        where: {
+          nickname: {
+            contains: nickname, // mode: "insensitive" 제거!
+          },
+          NOT: {
+            id: requesterId,
+          },
+        },
+      }),
     ]);
 
     const totalPage = Math.ceil(totalCount / pageSize);
@@ -95,8 +111,8 @@ const userService = () => {
     }));
 
     return {
-      total_page: totalPage,
-      current_page: page,
+      totalPage: totalPage,
+      currentPage: page,
       users: userList,
     };
   };

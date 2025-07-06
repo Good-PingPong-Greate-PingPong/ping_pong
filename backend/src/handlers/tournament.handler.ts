@@ -15,7 +15,13 @@ const tournamentHandler = () => {
         req.user.userId,
         page,
       );
-      handlerUtil.handleSuccess(rep, SUCCESS_MESSAGE.registerOK, result);
+      // handlerUtil.handleSuccess(rep, SUCCESS_MESSAGE.registerOK, result);
+      return rep.send({
+        success: true,
+        status: 200,
+        message: 'get tournament results success!',
+        data: result, // 반드시 data 필드로!
+      });
     } catch (error) {
       handlerUtil.handleError(rep, ERROR_MESSAGE.badRequest, error);
     }
@@ -25,3 +31,4 @@ const tournamentHandler = () => {
 };
 
 export default tournamentHandler();
+      

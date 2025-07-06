@@ -30,10 +30,10 @@ function localGameService() {
 
   const readLocalGame = async (
     userId: number,
-    current_page: number,
+    currentPage: number,
     offset: number,
   ) => {
-    const skip = (current_page - 1) * offset;
+    const skip = (currentPage - 1) * offset;
 
     let records = await prisma.singleMatch.findMany({
       where: { userId },
@@ -46,14 +46,12 @@ function localGameService() {
       where: { userId },
     });
 
-    const total_page = Math.ceil(total_records / offset);
+    const totalPage = Math.ceil(total_records / offset);
 
     return {
-      data: {
-        total_page,
-        current_page,
+        totalPage,
+        currentPage,
         records,
-      },
     };
   };
 

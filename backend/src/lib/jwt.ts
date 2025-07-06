@@ -62,17 +62,31 @@ const jwtUtil = () => {
     }
   };
 
-  const extractTokenFromHeader = (req: FastifyRequest, reply: FastifyReply) => {
-    const authHeader = req.headers.authorization;
-    if (!authHeader?.startsWith('Bearer ')) {
-      throw new Error('token is not included');
-    }
+  // const extractTokenFromHeader = (req: FastifyRequest, reply: FastifyReply) => {
+  //   const authHeader = req.headers.authorization;
+  //   if (!authHeader?.startsWith('Bearer ')) {
+  //     throw new Error('token is not included');
+  //   }
 
+  //   return authHeader.split(' ')[1];
+  // };
+  // front test
+const extractTokenFromHeader = (request: FastifyRequest, reply: FastifyReply): string => {
+  // 1. Authorization 헤더 우선
+  const authHeader = request.headers.authorization;
+  if (authHeader && authHeader.startsWith('Bearer ')) {
     return authHeader.split(' ')[1];
-  };
+  }
+  // 2. 쿠키에서 refreshToken도 허용
+  if (request.cookies && request.cookies.refreshToken) {
+    return request.cookies.refreshToken;
+  }
+  throw new Error('token is not included');
+};
 
   const checkTokenType = (decoded: TokenPayload, expectedType: string) => {
     if (decoded.tokenType !== expectedType) {
+      console.log('Token type mismatch:', decoded.tokenType, expectedType); // 추가 front test
       throw new Error(
         `Invalid token type. Expected ${expectedType}, got ${decoded.tokenType}`,
       );
@@ -81,6 +95,7 @@ const jwtUtil = () => {
 
   const coreVerifyToken = (token: string, codetype: string) => {
     const decoded = verifyValidToken(token);
+    console.log('Decoded token:', decoded); // 추가 front test
     checkTokenType(decoded, codetype);
     return decoded;
   };

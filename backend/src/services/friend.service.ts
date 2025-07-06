@@ -37,12 +37,12 @@ const friendService = () => {
     const totalPage = Math.ceil(totalCount / pageSize);
 
     return {
-      total_page: totalPage,
-      current_page: page,
+      totalPage: totalPage,
+      currentPage: page,
       friend: friend.map(({ receiver }) => ({
         id: receiver.id,
         nickname: receiver.nickname,
-        profile_image: receiver.profileImage,
+        profileImage: receiver.profileImage,
       })),
       isLogin: userOnlineUtil.isUserOnline(userId),
     };

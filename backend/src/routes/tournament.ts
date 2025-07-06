@@ -13,6 +13,7 @@ const tournamentRoute = async (fastify: FastifyInstance) => {
       schema: readTournamentSchema,
       preHandler: jwtUtil.verifyTokenPreHandler(tokenType.access),
     },
-    tournamentHandler.readLocalGame,
+    tournamentHandler.readTournament,
   );
 };
+export default tournamentRoute;

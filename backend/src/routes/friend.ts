@@ -10,19 +10,19 @@ import {
 const friendRoute = async (fastify: FastifyInstance) => {
   const tokenType = jwtUtil.tokenTypes;
 
-  fastify.get('/friend', {
+  fastify.get('/', {
     preHandler: jwtUtil.verifyTokenPreHandler(tokenType.access),
     schema: getfriendListSchema,
     handler: friendHandler.getFriendList,
   });
 
-  fastify.post('/friend', {
+  fastify.post('/', {
     preHandler: jwtUtil.verifyTokenPreHandler(tokenType.access),
     schema: addfriendchema,
     handler: friendHandler.addFriend,
   });
 
-  fastify.delete('/friend', {
+  fastify.delete('/', {
     preHandler: jwtUtil.verifyTokenPreHandler(tokenType.access),
     schema: removefriendchema,
     handler: friendHandler.removeFriend,
