@@ -1,4 +1,5 @@
-import { Modal } from '../components/Modal';
+import { TwoFactorModal } from '../components/TwoFactorModal';
+import { QrModal } from '../components/QrModal';
 import { Component } from '../core/Component';
 import { store } from '../core/store';
 
@@ -10,7 +11,7 @@ export class LoginPage extends Component {
   }
 
   setEvent(): void {
-    this.addEvent('click', '#loginButton', async () => {
+    this.addEvent('click', '#loginButton', () => {
       const popup = window.open(
         '/api/auth/google', // 서버에서 Google OAuth 인증 시작
         '_blank',
@@ -35,6 +36,7 @@ export class LoginPage extends Component {
           this.setState({ currentView: 'twoFactor' });
         } else if (data.status === 201) {
           // 로그인 성공
+          console.log("로그인 성공");
           store.setState({ user: data.user });
           store.setState({ accessToken: data.token });
           window.location.replace('#/');
@@ -60,27 +62,33 @@ export class LoginPage extends Component {
           <div data-component="modal"></div>
         </div>
       `;
-    } else if (currentView === 'twoFactor') {
+    } else {
       return `
         <div class="flex flex-col items-center justify-center h-screen bg-gray-100">
           <div data-component="modal"></div>
         </div>
       `;
-    } else {
-      return `<div>error</div>`;
     }
   }
 
   mounted(): void {
+
     if (this.$state.currentView === 'twoFactor') {
       const $twoFactor = document.querySelector('[data-component="modal"]') as HTMLElement;
       const tmpToken = store.getState().tmpToken;
 
+      console.log('pin');
       // 실제 QR코드 URL이 있다면 이쪽으로
-      new Modal($twoFactor, {
-        qr: '큐알입니다', // or store.state.qr
+      new TwoFactorModal($twoFactor, {
+        view:'qr',
+        handleModal: this.handleModal.bind(this),
         token: tmpToken,
       });
     }
+  }
+
+  handleModal(view: string) {
+    console.log('currentView : ', view);
+    this.setState({ currentView: view });
   }
 }

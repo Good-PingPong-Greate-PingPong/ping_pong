@@ -9,6 +9,7 @@ export class Profile extends Component {
   setup() {
     this.setState({
       isEditMode: false,
+      profileImageFile: undefined,
     });
     this.getProfileData();
   }
@@ -39,42 +40,42 @@ export class Profile extends Component {
     this.addEvent('change', '.profile-image-input', (event) => {
       const file = (event.target as HTMLInputElement).files?.[0];
       if (file) {
-        const reader = new FileReader();
-        reader.onload = () => {
-          this.setState({ profileImage: reader.result });
-        };
-        reader.readAsDataURL(file);
+        const allowedTypes = ['image/jpeg', 'image/png'];
+        if (!allowedTypes.includes(file.type)) {
+          alert('지원하지 않는 이미지 파일입니다. (jpg, jpeg, png 만 가능합니다.)');
+          // 파일 input 비우기
+          (event.target as HTMLInputElement).value = '';
+          return;
+        }
+        // 1. 파일 객체도 상태에 저장
+        this.setState({
+          profileImage: URL.createObjectURL(file),
+          profileImageFile: file, // ← 파일 객체 저장
+        });
       }
     });
   }
 
   handleSubmit() {
-    const formData = new FormData(this.$target.querySelector('.profile-form') as HTMLFormElement);
+    const form = this.$target.querySelector('.profile-form') as HTMLFormElement;
+    const formData = new FormData(form);
 
-    const updatedData = {
-      nickname: formData.get('nickname') as string,
-      isTwoFactor: formData.get('twoFactor') === 'true',
-      profileImage: this.$state.profileImage, // 파일은 별도 처리
-    };
+    // 파일 객체가 상태에 있으면 FormData에 추가
+    if (this.$state.profileImageFile) {
+      formData.set('profileImage', this.$state.profileImageFile);
+    } else {
+      // 파일을 새로 선택하지 않았다면 FormData에서 profileImage 필드를 제거
+      formData.delete('profileImage');
+    }
 
-    console.log('제출할 데이터:', updatedData);
-
-    // 여기서 API 호출
-    this.updateProfileData(updatedData);
-
-    // 편집 모드 종료
-    this.setState({ isEditMode: false });
+    this.updateProfileData(formData);
+    this.setState({ isEditMode: false, profileImageFile: undefined }); // 파일 객체 초기화
   }
 
   template() {
-    const { user } = this.$props;
-
-    if (!user) {
-      return `<div>로그인 정보가 없습니다.</div>`;
-    }
-
-    const { nickname, profileImage, isTwoFactor, isEditMode } = this.$state;
-
+    const { nickname, profileImage, twoFactorEnabled, isEditMode } = this.$state;
+    // console.log('template : ', nickname, profileImage, twoFactorEnabled, isEditMode);
+    // console.log('twoFactorEnabled : ', twoFactorEnabled, typeof twoFactorEnabled);
     return `
     <div class="w-full max-w-4xl mx-auto h-full flex flex-col bg-backgroundColor">
         <!-- 헤더 영역 -->
@@ -143,17 +144,17 @@ export class Profile extends Component {
                             isEditMode
                               ? `
                                 <label class="...">
-                                  <input type="radio" name="twoFactor" value="false" class="peer hidden" ${!isTwoFactor ? 'checked' : ''} />
+                                  <input type="radio" name="twoFactorEnabled" value="false" class="peer hidden" ${!twoFactorEnabled ? 'checked' : ''} />
                                   <span class="peer-checked:bg-mainColor peer-checked:text-white bg-gray-200 text-gray-400 px-6 py-3 rounded-lg">비활성</span>
                                 </label>
                                 <label class="...">
-                                  <input type="radio" name="twoFactor" value="true" class="peer hidden" ${isTwoFactor ? 'checked' : ''} />
+                                  <input type="radio" name="twoFactorEnabled" value="true" class="peer hidden" ${twoFactorEnabled ? 'checked' : ''} />
                                   <span class="peer-checked:bg-mainColor peer-checked:text-white bg-gray-200 text-gray-400 px-6 py-3 rounded-lg">활성</span>
                                 </label>
                             `
                               : `
                                 <label class="...">
-                                  <span class="bg-mainColor text-white px-6 py-3 rounded-lg">${isTwoFactor ? '활성' : '비활성'}</span>
+                                  <span class="bg-mainColor text-white px-6 py-3 rounded-lg">${twoFactorEnabled === false ? '비활성' : '활성'}</span>
                                 </label>
                             `
                           }
@@ -168,52 +169,26 @@ export class Profile extends Component {
 
   mounted() {}
 
-  async updateProfileData(data: any) {
+  async updateProfileData(formData: FormData) {
     try {
-      // const user = this.$props.user; // 또는 store에서 가져오기
-      // const url = `/api/info?user_id=${user?.id}`;
+      const user = this.$props.user; // 또는 store에서 가져오기
+      const url = `/api/users/info?userId=${user?.id}`;
 
-      // const requestBody = {
-      //   nickname: data.nickname,
-      //   two_factor_enabled: data.isTwoFactor,
-      //   profile_image: data.profileImage
-      // };
-
-      // const response = await fetch(url, {
-      //   method: 'PUT',
-      //   credentials: 'include',
-      //   headers: {
-      //     'Content-Type': 'application/json',
-      //   },
-      //   body: JSON.stringify(requestBody),
-      // });
-
-      // if (!response.ok) {
-      //   const errorData = await response.json();
-      //   throw new Error(`${errorData.error_code}: ${errorData.message}`);
-      // }
-
-      // // const result = await response.json();
-      // // console.log('프로필 업데이트 성공:', result.message);
-
-      // // 상태 업데이트
-      // this.setState({
-      //   nickname: data.nickname,
-      //   profileImage: data.profileImage,
-      //   isTwoFactor: data.isTwoFactor,
-      // });
-
-      // 목 데이터로 테스트
-      console.log('프로필 업데이트:', data);
-
-      // 성공 응답 시뮬레이션
-      await new Promise((resolve) => setTimeout(resolve, 500));
-
-      this.setState({
-        nickname: data.nickname,
-        profileImage: data.profileImage,
-        isTwoFactor: data.isTwoFactor,
+      const response = await fetch(url, {
+        method: 'POST',
+        credentials: 'include',
+        headers: {
+          Authorization: `Bearer ${store.getState().accessToken}`,
+        },
+        body: formData,
       });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(`${errorData.error_code}: ${errorData.message}`);
+      }
+
+      await this.getProfileData();
     } catch (error) {
       console.error('프로필 업데이트 실패:', error);
       throw error;
@@ -237,17 +212,17 @@ export class Profile extends Component {
         throw new Error(`${errorData.error_code}: ${errorData.message}`);
       }
       const data = await response.json();
-      // 목 데이터로 테스트
-      // const data = {
-      //   nickname: 'testUser123',
-      //   profileImage: mockImg,
-      //   isTwoFactor: true,
-      // };
+
+      // console.log('getProfileData : ', data);
+      const nickname = data.user.nickname;
+      const profileImage = data.user.profileImage;
+      const twoFactorEnabled =
+        data.user.twoFactorEnabled === true || data.user.twoFactorEnabled === 'true';
 
       this.setState({
-        nickname: data.nickname,
-        profileImage: data.profileImage,
-        isTwoFactor: data.isTwoFactor,
+        nickname: nickname,
+        profileImage: profileImage,
+        twoFactorEnabled: twoFactorEnabled,
       });
     } catch (error) {
       console.log(error, ' 기본정보 불러오기 실패');

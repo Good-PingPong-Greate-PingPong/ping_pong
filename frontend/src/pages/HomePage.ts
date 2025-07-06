@@ -55,7 +55,6 @@ export class HomePage extends Component {
 				</ul>
 
 				<div class="bg-blue-100 w-80 min-h-48">gif 삽입 위치
-        <img src ="https://picsum.photos/200/300" />
         </div>
 
 			</div>

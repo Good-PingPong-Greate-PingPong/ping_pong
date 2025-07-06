@@ -14,6 +14,11 @@ cert:
 		echo "✅ 인증서 이미 존재합니다."; \
 	fi
 
+dev-frontend:
+	@echo "⚙️ 프론트엔드 로컬 빌드 중..."
+	cd $(FRONT_DIR) && npm ci
+	cd $(FRONT_DIR) && npm run dev
+
 frontend:
 	@echo "⚙️ 프론트엔드 로컬 빌드 중..."
 	cd $(FRONT_DIR) && npm ci
