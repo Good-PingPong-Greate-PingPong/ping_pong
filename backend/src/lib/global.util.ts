@@ -9,11 +9,8 @@ type Info = {
 class TournamentWaitingRoom {
   private waitingPlayers = new Map<number, Info>();
 
-  //참가자 추가
   addPlayer(userId: number, socket: WS.WebSocket, nickname: string) {
-    // 중복 참가 방지
     if (this.waitingPlayers.has(userId) || tournamentManager.isPlayer(userId)) {
-      //1-3. 커넥션 연결 실패 메시지 전송
       socket.send(
         JSON.stringify({
           type: 'connection_failed',
@@ -25,7 +22,6 @@ class TournamentWaitingRoom {
       throw new Error('이미 참여중인 게임이 있습니다.');
     } else {
       this.waitingPlayers.set(userId, { socket, nickname });
-      //1-2. 커넥션 연결 성공 메시지 전송
       socket.send(
         JSON.stringify({
           type: 'connection_established',
@@ -40,7 +36,6 @@ class TournamentWaitingRoom {
     return this.waitingPlayers.get(userId);
   }
 
-  //중도 이탈 처리
   removePlayer(userId: number) {
     if (!this.waitingPlayers.has(userId)) return;
     const info = this.waitingPlayers.get(userId);
@@ -48,7 +43,6 @@ class TournamentWaitingRoom {
     this.waitingPlayers.delete(userId);
   }
 
-  //
   size(): number {
     return this.waitingPlayers.size;
   }
@@ -58,7 +52,6 @@ class TournamentWaitingRoom {
   }
 
   clear() {
-    //socket close X!!!
     this.waitingPlayers.clear();
   }
 }
@@ -67,8 +60,7 @@ export const tournamentWaitingRoom = new TournamentWaitingRoom();
 
 class TournamentRoom {
   private players = new Map<number, Info>();
-
-  constructor() {}
+  private matchPlayers = new Map<number, [WS.WebSocket, WS.WebSocket]>();
 
   addPlayer(userId: number, info: Info) {
     this.players.set(userId, info);
@@ -83,13 +75,11 @@ class TournamentRoom {
   }
 
   getSocket(userId: number) {
-    const info = this.players.get(userId);
-    if (info) return info.socket;
+    return this.players.get(userId)?.socket;
   }
 
   getNickname(userId: number) {
-    const info = this.players.get(userId);
-    if (info) return info.nickname;
+    return this.players.get(userId)?.nickname;
   }
 
   removePlayer(userId: number) {
@@ -98,22 +88,38 @@ class TournamentRoom {
     this.players.delete(userId);
   }
 
+  registerMatch(matchId: number, userId1: number, userId2: number) {
+    const socket1 = this.getSocket(userId1);
+    const socket2 = this.getSocket(userId2);
+    if (socket1 && socket2) {
+      this.matchPlayers.set(matchId, [socket1, socket2]);
+    }
+  }
+
+  sendToMatch(matchId: number, msg: string) {
+    const sockets = this.matchPlayers.get(matchId);
+    if (!sockets) return;
+    sockets.forEach((sock) => sock.send(msg));
+  }
+
   broadcasting(msg: string) {
-    for (const [userId, { socket, nickname }] of this.players) {
+    for (const { socket } of this.players.values()) {
       socket.send(msg);
     }
   }
 
   clear() {
-    for (const [userId, { socket, nickname }] of this.players) {
+    for (const { socket } of this.players.values()) {
       socket.close();
     }
     this.players.clear();
+    this.matchPlayers.clear();
   }
 }
 
 class TournamentManager {
   private rooms: Map<number, TournamentRoom> = new Map();
+  private matchIdToRoom: Map<number, TournamentRoom> = new Map();
 
   createRoom(tournamentId: number, players: Map<number, Info>) {
     if (this.rooms.has(tournamentId))
@@ -122,14 +128,34 @@ class TournamentManager {
     const room = new TournamentRoom();
     this.rooms.set(tournamentId, room);
 
-    for (const [userId, { socket, nickname }] of players) {
-      room.addPlayer(userId, { socket, nickname });
+    for (const [userId, info] of players) {
+      room.addPlayer(userId, info);
     }
+  }
+
+  registerMatchRoom(
+    matchId: number,
+    tournamentId: number,
+    userId1: number,
+    userId2: number,
+  ) {
+    const room = this.rooms.get(tournamentId);
+    if (!room) throw new Error('❌ 매치 등록 실패: 토너먼트 룸 없음');
+    room.registerMatch(matchId, userId1, userId2);
+    this.matchIdToRoom.set(matchId, room);
+  }
+
+  sendToMatch(matchId: number, msg: string) {
+    const room = this.matchIdToRoom.get(matchId);
+    if (!room) {
+      console.warn(`❌ matchId ${matchId}에 해당하는 룸을 찾을 수 없음`);
+      return;
+    }
+    room.sendToMatch(matchId, msg);
   }
 
   removeRoom(tournamentId: number) {
     const room = this.rooms.get(tournamentId);
-
     if (room) room.clear();
     this.rooms.delete(tournamentId);
   }
@@ -149,7 +175,7 @@ class TournamentManager {
     return false;
   }
 
-  boradcasting(tournamentId: number, msg: string) {
+  broadcasting(tournamentId: number, msg: string) {
     const room = this.rooms.get(tournamentId);
     if (room) room.broadcasting(msg);
     else throw new Error('❌ 브로드캐스팅 실패');

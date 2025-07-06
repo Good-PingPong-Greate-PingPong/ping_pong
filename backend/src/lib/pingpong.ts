@@ -1,8 +1,26 @@
 import { tournamentManager } from './global.util';
 
 const pingpongUtil = () => {
-  const sendSessionInfo = (
+  const sendTournamentTree = (
     tournamentId: number,
+    winner: string[],
+    bracket: [string, string][],
+  ) => {
+    const msg = {
+      type: 'game',
+      subtype: 'tournament_tree',
+      message: '',
+      data: {
+        winner,
+        bracket,
+      },
+    };
+    tournamentManager.broadcasting(tournamentId, JSON.stringify(msg));
+  };
+
+  const sendSessionInfo = (
+    matchId: number,
+    round: 'semi' | 'final',
     nickname1: string,
     nickname2: string,
   ) => {
@@ -11,36 +29,84 @@ const pingpongUtil = () => {
       subtype: 'session_info',
       message: '',
       data: {
-        round: 'semi',
+        round,
         nickname1,
         nickname2,
       },
     };
-    tournamentManager.boradcasting(tournamentId, JSON.stringify(msg));
+    tournamentManager.sendToMatch(matchId, JSON.stringify(msg));
   };
 
   const sendMatchInitSetting = (
-    tournamentId: number,
-    nickname1: string,
-    nickname2: string,
+    matchId: number,
+    player1: string,
+    player2: string,
   ) => {
     const msg = {
       type: 'game',
       subtype: 'match_init_setting',
       message: '',
       data: {
-        nickname1,
-        nickname2,
-        ballSpeed: 5,
-        matchPoint: 5,
+        ball: { x: 50, y: 50, radius: 1 },
+        paddle1: { x: 10, y: 50, radius: 1, height: 20 },
+        paddle2: { x: 90, y: 50, radius: 1, height: 20 },
+        nickname: {
+          player1,
+          player2,
+        },
+        score: {
+          player1: 0,
+          player2: 0,
+        },
       },
     };
-    tournamentManager.boradcasting(tournamentId, JSON.stringify(msg));
+
+    tournamentManager.sendToMatch(matchId, JSON.stringify(msg));
+  };
+
+  const sendMatchRun = (
+    matchId: number,
+    payload: {
+      ball: { x: number; y: number };
+      paddle1: { x: number; y: number };
+      paddle2: { x: number; y: number };
+      score: { player1: number; player2: number };
+    },
+  ) => {
+    const msg = {
+      type: 'game',
+      subtype: 'match_run',
+      message: '',
+      data: payload,
+    };
+    tournamentManager.sendToMatch(matchId, JSON.stringify(msg));
+  };
+
+  const sendMatchEnd = (
+    matchId: number,
+    round: 'semi' | 'final',
+    score: { player1: number; player2: number },
+    winner: string,
+  ) => {
+    const msg = {
+      type: 'game',
+      subtype: 'match_end',
+      message: '',
+      data: {
+        round,
+        score,
+        winner,
+      },
+    };
+    tournamentManager.sendToMatch(matchId, JSON.stringify(msg));
   };
 
   return {
+    sendTournamentTree,
     sendSessionInfo,
     sendMatchInitSetting,
+    sendMatchRun,
+    sendMatchEnd,
   };
 };
 

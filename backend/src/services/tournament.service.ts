@@ -170,20 +170,16 @@ const tournamentService = () => {
   };
 
   const startTournament = async (userId: number, socket: WS.WebSocket) => {
-    const user = await prisma.user.findUnique({
-      where: { id: userId },
-    });
+    const user = await prisma.user.findUnique({ where: { id: userId } });
     if (!user) throw new Error('User not found');
 
     tournamentWaitingRoom.addPlayer(userId, socket, user.nickname);
-    socket.on('close', () => {
-      tournamentWaitingRoom.removePlayer(userId);
-    });
     if (tournamentWaitingRoom.size() < 4) return null;
 
-    const players: [number, WS.WebSocket, string][] = Array.from(
-      tournamentWaitingRoom.getAll(),
-    ).map(([userId, info]) => [userId, info.socket, info.nickname]);
+    const players = Array.from(tournamentWaitingRoom.getAll()).map(
+      ([id, info]) =>
+        [id, info.socket, info.nickname] as [number, WS.WebSocket, string],
+    );
 
     const { tournament, participants, match1, match2, finalMatch } =
       await createTournament(players);
@@ -191,51 +187,151 @@ const tournamentService = () => {
     tournamentManager.createRoom(tournament.id, tournamentWaitingRoom.getAll());
     tournamentWaitingRoom.clear();
 
-    // 📡 2-1. 대진표 전송
-    tournamentManager.boradcasting(
+    pingpongUtil.sendTournamentTree(
       tournament.id,
-      JSON.stringify({
-        type: 'game',
-        subtype: 'tournament_tree',
-        message: '',
-        data: {
-          winner: ['', ''],
-          bracket: [
-            [players[0][2], players[1][2]],
-            [players[2][2], players[3][2]],
-          ],
-        },
-      }),
+      ['', ''], // 아직 승자 없음
+      [
+        [players[0][2], players[1][2]],
+        [players[2][2], players[3][2]],
+      ],
     );
 
-    // ⏱ 3초 후 초기 정보 전송
-    setTimeout(() => {
-      // match1
-      const [userId1A, , nickname1A] = players[0];
-      const [userId1B, , nickname1B] = players[1];
-      pingpongUtil.sendSessionInfo(tournament.id, nickname1A, nickname1B);
-      pingpongUtil.sendMatchInitSetting(tournament.id, nickname1A, nickname1B);
+    setTimeout(async () => {
+      const semiMatches = [match1, match2];
 
-      // match2
-      const [userId2A, , nickname2A] = players[2];
-      const [userId2B, , nickname2B] = players[3];
-      pingpongUtil.sendSessionInfo(tournament.id, nickname2A, nickname2B);
-      pingpongUtil.sendMatchInitSetting(tournament.id, nickname2A, nickname2B);
+      for (const match of semiMatches) {
+        if (!match.participant1Id || !match.participant2Id) continue;
+        const p1 = await prisma.participant.findUnique({
+          where: { id: match.participant1Id },
+          include: { user: true },
+        });
+        const p2 = await prisma.participant.findUnique({
+          where: { id: match.participant2Id },
+          include: { user: true },
+        });
+        if (!p1 || !p2) continue;
+
+        // 매치 등록
+        tournamentManager.registerMatchRoom(
+          tournament.id,
+          match.id,
+          p1.user.id,
+          p2.user.id,
+        );
+
+        // 세션 알림 전송
+        pingpongUtil.sendSessionInfo(
+          match.id,
+          match.round,
+          p1.user.nickname,
+          p2.user.nickname,
+        );
+
+        // 매치 초기화 세팅 전송
+        pingpongUtil.sendMatchInitSetting(
+          match.id,
+          p1.user.nickname,
+          p2.user.nickname,
+        );
+      }
     }, 3000);
 
-    return {
-      tournament,
-      match1,
-      match2,
-      finalMatch,
-    };
+    return { tournamentId: tournament.id };
   };
 
-  const startGame = async (tournamentId: number) => {};
+  const startGame = async (tournamentId: number, userId: number) => {
+    const room = tournamentManager.getRoom(tournamentId);
+    if (!room) throw new Error('❌ 해당 토너먼트 룸이 없습니다');
 
+    const match = await prisma.match.findFirst({
+      where: {
+        tournamentId,
+        round: 'semi',
+        status: 'ongoing',
+        OR: [{ participant1: { userId } }, { participant2: { userId } }],
+      },
+      include: {
+        participant1: { include: { user: true } },
+        participant2: { include: { user: true } },
+      },
+    });
+
+    if (!match) {
+      console.warn('⚠️ 시작할 매치가 없습니다.');
+      return;
+    }
+
+    if (!match.participant1 || !match.participant2) {
+      console.warn('⚠️ 매치 참가자가 충분하지 않습니다.');
+      return;
+    }
+    const nickname1 = match.participant1.user.nickname;
+    const nickname2 = match.participant2.user.nickname;
+
+    // 초기 게임 상태
+    let ballX = 50;
+    let ballY = 50;
+    let ballSpeedX = 1;
+    let ballSpeedY = 1;
+    let paddle1Y = 50;
+    let paddle2Y = 50;
+    let score1 = 0;
+    let score2 = 0;
+
+    const gameInterval = setInterval(() => {
+      // 간단한 공 움직임 로직 (예시)
+      ballX += ballSpeedX;
+      ballY += ballSpeedY;
+
+      // 벽 충돌 감지
+      if (ballY <= 0 || ballY >= 100) ballSpeedY *= -1;
+
+      // 점수 로직 (좌우 경계에 공 닿았을 때)
+      if (ballX <= 0) {
+        score2 += 1;
+        ballX = 50;
+        ballY = 50;
+      }
+      if (ballX >= 100) {
+        score1 += 1;
+        ballX = 50;
+        ballY = 50;
+      }
+
+      // 종료 조건
+      if (score1 >= 5 || score2 >= 5) {
+        clearInterval(gameInterval);
+        // 나중에 match_end 메시지 보내기
+        return;
+      }
+
+      pingpongUtil.sendMatchRun(tournamentId, {
+        ball: { x: ballX, y: ballY },
+        paddle1: { x: 10, y: paddle1Y },
+        paddle2: { x: 90, y: paddle2Y },
+        score: { player1: score1, player2: score2 },
+      });
+    }, 50); // 50ms 주기 (20fps)
+  };
+  const handleKeyInput = (matchId: number, userId: number, msg: any) => {
+    const state = matchStateMap.get(matchId);
+    if (!state) return;
+
+    const { keyStates, player1Id, player2Id } = state;
+    const key = msg.data.key_set;
+
+    if (msg.subtype === 'key_down') {
+      if (userId === player1Id) keyStates.p1.add(key);
+      if (userId === player2Id) keyStates.p2.add(key);
+    } else if (msg.subtype === 'key_up') {
+      if (userId === player1Id) keyStates.p1.delete(key);
+      if (userId === player2Id) keyStates.p2.delete(key);
+    }
+  };
   return {
     readTournament,
     startTournament,
+    startGame,
   };
 };
 
