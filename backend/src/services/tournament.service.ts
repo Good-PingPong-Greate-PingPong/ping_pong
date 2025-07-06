@@ -280,9 +280,12 @@ const tournamentService = () => {
       const state = matchStateMap.get(matchId);
       if (!state) return;
 
-      // 이제 진짜 공 움직임 시작
-      state.gameState.ballSpeedX = 1;
-      state.gameState.ballSpeedY = 1;
+      const speedMagnitudeX = 1;
+      const speedMagnitudeY = 0.5 + Math.random();
+      const randomDirection = () => (Math.random() < 0.5 ? -1 : 1);
+
+      state.gameState.ballSpeedX = speedMagnitudeX * randomDirection();
+      state.gameState.ballSpeedY = speedMagnitudeY * randomDirection();
     }
   };
 
@@ -307,13 +310,13 @@ const tournamentService = () => {
         if (key === 'ArrowUp')
           gameState.paddle1Y = Math.max(0, gameState.paddle1Y - 2);
         if (key === 'ArrowDown')
-          gameState.paddle1Y = Math.min(100, gameState.paddle1Y + 2);
+          gameState.paddle1Y = Math.min(500, gameState.paddle1Y + 2);
       }
       for (const key of state.keyStates.p2) {
         if (key === 'ArrowUp')
           gameState.paddle2Y = Math.max(0, gameState.paddle2Y - 2);
         if (key === 'ArrowDown')
-          gameState.paddle2Y = Math.min(100, gameState.paddle2Y + 2);
+          gameState.paddle2Y = Math.min(500, gameState.paddle2Y + 2);
       }
 
       // 공 정지 상태면 무시
@@ -326,31 +329,33 @@ const tournamentService = () => {
       gameState.ballY += gameState.ballSpeedY;
 
       // 위아래 벽
-      if (gameState.ballY <= 0 || gameState.ballY >= 100) {
+      if (gameState.ballY <= 15 || gameState.ballY >= 1485) {
         gameState.ballSpeedY *= -1;
       }
       // 왼쪽 패들 (player 1) 충돌 판정
       if (
-        gameState.ballX <= 11 && // 공이 왼쪽 근처에 왔고
-        Math.abs(gameState.ballY - gameState.paddle1Y) <= 10 // 패들의 범위 안이면
+        gameState.ballX <= 90 && // 공이 왼쪽 근처에 왔고
+        gameState.ballY < gameState.paddle1Y + 130 &&
+        gameState.ballY > gameState.paddle1Y - 30
       ) {
         gameState.ballSpeedX *= -1;
       }
 
       // 오른쪽 패들 (player 2) 충돌 판정
       if (
-        gameState.ballX >= 89 && // 공이 오른쪽 근처에 왔고
-        Math.abs(gameState.ballY - gameState.paddle2Y) <= 10
+        gameState.ballX >= 1410 && // 공이 오른쪽 근처에 왔고
+        gameState.ballY < gameState.paddle2Y + 130 &&
+        gameState.ballY > gameState.paddle2Y - 30
       ) {
         gameState.ballSpeedX *= -1;
       }
       // 좌우 벽 충돌 및 점수
-      if (gameState.ballX <= 0 || gameState.ballX >= 100) {
+      if (gameState.ballX <= 0 || gameState.ballX >= 1500) {
         if (gameState.ballX <= 0) gameState.score2 += 1;
         else gameState.score1 += 1;
 
-        gameState.ballX = 50;
-        gameState.ballY = 50;
+        gameState.ballX = 750;
+        gameState.ballY = 300;
         gameState.ballSpeedX = 0;
         gameState.ballSpeedY = 0;
 
@@ -401,8 +406,8 @@ const tournamentService = () => {
 
       pingpongUtil.sendMatchRun(matchId, {
         ball: { x: gameState.ballX, y: gameState.ballY },
-        paddle1: { x: 10, y: gameState.paddle1Y },
-        paddle2: { x: 90, y: gameState.paddle2Y },
+        paddle1: { x: 75, y: gameState.paddle1Y },
+        paddle2: { x: 1450, y: gameState.paddle2Y },
         score: {
           player1: gameState.score1,
           player2: gameState.score2,
@@ -434,12 +439,12 @@ const tournamentService = () => {
       player2Id: p2Id,
       keyStates: { p1: new Set(), p2: new Set() },
       gameState: {
-        ballX: 50,
-        ballY: 50,
+        ballX: 750,
+        ballY: 300,
         ballSpeedX: 0,
         ballSpeedY: 0,
-        paddle1Y: 50,
-        paddle2Y: 50,
+        paddle1Y: 250,
+        paddle2Y: 250,
         score1: 0,
         score2: 0,
       },
