@@ -49,7 +49,7 @@ const websocketHandler = () => {
           if (msg.type === 'game') {
             switch (msg.subtype) {
               case 'match_start': {
-                tournamentService.startGame(msg.data.match_id, userId);
+                tournamentService.handleMatchStart(msg.data.match_id, userId);
                 break;
               }
 

@@ -4,19 +4,30 @@ import { Prisma } from '@prisma/client';
 import { tournamentManager, tournamentWaitingRoom } from '../lib/global.util';
 import { pingpongUtil } from '../lib';
 
-const matchStateMap = new Map<
-  number,
-  {
-    player1Id: number;
-    player2Id: number;
+// 추가 상태 맵
+const matchStartReadyMap = new Map<number, Set<number>>();
+
+// 상태 구조에 gameState 추가
+type MatchState = {
+  player1Id: number;
+  player2Id: number;
+  keyStates: {
+    p1: Set<string>;
+    p2: Set<string>;
+  };
+  gameState: {
+    ballX: number;
+    ballY: number;
+    ballSpeedX: number;
+    ballSpeedY: number;
     paddle1Y: number;
     paddle2Y: number;
-    keyStates: {
-      p1: Set<string>;
-      p2: Set<string>;
-    };
-  }
->();
+    score1: number;
+    score2: number;
+  };
+};
+
+const matchStateMap = new Map<number, MatchState>();
 
 const tournamentService = () => {
   const readTournament = async (userId: number, currentPage: number) => {
@@ -250,14 +261,158 @@ const tournamentService = () => {
     return { tournamentId: tournament.id };
   };
 
-  const startGame = async (matchId: number, userId: number) => {
-    const match = await prisma.match.findUnique({
-      where: { id: matchId },
-    });
-    if (!match) {
-      console.warn('⚠️ 유효하지 않은 matchId');
-      return;
+  const handleMatchStart = async (matchId: number, userId: number) => {
+    if (!matchStartReadyMap.has(matchId)) {
+      matchStartReadyMap.set(matchId, new Set());
     }
+
+    const readySet = matchStartReadyMap.get(matchId)!;
+    readySet.add(userId);
+
+    if (!matchStateMap.has(matchId)) {
+      await startGame(matchId, userId); // ballSpeed = 0 상태
+    }
+
+    // 두 명 모두 준비 완료 → 공 시작
+    if (readySet.size === 2) {
+      matchStartReadyMap.delete(matchId);
+
+      const state = matchStateMap.get(matchId);
+      if (!state) return;
+
+      // 이제 진짜 공 움직임 시작
+      state.gameState.ballSpeedX = 1;
+      state.gameState.ballSpeedY = 1;
+    }
+  };
+
+  // 게임 루프 분리
+  const startGameLoop = (
+    matchId: number,
+    nickname1: string,
+    nickname2: string,
+    match: any,
+  ) => {
+    const interval = setInterval(async () => {
+      const state = matchStateMap.get(matchId);
+      if (!state) {
+        clearInterval(interval);
+        return;
+      }
+
+      const { gameState } = state;
+
+      // paddle 위치 업데이트
+      for (const key of state.keyStates.p1) {
+        if (key === 'ArrowUp')
+          gameState.paddle1Y = Math.max(0, gameState.paddle1Y - 2);
+        if (key === 'ArrowDown')
+          gameState.paddle1Y = Math.min(100, gameState.paddle1Y + 2);
+      }
+      for (const key of state.keyStates.p2) {
+        if (key === 'ArrowUp')
+          gameState.paddle2Y = Math.max(0, gameState.paddle2Y - 2);
+        if (key === 'ArrowDown')
+          gameState.paddle2Y = Math.min(100, gameState.paddle2Y + 2);
+      }
+
+      // 공 정지 상태면 무시
+      if (gameState.ballSpeedX === 0 && gameState.ballSpeedY === 0) {
+        return;
+      }
+
+      // 공 위치 갱신
+      gameState.ballX += gameState.ballSpeedX;
+      gameState.ballY += gameState.ballSpeedY;
+
+      // 위아래 벽
+      if (gameState.ballY <= 0 || gameState.ballY >= 100) {
+        gameState.ballSpeedY *= -1;
+      }
+      // 왼쪽 패들 (player 1) 충돌 판정
+      if (
+        gameState.ballX <= 11 && // 공이 왼쪽 근처에 왔고
+        Math.abs(gameState.ballY - gameState.paddle1Y) <= 10 // 패들의 범위 안이면
+      ) {
+        gameState.ballSpeedX *= -1;
+      }
+
+      // 오른쪽 패들 (player 2) 충돌 판정
+      if (
+        gameState.ballX >= 89 && // 공이 오른쪽 근처에 왔고
+        Math.abs(gameState.ballY - gameState.paddle2Y) <= 10
+      ) {
+        gameState.ballSpeedX *= -1;
+      }
+      // 좌우 벽 충돌 및 점수
+      if (gameState.ballX <= 0 || gameState.ballX >= 100) {
+        if (gameState.ballX <= 0) gameState.score2 += 1;
+        else gameState.score1 += 1;
+
+        gameState.ballX = 50;
+        gameState.ballY = 50;
+        gameState.ballSpeedX = 0;
+        gameState.ballSpeedY = 0;
+
+        pingpongUtil.sendMatchInitSetting(
+          matchId,
+          nickname1,
+          nickname2,
+          gameState.score1,
+          gameState.score2,
+        );
+
+        matchStartReadyMap.set(matchId, new Set());
+        return;
+      }
+
+      // 게임 종료 조건
+      if (gameState.score1 >= 5 || gameState.score2 >= 5) {
+        clearInterval(interval);
+        matchStateMap.delete(matchId);
+        const winner = gameState.score1 >= 5 ? nickname1 : nickname2;
+
+        await prisma.match.update({
+          where: { id: matchId },
+          data: { status: 'completed' },
+        });
+        await prisma.matchResult.create({
+          data: {
+            matchId,
+            participant1Score: gameState.score1,
+            participant2Score: gameState.score2,
+            isGiveUp: false,
+          },
+        });
+
+        pingpongUtil.sendMatchEnd(
+          matchId,
+          match.round,
+          {
+            player1: gameState.score1,
+            player2: gameState.score2,
+          },
+          winner,
+        );
+
+        await checkAndStartFinal(match.tournamentId);
+        return;
+      }
+
+      pingpongUtil.sendMatchRun(matchId, {
+        ball: { x: gameState.ballX, y: gameState.ballY },
+        paddle1: { x: 10, y: gameState.paddle1Y },
+        paddle2: { x: 90, y: gameState.paddle2Y },
+        score: {
+          player1: gameState.score1,
+          player2: gameState.score2,
+        },
+      });
+    }, 50);
+  };
+
+  // startGame 내부에서 상태 초기화 후 루프 시작
+  const startGame = async (matchId: number, userId: number) => {
     const match_data = await prisma.match.findUnique({
       where: { id: matchId },
       include: {
@@ -265,141 +420,33 @@ const tournamentService = () => {
         participant2: { include: { user: true } },
       },
     });
-
-    if (!match_data || !match_data.participant1 || !match_data.participant2) {
-      console.warn('⚠️ 참가자 정보 없음');
+    if (!match_data || !match_data.participant1 || !match_data.participant2)
       return;
-    }
 
     const p1Id = match_data.participant1.user.id;
     const p2Id = match_data.participant2.user.id;
     const nickname1 = match_data.participant1.user.nickname;
     const nickname2 = match_data.participant2.user.nickname;
 
-    // 게임 상태 초기화
-    let ballX = 50;
-    let ballY = 50;
-    let ballSpeedX = 1;
-    let ballSpeedY = 1;
-    let paddle1Y = 50;
-    let paddle2Y = 50;
-    let score1 = 0;
-    let score2 = 0;
-
+    // 상태 저장
     matchStateMap.set(matchId, {
       player1Id: p1Id,
       player2Id: p2Id,
-      paddle1Y,
-      paddle2Y,
-      keyStates: {
-        p1: new Set(),
-        p2: new Set(),
+      keyStates: { p1: new Set(), p2: new Set() },
+      gameState: {
+        ballX: 50,
+        ballY: 50,
+        ballSpeedX: 0,
+        ballSpeedY: 0,
+        paddle1Y: 50,
+        paddle2Y: 50,
+        score1: 0,
+        score2: 0,
       },
     });
 
-    const gameInterval = setInterval(() => {
-      const state = matchStateMap.get(matchId);
-      if (!state) {
-        clearInterval(gameInterval);
-        return;
-      }
-
-      // 키 입력에 따른 paddle 위치 갱신
-      for (const key of state.keyStates.p1) {
-        if (key === 'ArrowUp') state.paddle1Y = Math.max(0, state.paddle1Y - 2);
-        if (key === 'ArrowDown')
-          state.paddle1Y = Math.min(100, state.paddle1Y + 2);
-      }
-      for (const key of state.keyStates.p2) {
-        if (key === 'ArrowUp') state.paddle2Y = Math.max(0, state.paddle2Y - 2);
-        if (key === 'ArrowDown')
-          state.paddle2Y = Math.min(100, state.paddle2Y + 2);
-      }
-      // 공 위치 갱신
-      ballX += ballSpeedX;
-      ballY += ballSpeedY;
-
-      // 위아래 벽 충돌
-      if (ballY <= 0 || ballY >= 100) ballSpeedY *= -1;
-
-      // 좌우 벽 충돌: 점수 처리 및 리셋
-      if (ballX <= 0) {
-        score2 += 1;
-        ballX = 50;
-        ballY = 50;
-
-        pingpongUtil.sendMatchInitSetting(
-          matchId,
-          nickname1,
-          nickname2,
-          score1,
-          score2,
-        );
-      }
-      if (ballX >= 100) {
-        score1 += 1;
-        ballX = 50;
-        ballY = 50;
-
-        pingpongUtil.sendMatchInitSetting(
-          matchId,
-          nickname1,
-          nickname2,
-          score1,
-          score2,
-        );
-      }
-
-      // 종료 조건
-      if (score1 >= 5 || score2 >= 5) {
-        clearInterval(gameInterval);
-        matchStateMap.delete(matchId);
-        const winner = score1 >= 5 ? nickname1 : nickname2;
-
-        (async () => {
-          // 1. Match 상태 업데이트
-          await prisma.match.update({
-            where: { id: matchId },
-            data: {
-              status: 'completed',
-            },
-          });
-
-          // 2. MatchResult 저장
-          await prisma.matchResult.create({
-            data: {
-              matchId,
-              participant1Score: score1,
-              participant2Score: score2,
-              isGiveUp: false,
-            },
-          });
-
-          // 3. 클라이언트에게 결과 전송
-          pingpongUtil.sendMatchEnd(
-            matchId,
-            match.round,
-            {
-              player1: score1,
-              player2: score2,
-            },
-            winner,
-          );
-
-          // 4. 결승 시작 확인 및 실행
-          await checkAndStartFinal(match.tournamentId);
-        })();
-        return;
-      }
-
-      // 실시간 위치/상태 클라이언트에게 전송
-      pingpongUtil.sendMatchRun(matchId, {
-        ball: { x: ballX, y: ballY },
-        paddle1: { x: 10, y: paddle1Y },
-        paddle2: { x: 90, y: paddle2Y },
-        score: { player1: score1, player2: score2 },
-      });
-    }, 50); // 20fps (50ms 간격)
+    // 게임 루프는 대기 상태로 돌입
+    startGameLoop(matchId, nickname1, nickname2, match_data);
   };
 
   const handleKeyInput = (matchId: number, userId: number, msg: any) => {
@@ -586,6 +633,7 @@ const tournamentService = () => {
     startGame,
     handleKeyInput,
     endTournament,
+    handleMatchStart,
   };
 };
 
