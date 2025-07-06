@@ -8,6 +8,7 @@ export interface IUser {
   export interface IAppState {
 	user: IUser | null;
   accessToken: string | null;
+  tmpToken: string | null; // 임시 토큰, 예를 들어 구글 OAuth 인증 후 사용
   language: Language;
 	// isLoading: boolean;
 	// error: string | null;

@@ -21,14 +21,27 @@ const authHandler = () => {
       if (user.twoFactorEnabled) {
         const tmpToken = jwtUtil.signTmpToken({ userId: user.id });
 
-        reply.header('Authorization', `Bearer ${tmpToken}`);
-        handlerUtil.handleSuccess(reply, SUCCESS_MESSAGE.need2FA);
-        return;
+        return reply.type('text/html').send(`
+        <script>
+          window.opener.postMessage({
+            status: 206,
+            token: '${tmpToken}'
+          }, window.location.origin);
+          window.close();
+        </script>
+      `);
       }
-
       return finalizeLogin(reply, user.id, SUCCESS_MESSAGE.loginOK);
     } catch (error) {
-      handlerUtil.handleError(reply, ERROR_MESSAGE.serverError, error);
+      return reply.type('text/html').send(`
+      <script>
+        window.opener.postMessage({
+          status: 500,
+          message: '로그인 중 오류가 발생했습니다.'
+        }, window.location.origin);
+        window.close();
+      </script>
+    `);
     }
   };
 
@@ -98,20 +111,22 @@ const authHandler = () => {
     await authService.saveRefreshToken(id, refreshToken);
 
     const user = await authService.findUserById(id);
-    reply
-      .setCookie('refreshToken', refreshToken, {
-        httpOnly: true,
-        secure: false,
-        sameSite: 'strict',
-        path: '/',
-        maxAge: 60 * 60 * 24 * 7,
-      })
-      .header('Authorization', `Bearer ${accessToken}`)
-      .status(successMessage.status)
-      .send({
-        ...successMessage,
-        user,
-      });
+    reply.setCookie('refreshToken', refreshToken, {
+      httpOnly: true,
+      secure: false,
+      sameSite: 'strict',
+      path: '/',
+      maxAge: 60 * 60 * 24 * 7,
+    });
+    return reply.type('text/html').send(`
+    <script>
+      window.opener.postMessage({
+        status: ${successMessage.status},
+        user: ${JSON.stringify(user)}
+      }, window.location.origin);
+      window.close();
+      </script>
+  `);
   };
   return { login, googleCallback, refresh, logout, finalizeLogin };
 };

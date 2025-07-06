@@ -1,7 +1,3 @@
-
-import { store } from "./store";
-
-
 interface RouteDefinition {
     fragmentRegExp: RegExp;
     component: ComponentConstructor;

@@ -8,6 +8,7 @@ class Store {
     this.state = {
       user: null,
       accessToken : null,
+      tmpToken: null,
       language : Language.KR,
       // isLoading: false,
       // error: null,
