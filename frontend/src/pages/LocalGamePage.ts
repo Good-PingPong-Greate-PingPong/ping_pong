@@ -9,7 +9,7 @@ export class LocalGamePage extends Component {
     <div id="gameDiv">
       <div data-component="nicknameInputModal" class="flex items-center justify-center transition"></div>
 
-      <div id="ScoreDiv">
+      <div id="scoreDiv">
         <p id="Player1Nick">PLAYER 1</p>
         <p id="Player1">0</p> : <p id="Player2">0</p>
         <p id="Player2Nick">PLAYER 2</p>

@@ -17,6 +17,7 @@ interface SessionInfoMessage extends BaseSocketMessage {
   type: 'game';
   subtype: 'session_info';
   data: {
+    match_id: number;
     round: 'semi' | 'final';
     nickname1: string;
     nickname2: string;
@@ -26,10 +27,9 @@ interface SessionInfoMessage extends BaseSocketMessage {
 interface MatchRunMessage extends BaseSocketMessage {
   type: 'game';
   subtype: 'match_run';
-  match_id: number;
   data: {
+    match_id: number;
     ball: {
-      status: string;
       x: number;
       y: number;
     };
@@ -52,6 +52,7 @@ interface MatchInitSettingMessage extends BaseSocketMessage {
   type: 'game';
   subtype: 'match_init_setting';
   data: {
+    match_id: number;
     ball: {
       x: number;
       y: number;
@@ -60,13 +61,13 @@ interface MatchInitSettingMessage extends BaseSocketMessage {
     paddle1: {
       x: number;
       y: number;
-      width: number;
+      radius: number;
       height: number;
     };
     paddle2: {
       x: number;
       y: number;
-      width: number;
+      radius: number;
       height: number;
     };
     nickname: {
@@ -80,6 +81,7 @@ interface MatchEndMessage extends BaseSocketMessage {
   type: 'game';
   subtype: 'match_end';
   data: {
+    match_id: number;
     round: 'semi' | 'final';
     score: {
       player1: number;
@@ -89,11 +91,21 @@ interface MatchEndMessage extends BaseSocketMessage {
   };
 }
 
-export interface KeyMessage extends BaseSocketMessage {
+interface MatchStartMessage extends BaseSocketMessage {
   type: 'game';
-  subtype: 'key_down';
-  message: 'key!';
+  subtype: 'match_start';
+  message: 'go!';
   data: {
+    match_id: number;
+  };
+}
+
+interface KeyMessage extends BaseSocketMessage {
+  type: 'game';
+  subtype: 'key';
+  message: string; // 'key_down' | 'key_up';
+  data: {
+    match_id: number;
     key_set: string;
   };
 }
@@ -103,10 +115,19 @@ interface ConnectionMessage extends BaseSocketMessage {
   subtype: 'success' | 'failed';
 }
 
+interface DisconnectionMessage extends BaseSocketMessage {
+  type: 'connection';
+  subtype: 'disconnection';
+  message: 'plz!';
+}
+
 export type TournamentMessage =
   | TournamentTreeMessage
   | SessionInfoMessage
   | MatchRunMessage
   | MatchInitSettingMessage
   | ConnectionMessage
-  | MatchEndMessage;
+  | MatchEndMessage
+  | DisconnectionMessage
+  | KeyMessage
+  | MatchStartMessage;

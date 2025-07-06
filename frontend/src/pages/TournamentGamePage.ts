@@ -4,10 +4,14 @@ import { tournamentTree } from '../components/tournamentTree.ts';
 import { TournamentMessage } from '../webSocket/TournamentMessage.ts';
 import { TournamentSocket } from '../webSocket/TournamentSocket.ts';
 import { tournamentGameResult } from '../components/tournamentGameResult.ts';
+import { sendError } from '../errorHandling/sendError.ts';
 import { navigate } from '../core/router.ts';
+import { TournamentGameWindow } from '../tournamentGame/TournamentGameWindow.ts';
+import { tournamentInit, gameEvent, renderObject } from '../tournamentGame/runTournamentGame.ts';
 
 export class TournamentGamePage extends Component {
   socket!: TournamentSocket;
+  gameWindow!: TournamentGameWindow;
 
   template() {
     return `
@@ -21,54 +25,13 @@ export class TournamentGamePage extends Component {
         <p id="Player1">0</p> : <p id="Player2">0</p>
         <p id="Player2Nick">PLAYER 2</p>
       </div>
-      <canvas></canvas>
+      <canvas class="min-h-[600px] min-w-[1500px]" ></canvas>
       <div data-component="tournamentGameResult" class="hidden" ></div>
 		</div>
 	`;
   }
 
-  mounted() {
-    this.setWebSocket();
-    // test용
-    // var msgList = new Array<TournamentMessage>;
-    // // msgList.push({
-    // // 		type: "connection",
-    // // 		subtype: "failed",
-    // // 		message: "You are not connected!"
-    // // });
-    // msgList.push({
-    // 	type: "game",
-    // 	subtype: "tournament_tree",
-    // 	message: "",
-    // 	data: {
-    // 		winner: ["krgreenteabro", "bbbb"],
-    // 		bracket: [["krgreenteabro", "ccccds"], ["bbbb", "dddd"]]
-    // 	}
-    // });
-    // msgList.push({
-    // 	type: "game",
-    // 	subtype: "session_info",
-    // 	message: "",
-    // 	data: {
-    // 		round: "final",
-    // 		nickname1: "jimchoi",
-    // 		nickname2:"jeakim"
-    // 	}
-    // });
-    // msgList.push({
-    // 		type: "game",
-    // 		subtype: "match_end",
-    // 		message: "",
-    // 		data: {
-    // 			round: "semi", // semi/final
-    // 			score: {
-    // 				player1: 9,
-    // 				player2: 3,
-    // 			},
-    // 			winner : "j"
-    // 		}
-    // });
-    // // test end
+  async mounted() {
     const $waitingModal = this.$target.querySelector(
       '[data-component="waitingModal"]',
     ) as HTMLElement;
@@ -80,40 +43,24 @@ export class TournamentGamePage extends Component {
     const $resultTarget = this.$target.querySelector(
       '[data-component="tournamentGameResult"]',
     ) as HTMLElement;
+    const canvas = this.$target.querySelector('canvas') as HTMLCanvasElement;
 
     this.gameStartSetting($waitingModal);
-    this.tournamentLoop($waitingModal, $tournamentTree, $resultTarget);
+    this.setWebSocket();
+
+    await this.listenMessageLoop($waitingModal, $tournamentTree, $resultTarget, canvas);
   }
 
-  tournamentLoop(
-    waitingModal: HTMLElement,
-    tournamentTree: HTMLElement,
-    resultTarget: HTMLElement,
-  ) {
-    this.socket.setMessage();
-    // this.socket.msg = msgList[idx]; // test용
-    // idx = idx + 1; // test용
-
-    if (this.socket.msg.type === 'connection') this.checkConnection(this.socket.msg);
-
-    setTimeout(
-      (socket: TournamentSocket) => {
-        this.socket = socket;
-        this.socket.msg = socket.msg;
-        this.handleMessage(waitingModal, tournamentTree, resultTarget);
-
-        this.tournamentLoop(waitingModal, tournamentTree, resultTarget);
-      },
-      2000,
-      this.socket,
-    );
+  setWebSocket() {
+    // const token = getAccessToekn(); // 임의로 작성해둠
+    const token: string = 'tmp';
+    this.socket = new TournamentSocket(token);
+    const returnMsg: string = this.socket.checkWebSocketOpen();
+    if (returnMsg !== '') sendError(returnMsg);
   }
 
   checkConnection(msg: TournamentMessage) {
-    if (msg.subtype === 'failed') {
-      navigate('/');
-      alert(msg.message);
-    }
+    if (msg.subtype === 'failed') sendError(msg.message);
   }
 
   gameStartSetting($waitingModal: HTMLElement) {
@@ -127,55 +74,60 @@ export class TournamentGamePage extends Component {
     this.openModal($waitingModal);
   }
 
+  async listenMessageLoop(
+    waitingModal: HTMLElement,
+    tournamentTree: HTMLElement,
+    resultTarget: HTMLElement,
+    canvas: HTMLCanvasElement,
+  ) {
+    // 다음 메세지가 처리되기 전까지 다른 메세지 처리 x
+    for await (const msg of this.socket.getMessageStream()) {
+      this.socket.msg = msg;
+      if (msg.type === 'connection') this.checkConnection(msg);
+      gameEvent(canvas, this.socket, this.gameWindow);
+      await this.handleMessage(waitingModal, tournamentTree, resultTarget, canvas);
+    }
+  }
+
   gameReSetting($waitingModal: HTMLElement, $resultTarget: HTMLElement) {
     this.closeModal($resultTarget);
     this.openModal($waitingModal);
   }
 
-  setWebSocket() {
-    // const token = getAccessToekn(); // 임의로 작성해둠
-    const token: string = 'tmp';
-    this.socket = new TournamentSocket(token);
-    //this.socket.msg = msg;
-    // if (this.socket.isOpenWebSocket())
-    // 	navigate('/');
-  }
-
-  handleMessage(waitingModal: HTMLElement, tournamentTree: HTMLElement, resultTarget: HTMLElement) {
+  async handleMessage(
+    waitingModal: HTMLElement,
+    tournamentTree: HTMLElement,
+    resultTarget: HTMLElement,
+    canvas: HTMLCanvasElement,
+  ) {
     if (!this.socket?.msg) {
       console.warn('msg가 존재하지 않음');
       return;
     }
-    if (this.socket.msg.subtype === 'tournament_tree') {
-      this.closeModal(waitingModal);
-      this.handleTournamentTree(tournamentTree);
-    } else if (this.socket.msg.subtype === 'session_info') {
-      this.closeModal(tournamentTree);
-      this.setNickname(this.socket.msg.data.nickname1, this.socket.msg.data.nickname2);
-    } else if (this.socket.msg.subtype === 'match_init_setting') {
-      return;
-    } else if (this.socket.msg.subtype === 'match_run') {
-      return;
-    } else if (this.socket.msg.subtype === 'match_end') {
-      const resultComponent = new tournamentGameResult(resultTarget, { winnerName: null });
-      this.openModal(resultTarget);
-      const winnerName = this.socket.msg.data?.winner ?? '';
-      resultComponent.setState({ winnerName });
-      var isFinal: boolean = false;
-      if (this.socket.msg.data.round === 'final') isFinal = true;
-      setTimeout(
-        (isFinal: boolean) => {
-          this.gameReSetting(waitingModal, resultTarget);
-          if (isFinal) navigate('/');
-        },
-        5000,
-        isFinal,
-      );
+    const msg: TournamentMessage = this.socket.msg;
+
+    switch (msg.subtype) {
+      case 'tournament_tree':
+        this.closeModal(waitingModal);
+        this.handleTournamentTree(tournamentTree);
+        break;
+      case 'session_info':
+        this.closeModal(tournamentTree);
+        this.setNickname(msg.data.nickname1, msg.data.nickname2);
+        break;
+      case 'match_init_setting':
+        tournamentInit(canvas, this.socket, this.gameWindow, msg.data.match_id);
+        break;
+      case 'match_run':
+        renderObject(this.socket, this.gameWindow);
+        break;
+      case 'match_end':
+        await this.endMatch(waitingModal, resultTarget);
+        break;
     }
   }
 
   handleTournamentTree(tournamentTree: HTMLElement) {
-    // 토너먼트 트리 보이기(임시 코드)
     tournamentTree.dispatchEvent(new CustomEvent('update', { detail: this.socket.msg }));
     this.openModal(tournamentTree);
   }
@@ -195,5 +147,31 @@ export class TournamentGamePage extends Component {
 
   openModal($target: HTMLElement) {
     $target.classList.remove('hidden');
+  }
+
+  async endMatch(waitingModal: HTMLElement, resultTarget: HTMLElement) {
+    const msg: TournamentMessage = this.socket.msg;
+    if (msg.subtype !== 'match_end') return;
+
+    const resultComponent = new tournamentGameResult(resultTarget, { winnerName: null });
+    this.openModal(resultTarget);
+
+    const winnerName = msg.data?.winner ?? '';
+    resultComponent.setState({ winnerName });
+
+    var isFinal: boolean = msg.data.round === 'final';
+    console.log('rount: ' + msg.data.round);
+
+    await this.delay(5000);
+
+    this.gameReSetting(waitingModal, resultTarget);
+    if (isFinal) {
+      this.socket.sendDisconnectionMessage();
+      navigate('/');
+    }
+  }
+
+  private delay(ms: number): Promise<void> {
+    return new Promise((resolve) => setTimeout(resolve, ms));
   }
 }
