@@ -1,18 +1,22 @@
 import { Component } from '../core/Component';
-
+import { store } from '../core/store.ts';
 import { localGameResult } from '../components/localGameResult';
 import { nicknameInputModal } from '../components/nicknameInputModal.ts';
+import { i18n } from '../types/i18n.ts';
 
 export class LocalGamePage extends Component {
   template() {
+    const { language } = store.getState();
+    const defaultPlayer1 = i18n[language].defaultPlayer1;
+    const defaultPlayer2 = i18n[language].defaultPlayer2;
+
     return `
     <div id="gameDiv">
       <div data-component="nicknameInputModal" class="flex items-center justify-center transition"></div>
-
       <div id="scoreDiv">
-        <p id="Player1Nick">PLAYER 1</p>
+        <p id="Player1Nick">${defaultPlayer1}</p>
         <p id="Player1">0</p> : <p id="Player2">0</p>
-        <p id="Player2Nick">PLAYER 2</p>
+        <p id="Player2Nick">${defaultPlayer2}</p>
       </div>
       <canvas></canvas>
       <div data-component="localGameResult"></div>
@@ -54,9 +58,13 @@ export class LocalGamePage extends Component {
 
       const $p1 = this.$target.querySelector('#Player1Nick');
       const $p2 = this.$target.querySelector('#Player2Nick');
+      const { language } = store.getState();
+      const defaultPlayer1 = i18n[language].defaultPlayer1;
+      const defaultPlayer2 = i18n[language].defaultPlayer2;
+
       if ($p1 && $p2) {
-        $p1.textContent = player1 || 'PLAYER 1';
-        $p2.textContent = player2 || 'PLAYER 2';
+        $p1.textContent = player1 || defaultPlayer1;
+        $p2.textContent = player2 || defaultPlayer2;
       }
     });
   }

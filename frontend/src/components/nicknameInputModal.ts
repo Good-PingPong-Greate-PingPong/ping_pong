@@ -1,6 +1,8 @@
 import { Component } from '../core/Component';
 import { navigate } from '../core/router';
 import x_button from '../assets/x_button.svg';
+import { store } from '../core/store';
+import { i18n } from '../types/i18n';
 
 export class nicknameInputModal extends Component {
   addEvent(eventType: string, selector: string, callback: (event: Event) => void): void {
@@ -29,24 +31,30 @@ export class nicknameInputModal extends Component {
   }
 
   template() {
+    const { language } = store.getState();
+    const localGame = i18n[language].localGame;
+    const gameStart = i18n[language].gameStart;
+    const defaultPlayer1 = i18n[language].defaultPlayer1;
+    const defaultPlayer2 = i18n[language].defaultPlayer2;
+
     return `
     <div id="modalOverlay" class="w-full h-full absolute top-0 bg-black opacity-20 transition"></div>
     <div id="gameModal">
       <button id="xBtn">
         <img src="${x_button}" alt="x_button" class="w-[3rem] h-[3rem]">
       </button>
-      <p id="modalTitle">로컬 게임</p>
+      <p id="modalTitle">${localGame}</p>
       <form id="nickInputForm">
         <div class="flex flex-col items-start ml-[150px]">
-          <label for="player1Form">player 1</label>
+          <label for="player1Form">${defaultPlayer1}</label>
           <input type="text" id="player1Form" name="player1Form" maxlength="10" class="w-[310px] h-[70px]">
         </div>
         <div class="flex flex-col items-end mr-[150px]">
-          <label for="player2Form">player 2</label>
+          <label for="player2Form">${defaultPlayer2}</label>
           <input type="text" id="player2Form" name="player2Form" maxlength="10" class="w-[310px] h-[70px]">
         </div>
       </form>
-      <button id="startBtn">시작</button>
+      <button id="startBtn">${gameStart}</button>
     </div>
     `;
   }

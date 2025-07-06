@@ -1,5 +1,7 @@
 import { TournamentMessage } from './TournamentMessage.ts';
 import { sendError } from '../errorHandling/sendError.ts';
+import { store } from '../core/store.ts';
+import { i18n } from '../types/i18n.ts';
 
 export class TournamentSocket {
   public socket: WebSocket;
@@ -11,24 +13,26 @@ export class TournamentSocket {
   }
 
   public waitForOpen(): Promise<void> {
-    return new Promise((resolve, reject) => {
-      if (this.socket.readyState === WebSocket.OPEN) return resolve();
+  return new Promise((resolve, reject) => {
+    if (this.socket.readyState === WebSocket.OPEN) return resolve();
 
-      this.socket.onopen = () => resolve();
+    this.socket.onopen = () => resolve();
 
-      this.socket.onerror = (event) => {
-        console.error('WebSocket 연결 오류:', event);
-        sendError('서버와의 연결 중 오류가 발생했습니다.');
-        reject(new Error('WebSocket 연결 오류'));
-      };
+    const { language } = store.getState();
 
-      this.socket.onclose = (event) => {
-        console.warn('WebSocket 연결 종료:', event.code, event.reason);
-        sendError('서버와의 연결이 종료되었습니다.');
-        reject(new Error('WebSocket 연결 종료'));
-      };
-    });
-  }
+    this.socket.onerror = (event) => {
+      console.error('WebSocket 연결 오류:', event);
+      sendError(i18n[language].socketError);
+      reject(new Error('WebSocket 연결 오류'));
+    };
+
+    this.socket.onclose = (event) => {
+      console.warn('WebSocket 연결 종료:', event.code, event.reason);
+      sendError(i18n[language].socketClose);
+      reject(new Error('WebSocket 연결 종료'));
+    };
+  });
+}
 
   public sendMessage(msg: TournamentMessage) {
     this.socket.send(JSON.stringify(msg));

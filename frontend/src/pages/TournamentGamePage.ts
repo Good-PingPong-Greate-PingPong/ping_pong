@@ -8,30 +8,40 @@ import { sendError } from '../errorHandling/sendError.ts';
 import { navigate } from '../core/router.ts';
 import { TournamentGameWindow } from '../tournamentGame/TournamentGameWindow.ts';
 import { tournamentInit, gameEvent, renderObject } from '../tournamentGame/runTournamentGame.ts';
+import { store } from '../core/store.ts';
+import { i18n } from '../types/i18n.ts';
+import { Language } from '../types/index.ts';
 
 export class TournamentGamePage extends Component {
   socket!: TournamentSocket;
   gameWindow!: TournamentGameWindow;
+  language!: Language;
 
   template() {
+    const lan: Language = store.getState().language;
+    const connectingServer: string = i18n[lan].connectingServer;
+    const defaultPlayer1: string = i18n[lan].defaultPlayer1;
+    const defaultPlayer2: string = i18n[lan].defaultPlayer2;
+
     return `
-		<div id="loading" class="w-full h-full top-0 absolute" >서버에 연결 중입니다...</div>
+		<div id="loading" class="w-full h-full top-0 absolute" >${connectingServer}</div>
 		<div id="gameDiv" class="opacity-0" >
 			<div data-component="waitingModal" class="hidden flex items-center justify-center transition"></div>
 			<div data-component="tournamentTree" class="hidden flex items-center justify-center transition"></div>
       <div data-component="nicknameInputModal" class="flex items-center justify-center transition"></div>
-      <div id="scoreDiv">
-        <p id="Player1Nick">PLAYER 1</p>
+      <div id="scoreDiv" class="min-w-[1500px]" >
+        <p id="Player1Nick">${defaultPlayer1}</p>
         <p id="Player1">0</p> : <p id="Player2">0</p>
-        <p id="Player2Nick">PLAYER 2</p>
+        <p id="Player2Nick">${defaultPlayer2}</p>
       </div>
-      <canvas class="min-h-[600px] min-w-[1500px]" ></canvas>
+      <canvas class="h-[600px] w-[1500px] min-h-[600px] min-w-[1500px] border-2" ></canvas>
       <div data-component="tournamentGameResult" class="hidden" ></div>
 		</div>
 	`;
   }
 
   async mounted() {
+    this.language = store.getState().language;
     const $waitingModal = this.$target.querySelector(
       '[data-component="waitingModal"]',
     ) as HTMLElement;
@@ -53,27 +63,26 @@ export class TournamentGamePage extends Component {
   }
 
   async setWebSocket() {
-    // const token = getAccessToekn(); // 임의로 작성해둠
-    const token: string = 'tmp';
-    this.socket = new TournamentSocket(token);
-    try {
-      await this.socket.waitForOpen();
-    } catch (error) {
-      console.error('WebSocket 연결 실패로 인해 setWebSocket 종료됨');
-      throw error;
-    }
+    const { accessToken } = store.getState(); // 임의로 작성해둠
+    this.socket = new TournamentSocket(accessToken ? accessToken : 'tmp');
+    // try {
+    //   await this.socket.waitForOpen();
+    // } catch (error) {
+    //   console.error('WebSocket 연결 실패로 인해 setWebSocket 종료됨');
+    //   throw error;
+    // }
   }
 
   checkConnection(msg: TournamentMessage) {
-    if (msg.subtype === 'failed') sendError(msg.message);
+    if (msg.subtype === 'failed') sendError(i18n[this.language].connectionFailed);
   }
 
   async gameStartSetting($waitingModal: HTMLElement) {
     const $loading = this.$target.querySelector('#loading') as HTMLElement;
     const $scoreDiv = this.$target.querySelector('#scoreDiv') as HTMLElement;
     const $gameDiv = this.$target.querySelector('#gameDiv') as HTMLElement;
-    
-    $gameDiv.classList.add('opacity-0');
+
+    $gameDiv.classList.remove('opacity-0');
     this.closeModal($loading);
     this.openModal($scoreDiv);
     this.openModal($gameDiv);
@@ -141,9 +150,12 @@ export class TournamentGamePage extends Component {
   setNickname(player1Nick: string, player2Nick: string) {
     const $p1 = this.$target.querySelector('#Player1Nick');
     const $p2 = this.$target.querySelector('#Player2Nick');
+    const defaultPlayer1 = i18n[this.language].defaultPlayer1;
+    const defaultPlayer2 = i18n[this.language].defaultPlayer2;
+
     if ($p1 && $p2) {
-      $p1.textContent = player1Nick || 'PLAYER 1';
-      $p2.textContent = player2Nick || 'PLAYER 2';
+      $p1.textContent = player1Nick || defaultPlayer1;
+      $p2.textContent = player2Nick || defaultPlayer2;
     }
   }
 
@@ -170,6 +182,8 @@ export class TournamentGamePage extends Component {
 
     await this.delay(5000);
 
+    const { user } = store.getState();
+    if (user != null && user.nickname !== msg.data.winner) navigate('/');
     this.gameReSetting(waitingModal, resultTarget);
     if (isFinal) {
       this.socket.sendDisconnectionMessage();
