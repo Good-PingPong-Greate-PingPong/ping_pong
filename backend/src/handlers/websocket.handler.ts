@@ -37,30 +37,29 @@ const websocketHandler = () => {
       const userId = decoded.userId;
 
       const result = await tournamentService.startTournament(userId, socket);
-      if (result) {
-        (socket as any).tournamentId = result.tournamentId;
+      if (!result) {
+        console.warn('❌ 토너먼트 시작 실패');
+        socket.close();
+        return;
       }
+
       socket.on('message', (data) => {
         try {
           const msg = JSON.parse(data.toString());
-
           if (msg.type === 'game') {
             switch (msg.subtype) {
               case 'match_start': {
-                const tournamentId = (socket as any).tournamentId;
-                if (!tournamentId) {
-                  console.warn('tournamentId 없음');
-                  return;
-                }
-                tournamentService.startGame(tournamentId, userId);
+                tournamentService.startGame(msg.data.match_id, userId);
                 break;
               }
 
               case 'key_down':
               case 'key_up': {
-                const tournamentId = (socket as any).tournamentId;
-                if (!tournamentId) return;
-                tournamentService.handleKeyInput(tournamentId, userId, msg); // 추후 구현
+                tournamentService.handleKeyInput(
+                  msg.data.match_id,
+                  userId,
+                  msg,
+                );
                 break;
               }
 
@@ -85,10 +84,7 @@ const websocketHandler = () => {
         if (tournamentWaitingRoom.findPlayer(userId)) {
           tournamentWaitingRoom.removePlayer(userId);
         } else {
-          const tournamentId = (socket as any).tournamentId;
-          if (tournamentId) {
-            tournamentService.endTournament(tournamentId, userId);
-          }
+          tournamentService.endTournament(userId);
         }
       });
     } catch (err) {

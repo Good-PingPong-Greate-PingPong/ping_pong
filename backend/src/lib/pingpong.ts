@@ -30,6 +30,7 @@ const pingpongUtil = () => {
       message: '',
       data: {
         round,
+        match_id: matchId,
         nickname1,
         nickname2,
       },
@@ -41,12 +42,15 @@ const pingpongUtil = () => {
     matchId: number,
     player1: string,
     player2: string,
+    player1Score: number,
+    player2Score: number,
   ) => {
     const msg = {
       type: 'game',
       subtype: 'match_init_setting',
       message: '',
       data: {
+        match_id: matchId,
         ball: { x: 50, y: 50, radius: 1 },
         paddle1: { x: 10, y: 50, radius: 1, height: 20 },
         paddle2: { x: 90, y: 50, radius: 1, height: 20 },
@@ -55,8 +59,8 @@ const pingpongUtil = () => {
           player2,
         },
         score: {
-          player1: 0,
-          player2: 0,
+          player1: player1Score,
+          player2: player2Score,
         },
       },
     };
@@ -77,7 +81,10 @@ const pingpongUtil = () => {
       type: 'game',
       subtype: 'match_run',
       message: '',
-      data: payload,
+      data: {
+        match_id: matchId,
+        ...payload,
+      },
     };
     tournamentManager.sendToMatch(matchId, JSON.stringify(msg));
   };
@@ -93,6 +100,7 @@ const pingpongUtil = () => {
       subtype: 'match_end',
       message: '',
       data: {
+        match_id: matchId,
         round,
         score,
         winner,
