@@ -1,9 +1,9 @@
-
 import { Component } from '../core/Component';
 import settingIcon from '../assets/setting.svg';
 import saveIcon from '../assets/save.svg';
-import mockImg from '../assets/mock.jpg';
+// import mockImg from '../assets/mock.jpg';
 import uploadIcon from '../assets/upload.svg';
+import { store } from '../core/store';
 
 export class Profile extends Component {
   setup() {
@@ -166,8 +166,7 @@ export class Profile extends Component {
         `;
   }
 
-  mounted() {
-  }
+  mounted() {}
 
   async updateProfileData(data: any) {
     try {
@@ -222,26 +221,28 @@ export class Profile extends Component {
   }
   async getProfileData() {
     try {
-      // const { user } = this.$props;
-      // const url = `/api/info?userId=${user?.id}`;
-      // const response = await fetch(url, {
-      //   method: 'GET',
-      //   credentials: 'include',
-      //   headers: {
-      //     'Content-Type': 'application/json',
-      //   },
-      // });
-      // if (!response.ok) {
-      //   const errorData = await response.json();
-      //   throw new Error(`${errorData.error_code}: ${errorData.message}`);
-      // }
-      // const data = await response.json();
+      const { user } = this.$props;
+      const accessToken = store.getState().accessToken;
+      const url = `/api/users/info?userId=${user?.id}`;
+      const response = await fetch(url, {
+        method: 'GET',
+        credentials: 'include',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${accessToken}`, // 토큰이 있다면 헤더에 추가
+        },
+      });
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(`${errorData.error_code}: ${errorData.message}`);
+      }
+      const data = await response.json();
       // 목 데이터로 테스트
-      const data = {
-        nickname: 'testUser123',
-        profileImage: mockImg,
-        isTwoFactor: true,
-      };
+      // const data = {
+      //   nickname: 'testUser123',
+      //   profileImage: mockImg,
+      //   isTwoFactor: true,
+      // };
 
       this.setState({
         nickname: data.nickname,
@@ -254,4 +255,3 @@ export class Profile extends Component {
     }
   }
 }
-
