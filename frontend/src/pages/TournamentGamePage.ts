@@ -34,7 +34,7 @@ export class TournamentGamePage extends Component {
         <p id="Player1">0</p> : <p id="Player2">0</p>
         <p id="Player2Nick">${defaultPlayer2}</p>
       </div>
-      <canvas class="h-[600px] w-[1500px] min-h-[600px] min-w-[1500px] border-2" ></canvas>
+      <canvas class="h-[600px] w-[1500px] min-h-[600px] min-w-[1500px]" ></canvas>
       <div data-component="tournamentGameResult" class="hidden" ></div>
 		</div>
 	`;

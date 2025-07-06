@@ -1,6 +1,8 @@
 import { Component } from '../core/Component';
 import { TournamentMessage } from '../webSocket/TournamentMessage.ts';
 import tree from '../assets/tree.svg';
+import { store } from '../core/store.ts';
+import { i18n } from '../types/i18n.ts';
 
 export class tournamentTree extends Component {
   addEvent(eventType: string, selector: string, callback: (event: Event) => void): void {
@@ -13,10 +15,12 @@ export class tournamentTree extends Component {
   }
 
   template() {
+    const { language } = store.getState();
+    const tournament = i18n[language].tournament;
     return `
     <div id="modalOverlay" class="w-full h-full absolute top-0 bg-black opacity-20 transition"></div>
     <div id="gameModal">
-      <p id="modalTitle">토너먼트 게임</p>
+      <p id="modalTitle">${tournament}</p>
       <div id="modalContent">
         <img src="${tree}" alt="tree" class="w-[80%] h-[100%] justify-center" >
         <div id="playerNickname">
