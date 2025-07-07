@@ -128,7 +128,7 @@ export class GameHistory extends Component {
           Authorization: `Bearer ${accessToken}`,
         },
       });
-      console.log(response);
+      // console.log(response);
       const data = await response.json();
       // const data = getMockData(page);
       if (!data) {

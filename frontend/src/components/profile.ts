@@ -1,13 +1,14 @@
 import { Component } from '../core/Component';
 import settingIcon from '../assets/setting.svg';
 import saveIcon from '../assets/save.svg';
-// import mockImg from '../assets/mock.jpg';
+import mockImg from '../assets/mock.jpg';
 import uploadIcon from '../assets/upload.svg';
 import { store } from '../core/store';
 import { TwoFactorModal } from './TwoFactorModal';
 
 export class Profile extends Component {
   setup() {
+    console.log('profile');
     this.setState({
       isQrView: false,
       isEditMode: false,
@@ -77,6 +78,10 @@ export class Profile extends Component {
           });
         }
       }, 0);
+    });
+    this.addEvent('change', 'input[name="twoFactorEnabled"]', (event) => {
+      const value = (event.target as HTMLInputElement).value === 'true';
+      this.setState({ twoFactorEnabled: value });
     });
   }
 
@@ -172,7 +177,7 @@ export class Profile extends Component {
                                   <span class="peer-checked:bg-mainColor peer-checked:text-white bg-gray-200 text-gray-400 px-6 py-3 rounded-lg">비활성</span>
                                 </label>
                                 <label class="...">
-                                  <input type="radio" name="" value="true" class="peer hidden" ${twoFactorEnabled ? 'checked' : ''} />
+                                  <input type="radio" name="twoFactorEnabled" value="true" class="peer hidden" ${twoFactorEnabled ? 'checked' : ''} />
                                   <span class="peer-checked:bg-mainColor peer-checked:text-white bg-gray-200 text-gray-400 px-6 py-3 rounded-lg">활성</span>
                                 </label>
                                 <button id="twoFactorEnableBtn" class="" > 큐알 </button>
@@ -230,7 +235,12 @@ export class Profile extends Component {
         throw new Error(`${errorData.error_code}: ${errorData.message}`);
       }
 
-      await this.getProfileData();
+      // await this.getProfileData();
+      // this.setState({
+      //   nickname: nickname,
+      //   profileImage: profileImage,
+      //   twoFactorEnabled: twoFactorEnabled,
+      // });
     } catch (error) {
       console.error('프로필 업데이트 실패:', error);
       throw error;
@@ -257,7 +267,13 @@ export class Profile extends Component {
 
       // console.log('getProfileData : ', data);
       const nickname = data.user.nickname;
-      const profileImage = 'https://localhost:443' + data.user.profileImage; // test
+      // console.log("profile data.user.profileImage : ", data.user.profileImage);
+      // let profileImage = 'https://localhost:443' +  data.user.profileImage;
+      let profileImage = data.user.profileImage;
+
+      if (!profileImage) {
+        profileImage = mockImg;
+      }
       const twoFactorEnabled =
         data.user.twoFactorEnabled === true || data.user.twoFactorEnabled === 'true';
 

@@ -39,7 +39,6 @@ export class Friend extends Component {
             isLoading: false,
           });
           this.$props.clearSearch();
-
         } else {
           // 친구 추가
           await this.addFriend(nickname);
@@ -63,7 +62,7 @@ export class Friend extends Component {
   template(): string {
     const { view, nickname, profileImage, isFriend, isLogin, isLoading } = this.$state;
 
-    console.log('template : isFriend :', view);
+    // console.log('template : isFriend :', view);
     return `
     <div data-property-1="1" class="w-80 h-16 relative m-2">
         <!-- 메인 컨테이너 -->
@@ -101,9 +100,6 @@ export class Friend extends Component {
                   : ''
               }
             </div>
-            ${
-              view === 'search'
-                ? `
                 <!-- 친구 추가/삭제 버튼 섹션 -->
                 <div class="w-16 h-16 flex justify-center items-center rounded-tr-lg rounded-br-lg ${
                   isFriend ? 'bg-red-500 hover:bg-red-600' : 'bg-green-500 hover:bg-green-600'
@@ -118,9 +114,6 @@ export class Friend extends Component {
                         ${isLoading ? '⏳' : isFriend ? '×' : '+'}
                     </button>
                 </div>
-              `
-                : ''
-            }
               </div>
         
         <!-- 로딩/메시지 오버레이 (선택사항) -->
@@ -185,6 +178,4 @@ export class Friend extends Component {
       throw error;
     }
   }
-
-
 }

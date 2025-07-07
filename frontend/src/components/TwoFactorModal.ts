@@ -257,6 +257,9 @@ export class TwoFactorModal extends Component {
       const data = await response.json();
       console.log('인증 성공:', data);
       console.log('인증 성공 user:', data.user);
+      store.setState({ user: data.user });
+      store.setState({ accessToken: data.user.accessToken });
+      window.location.replace('#/');
     } catch (error) {
       console.log(error, ' 2FA 인증 실패');
       if (!this.$state.error) {

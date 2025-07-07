@@ -217,7 +217,7 @@ export class FriendsList extends Component {
   mounted(): void {
     const { friends, isSearching, searchResults } = this.$state;
     const displayData = isSearching ? searchResults : friends;
-    console.log('mounted : display : ', displayData);
+    // console.log('mounted : display : ', displayData);
 
     if (displayData && displayData.length > 0) {
       displayData.forEach((friend: IFriend, index: number) => {

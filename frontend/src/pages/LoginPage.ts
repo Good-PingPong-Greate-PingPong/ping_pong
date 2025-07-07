@@ -39,7 +39,7 @@ export class LoginPage extends Component {
           store.setState({ user: data.user });
           store.setState({ accessToken: data.token });
           const socket = new WebSocket('wss://localhost/ws?token=' + data.token);
-          socket.addEventListener('open', () => {
+          socket.addEventListener('open', () => { // CHECK
             console.log('✅ WebSocket 연결 성공');
           });
           window.location.replace('#/');
