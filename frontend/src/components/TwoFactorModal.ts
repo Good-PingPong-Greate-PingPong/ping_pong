@@ -63,18 +63,16 @@ export class TwoFactorModal extends Component {
 
     // QR 화면 이벤트
     this.addEvent('click', '#confirmButton', () => {
-      if (this.$state.view === 'qr') {
-        // this.setState({ view: 'pin' });
-        window.location.replace('#/');
-      }
-    });
-    this.addEvent('click', '#cancelButton', () => {
-      this.$props.handleModal('login');
-    });
+      const { view } = this.$state;
+      console.log('view : ', view);
 
-    // PIN 화면 이벤트
-    this.addEvent('click', '#pinConfirmButton', () => {
-      if (this.$state.view === 'pin') {
+      if (view === 'qr') {
+        // this.setState({ view: 'pin' });
+        this.$props.handleModal();
+        // window.location.replace('#/');
+      }
+      if (view === 'pin') {
+        console.log('pinConfirmButton2');
         // 확인 버튼 클릭 시 input 값들을 읽어서 상태에 저장
         const inputs = this.$target.querySelectorAll(
           '.auth-digit-input',
@@ -91,48 +89,53 @@ export class TwoFactorModal extends Component {
         this.fetchPinNumber(authCode);
       }
     });
+    this.addEvent('click', '#cancelButton', () => {
+      this.$props.handleModal('login');
+    });
+
+    // PIN 화면 이벤트
+    // this.addEvent('click', '#pinConfirmButton', () => {
+    //   console.log('pinConfirmButton');
+    //   const { view } = this.$state;
+    //   console.log('view : ', view);
+    // });
     this.addEvent('click', '#reset2faBtn', () => {
       this.request2faReset();
     });
-    this.addEvent('change', '#twoFactorEnableRadio', (event) => {
-      // 활성화 라디오 버튼이 체크될 때만 모달 띄우기
-      if ((event.target as HTMLInputElement).checked) {
-        // 모달 띄우기
-        const $modal = document.querySelector('[data-component="modal"]') as HTMLElement;
-        new TwoFactorModal($modal, {
-          view: 'qr',
-          handleModal: () => {
-            // 모달 닫기 시 동작 (예: 모달 영역 비우기)
-            $modal.innerHTML = '';
-          },
-        });
+
+    // 배경 클릭 시 취소 이벤트
+    this.addEvent('click', '[data-modal-overlay]', () => {
+      // this.$props.handleModal('login');
+      const { view } = this.$state;
+      if (view === 'qr') {
+        this.$props.handleModal();
       }
     });
   }
 
   template() {
-    const { view, qrCode, authCode, error, isResetRequested } = this.$state;
-
+    const { view, qrCode, error, isResetRequested } = this.$state;
     return `
-      <div class="w-[500px] h-[462.97px] relative shadow-[0px_0px_15.47743034362793px_0px_rgba(0,0,0,0.25)]">
-        <div class="w-[500px] h-96 left-0 top-0 absolute bg-gray rounded-2xl">
-          <div class="left-[83px] top-[55px] absolute text-center justify-start text-mainColor text-3xl font-semibold font-['Inter']">
-            ${view === 'qr' ? 'Google OTP<br/> 인증 코드를 생성하세요.' : '인증 코드를 입력해주세요.'}
-          </div>
-          
-          <div class="w-44 h-44 left-[163px] top-[148px] absolute">
-            ${
-              view === 'qr'
-                ? `<div class="bg-red-100 w-44 h-44"><img src="${qrCode}" /></div>`
-                : `<div class="flex justify-center items-center space-x-2">
-                   ${[0, 1, 2, 3, 4, 5]
-                     .map(
-                       (idx: number) => `
+      <div class="fixed inset-0 z-50 flex items-center justify-center">
+        <div data-modal-overlay class="absolute inset-0 bg-gray-800 bg-opacity-60"></div>
+        <div class="relative z-10 w-[500px] h-[462.97px] shadow-[0px_0px_15.47743034362793px_0px_rgba(0,0,0,0.25)]">
+          <div class="w-[500px] h-96 left-0 top-0 absolute bg-white rounded-2xl">
+            <div class="left-[83px] top-[55px] absolute text-center justify-start text-mainColor text-3xl font-semibold font-['Inter']">
+              ${view === 'qr' ? 'Google OTP<br/> 인증 코드를 생성하세요.' : '인증 코드를 입력해주세요.'}
+            </div>
+            <div class="w-44 h-44 left-[163px] top-[148px] absolute">
+              ${
+                view === 'qr'
+                  ? `<div class="bg-red-100 w-44 h-44"><img src="${qrCode}" /></div>`
+                  : `<div class="flex justify-center items-center space-x-2">
+                     ${[0, 1, 2, 3, 4, 5]
+                       .map(
+                         (idx: number) => `
                      <input type="text" class="auth-digit-input w-8 h-12 text-center border-2 border-gray-300 rounded text-lg font-semibold" 
                             data-index="${idx}" value="" maxlength="1" />
                    `,
-                     )
-                     .join('')}
+                       )
+                       .join('')}
                  </div>
                  ${
                    error
@@ -149,34 +152,18 @@ export class TwoFactorModal extends Component {
                  `
                      : ''
                  }`
-            }
+              }
           </div>
+          <div class="w-[500px] left-0 top-[370.10px] absolute inline-flex justify-between items-center">
+            <div class="w-64 h-24 bg-stone-300 rounded-bl-2xl"></div>
+            <div class="w-64 h-24 bg-mainColor rounded-br-2xl"></div>
+          </div>
+          <div class="w-16 h-10 left-[340.83px] top-[397.73px] absolute justify-start text-white text-4xl font-extrabold font-['Inter']" 
+               id="confirmButton">확인</div>
+          <div class="w-16 h-10 left-[90.83px] top-[397.73px] absolute justify-start text-zinc-600 text-4xl font-extrabold font-['Inter']" 
+               id="cancelButton">취소</div>
         </div>
-        
-        <div class="w-[500px] left-0 top-[370.10px] absolute inline-flex justify-between items-center">
-          <div class="w-64 h-24 bg-stone-300 rounded-bl-2xl"></div>
-          <div class="w-64 h-24 bg-mainColor rounded-br-2xl"></div>
-        </div>
-        
-        <div class="w-16 h-10 left-[340.83px] top-[397.73px] absolute justify-start text-white text-4xl font-extrabold font-['Inter']" 
-             id="${view === 'qr' ? 'confirmButton' : 'pinConfirmButton'}">확인</div>
-        <div class="w-16 h-10 left-[90.83px] top-[397.73px] absolute justify-start text-zinc-600 text-4xl font-extrabold font-['Inter']" 
-             id="cancelButton">취소</div>
       </div>
-      <div class="mt-4">
-        <label class="inline-flex items-center">
-          <input
-            type="radio"
-            name="twoFactorEnabled"
-            value="true"
-            class="peer hidden"
-            id="twoFactorEnableRadio"
-            ${this.$props.twoFactorEnabled ? 'checked' : ''}
-          />
-          <span class="peer-checked:bg-mainColor peer-checked:text-white bg-gray-200 text-gray-400 px-6 py-3 rounded-lg">활성</span>
-        </label>
-      </div>
-      <div data-component="modal"></div>
     `;
   }
 
@@ -256,14 +243,22 @@ export class TwoFactorModal extends Component {
         body: JSON.stringify({ code }),
       });
 
+      const contentType = response.headers.get('content-type');
       if (!response.ok) {
-        const errorData = await response.json();
-        this.setState({ error: `${errorData.error_code}: ${errorData.message}` });
-        throw new Error(`${errorData.error_code}: ${errorData.message}`);
+        if (contentType && contentType.includes('application/json')) {
+          const errorData = await response.json();
+          this.setState({ error: errorData.message || '인증 실패' });
+        } else {
+          this.setState({ error: '서버 오류 또는 잘못된 응답입니다.' });
+        }
+        // throw new Error('2FA 인증 실패');
       }
-
+      window.location.replace('#/');
       const data = await response.json();
       console.log('인증 성공:', data);
+      console.log('인증 성공 user:', data.user);
+      
+
     } catch (error) {
       console.log(error, ' 2FA 인증 실패');
       if (!this.$state.error) {

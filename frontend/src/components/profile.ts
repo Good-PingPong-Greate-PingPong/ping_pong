@@ -4,10 +4,12 @@ import saveIcon from '../assets/save.svg';
 // import mockImg from '../assets/mock.jpg';
 import uploadIcon from '../assets/upload.svg';
 import { store } from '../core/store';
+import { TwoFactorModal } from './TwoFactorModal';
 
 export class Profile extends Component {
   setup() {
     this.setState({
+      isQrView: false,
       isEditMode: false,
       profileImageFile: undefined,
     });
@@ -53,6 +55,28 @@ export class Profile extends Component {
           profileImageFile: file, // ← 파일 객체 저장
         });
       }
+    });
+    this.addEvent('click', '#twoFactorEnableBtn', () => {
+      // 모달 띄우기
+      const $modal = document.querySelector('[data-component="modal"]') as HTMLElement;
+      new TwoFactorModal($modal, {
+        view: 'qr',
+        handleModal: () => {
+          this.setState({ isQrView: false });
+        },
+      });
+      this.setState({ isQrView: true });
+      setTimeout(() => {
+        const $modal = document.querySelector('[data-component="modal"]') as HTMLElement;
+        if ($modal) {
+          new TwoFactorModal($modal, {
+            view: 'qr',
+            handleModal: () => {
+              this.setState({ isQrView: false });
+            },
+          });
+        }
+      }, 0);
     });
   }
 
@@ -148,13 +172,10 @@ export class Profile extends Component {
                                   <span class="peer-checked:bg-mainColor peer-checked:text-white bg-gray-200 text-gray-400 px-6 py-3 rounded-lg">비활성</span>
                                 </label>
                                 <label class="...">
-                                  <input type="radio" name="twoFactorEnabled" value="true" class="peer hidden" ${twoFactorEnabled ? 'checked' : ''} />
-                                  <span class="peer-checked:bg-mainColor peer-checked:text-white bg-gray-200 text-gray-400 px-6 py-3 rounded-lg">활성</span>
-                                </label>
-                                <label class="...">
                                   <input type="radio" name="" value="true" class="peer hidden" ${twoFactorEnabled ? 'checked' : ''} />
                                   <span class="peer-checked:bg-mainColor peer-checked:text-white bg-gray-200 text-gray-400 px-6 py-3 rounded-lg">활성</span>
                                 </label>
+                                <button id="twoFactorEnableBtn" class="" > 큐알 </button>
                             `
                               : `
                                 <label class="...">
@@ -162,16 +183,33 @@ export class Profile extends Component {
                                 </label>
                             `
                           }
-                        </div>
+                          </div>
                     </div>
                 </div>
             </form>
         </div>
+        <div class="">
+<div data-component="modal" class=""></div>
+        </div>
+
     </div>
+    
         `;
   }
 
-  mounted() {}
+  mounted() {
+    if (this.$state.isQrView) {
+      const $modal = this.$target.querySelector('[data-component="modal"]') as HTMLElement;
+      if ($modal) {
+        new TwoFactorModal($modal, {
+          view: 'qr',
+          handleModal: () => {
+            this.setState({ isQrView: false });
+          },
+        });
+      }
+    }
+  }
 
   async updateProfileData(formData: FormData) {
     try {

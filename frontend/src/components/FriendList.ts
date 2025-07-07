@@ -164,7 +164,7 @@ export class FriendsList extends Component {
                 displayData && displayData.length > 0
                   ? displayData
                       .map(
-                        (friend: IFriend, index: number) => `
+                        (_: IFriend, index: number) => `
                           <div data-component="friend-${index}" class="friend-item"></div>
                         `,
                       )

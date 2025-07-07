@@ -1,5 +1,4 @@
 import { TwoFactorModal } from '../components/TwoFactorModal';
-import { QrModal } from '../components/QrModal';
 import { Component } from '../core/Component';
 import { store } from '../core/store';
 
