@@ -5,6 +5,7 @@ import mockImg from '../assets/mock.jpg';
 import uploadIcon from '../assets/upload.svg';
 import { store } from '../core/store';
 import { TwoFactorModal } from './TwoFactorModal';
+import { i18n } from '../types/i18n';
 
 export class Profile extends Component {
   setup() {
@@ -17,6 +18,10 @@ export class Profile extends Component {
   }
 
   setEvent(): void {
+    const { language } = store.getState();
+    const imageType = i18n[language].imageType;
+    const imageSize = i18n[language].imageSize;
+
     this.addEvent('submit', '.profile-form', (event) => {
       event.preventDefault();
       this.handleSubmit();
@@ -43,12 +48,12 @@ export class Profile extends Component {
         const allowedTypes = ['image/jpeg', 'image/png'];
         const maxSize = 2 * 1024 * 1024; // 2MB
         if (!allowedTypes.includes(file.type)) {
-          alert('지원하지 않는 이미지 파일입니다. (jpg, jpeg, png 만 가능합니다.)');
+          alert(imageType);
           (event.target as HTMLInputElement).value = '';
           return;
         }
         if (file.size > maxSize) {
-          alert('파일 크기는 2MB 이하만 업로드할 수 있습니다.');
+          alert(imageSize);
           (event.target as HTMLInputElement).value = '';
           return;
         }
@@ -89,25 +94,25 @@ export class Profile extends Component {
   handleSubmit() {
     const form = this.$target.querySelector('.profile-form') as HTMLFormElement;
     const formData = new FormData(form);
+    const { language } = store.getState();
+    const { nicknameInput, nicknameType, nicknameSpace } = i18n[language];
 
     // 닉네임 유효성 검사
     const nickname = formData.get('nickname')?.toString().trim() || '';
     const nicknameRegex = /^[가-힣a-zA-Z0-9]{1,16}$/;
 
     if (!nickname) {
-      alert('닉네임을 입력해주세요.');
+      alert(nicknameInput);
       return;
     }
     if (!nicknameRegex.test(nickname)) {
-      alert(
-        '닉네임은 1~16자의 한글, 영문, 숫자만 사용할 수 있습니다.\n(공백, 특수문자, 자음/모음 단독 입력은 불가)',
-      );
+      alert(nicknameType);
       return;
     }
 
     // 모두 공백으로만 이루어진 경우도 막기
     if (nickname.replace(/[\s]/g, '').length === 0) {
-      alert('닉네임에 공백만 사용할 수 없습니다.');
+      alert(nicknameSpace);
       return;
     }
 
@@ -124,6 +129,18 @@ export class Profile extends Component {
 
   template() {
     const { nickname, profileImage, twoFactorEnabled, isEditMode } = this.$state;
+    const { language } = store.getState();
+    const {
+      save,
+      modified,
+      profileImageText,
+      nicknameText,
+      twoFactorText,
+      enable,
+      disable,
+      generateQR,
+    } = i18n[language];
+
     return `
     <div class="w-full max-w-4xl mx-auto h-full flex flex-col bg-backgroundColor">
         <!-- 헤더 영역 -->
@@ -136,7 +153,7 @@ export class Profile extends Component {
             >
               <img 
                 src="${isEditMode ? saveIcon : settingIcon}" 
-                alt="${isEditMode ? '저장' : '설정'} 아이콘"
+                alt="${isEditMode ? `${save} 아이콘` : `${modified} 아이콘`}"
               />
             </button>
         </div>
@@ -147,7 +164,7 @@ export class Profile extends Component {
             <form id="profile-form" class="profile-form flex items-start gap-16 w-full max-w-2xl">
                 <!-- 프로필 이미지 -->
                 <div class="flex-shrink-0 relative">
-                  <img src="${profileImage}" alt="프로필 이미지" class="w-48 h-48 rounded-full object-cover"/>
+                  <img src="${profileImage}" alt="${profileImageText}" class="w-48 h-48 rounded-full object-cover"/>
                   ${
                     isEditMode
                       ? `
@@ -171,7 +188,7 @@ export class Profile extends Component {
                 <div class="flex-1 space-y-8">
                     <!-- 닉네임 섹션 -->
                     <div class="space-y-3">
-                        <label for="nickname" class="block text-xl font-bold text-gray-800">닉네임</label>
+                        <label for="nickname" class="block text-xl font-bold text-gray-800">${nicknameText}</label>
                         <div class="relative">
                             <input 
                                 id="nickname"
@@ -186,24 +203,24 @@ export class Profile extends Component {
 
                     <!-- 2차 인증 섹션 -->
                     <div class="space-y-3">
-                        <label class="block text-xl font-bold text-gray-800">2차 인증</label>
+                        <label class="block text-xl font-bold text-gray-800">${twoFactorText}</label>
                         <div class="flex items-center gap-3">
                           ${
                             isEditMode
                               ? `
                                 <label class="...">
                                   <input type="radio" name="twoFactorEnabled" value="false" class="peer hidden" ${!twoFactorEnabled ? 'checked' : ''} />
-                                  <span class="peer-checked:bg-mainColor peer-checked:text-white bg-gray-200 text-gray-400 px-6 py-3 rounded-lg">비활성</span>
+                                  <span class="peer-checked:bg-mainColor peer-checked:text-white bg-gray-200 text-gray-400 px-6 py-3 rounded-lg">${disable}</span>
                                 </label>
                                 <label class="...">
                                   <input type="radio" name="twoFactorEnabled" value="true" class="peer hidden" ${twoFactorEnabled ? 'checked' : ''} />
-                                  <span class="peer-checked:bg-mainColor peer-checked:text-white bg-gray-200 text-gray-400 px-6 py-3 rounded-lg">활성</span>
+                                  <span class="peer-checked:bg-mainColor peer-checked:text-white bg-gray-200 text-gray-400 px-6 py-3 rounded-lg">${enable}</span>
                                 </label>
-                                <button id="twoFactorEnableBtn" class="bg-white px-6 py-3 border-1 border-mainColor rounded-lg" > 큐알 생성하기 </button>
+                                <button id="twoFactorEnableBtn" class="bg-white px-6 py-3 border-1 border-mainColor rounded-lg" > ${generateQR} </button>
                             `
                               : `
                                 <label class="...">
-                                  <span class="bg-mainColor text-white px-6 py-3 rounded-lg">${twoFactorEnabled === false ? '비활성' : '활성'}</span>
+                                  <span class="bg-mainColor text-white px-6 py-3 rounded-lg">${twoFactorEnabled === false ? disable : enable}</span>
                                 </label>
                             `
                           }
@@ -239,6 +256,8 @@ export class Profile extends Component {
     try {
       const user = this.$props.user; // 또는 store에서 가져오기
       const url = `/api/users/info?userId=${user?.id}`;
+      const { language } = store.getState();
+      const { changes } = i18n[language];
 
       // 변경사항 비교
       const prevNickname = this.$state.nickname;
@@ -249,7 +268,7 @@ export class Profile extends Component {
 
       // 변경사항이 없으면 요청하지 않음
       if (newNickname === prevNickname && prevTwoFactor === newTwoFactor && !fileChanged) {
-        alert('변경된 내용이 없습니다.');
+        alert(changes);
         return;
       }
 

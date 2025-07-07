@@ -2,6 +2,8 @@ import { Component } from '../core/Component';
 import nextIcon from '../assets/next.svg';
 import { Record } from './Record';
 import { store } from '../core/store';
+import { i18n } from '../types/i18n';
+
 export interface IRecord {
   user1Nickname: string;
   user2Nickname: string;
@@ -47,14 +49,17 @@ export class GameHistory extends Component {
   }
   template(): string {
     const { category, records = [], currentPage, totalPage } = this.$state;
+    const { language } = store.getState();
+    const { history, tournament, local } = i18n[language];
+
     return `
       <div class="w-full h-full p-16 bg-backgroundColor rounded-b-lg rounded-t-lg">
         <div class="flex flex-row justify-end">
           <div class="w-[70px] h-6 ${category === 0 ? 'bg-mainColor' : 'bg-gray-300'} rounded inline-flex justify-center items-center gap-1.5">
-              <div data-category-index="0" class="category-item ${category === 0 ? 'active-tab cursor-default text-white' : 'cursor-pointer text-mainColor'} text-center justify-center text-base font-extrabold font-['Inter']">토너먼트</div>
+              <div data-category-index="0" class="category-item ${category === 0 ? 'active-tab cursor-default text-white' : 'cursor-pointer text-mainColor'} text-center justify-center text-base font-extrabold font-['Inter']">${tournament}</div>
           </div>
           <div class="w-[70px] h-6 ${category === 1 ? 'bg-mainColor' : 'bg-gray-300'} rounded inline-flex justify-center items-center gap-1.5">
-              <div data-category-index="1" class="category-item ${category === 1 ? 'active-tab cursor-default text-white' : 'cursor-pointer text-mainColor'} text-center justify-center text-base font-extrabold font-['Inter']">로컬</div>
+              <div data-category-index="1" class="category-item ${category === 1 ? 'active-tab cursor-default text-white' : 'cursor-pointer text-mainColor'} text-center justify-center text-base font-extrabold font-['Inter']">${local}</div>
           </div>
         </div>
         <div class="h-full flex flex-col justify-center">
@@ -70,7 +75,7 @@ export class GameHistory extends Component {
                     `,
                       )
                       .join('')
-                  : `<div class="text-gray-400 text-center py-8">기록이 없습니다.</div>`
+                  : `<div class="text-gray-400 text-center py-8">${history}</div>`
               }
             </div>
             <img src="${nextIcon}" id="rightBtn" class="cursor-pointer"/>
