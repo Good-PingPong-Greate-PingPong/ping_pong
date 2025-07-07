@@ -8,7 +8,7 @@ export class TournamentSocket {
   public msg: TournamentMessage;
 
   constructor(token: string) {
-    this.socket = new WebSocket(`wss://localhost/ws/tournament?token=${token}`);
+    this.socket = new WebSocket(`wss://10.19.228.15/ws/tournament?token=${token}`);
     this.msg = {} as TournamentMessage;
   }
 
