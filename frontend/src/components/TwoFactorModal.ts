@@ -1,5 +1,6 @@
 import { Component } from '../core/Component';
 import { store } from '../core/store';
+import { i18n } from '../types/i18n';
 
 export class TwoFactorModal extends Component {
   setup() {
@@ -18,6 +19,9 @@ export class TwoFactorModal extends Component {
   }
 
   setEvent(): void {
+    const {language} = store.getState();
+    const authCodeError = i18n[language].authCodeError;
+
     this.addEvent('input', '.auth-digit-input', (event) => {
       const input = event.target as HTMLInputElement;
       const idx = Number(input.dataset.index);
@@ -80,7 +84,7 @@ export class TwoFactorModal extends Component {
 
         const authCode = authCodeArr.join('');
         if (!authCode || authCode.length !== 6) {
-          this.setState({ error: '6자리 인증번호를 입력해주세요.' });
+          this.setState({ error: `${authCodeError}` });
           return;
         }
         this.fetchPinNumber(authCode);
@@ -106,13 +110,20 @@ export class TwoFactorModal extends Component {
 
   template() {
     const { view, qrCode, error, isResetRequested } = this.$state;
+    const {language} = store.getState();
+    const confirm = i18n[language].confirm;
+    const cancel = i18n[language].cancel;
+    const qrCodeMessage = i18n[language].qrCodeMessage;
+    const googleOtp = i18n[language].googleOtp;
+    const reset2fa = i18n[language].reset2fa;
+
     return `
       <div class="fixed inset-0 z-50 flex items-center justify-center">
         <div data-modal-overlay class="absolute inset-0 bg-gray-800 bg-opacity-60"></div>
         <div class="relative z-10 w-[500px] h-[462.97px] shadow-[0px_0px_15.47743034362793px_0px_rgba(0,0,0,0.25)]">
           <div class="w-[500px] h-96 left-0 top-0 absolute bg-white rounded-2xl">
             <div class="left-[83px] top-[55px] absolute text-center justify-start text-mainColor text-3xl font-semibold font-['Inter']">
-              ${view === 'qr' ? 'Google OTP<br/> 인증 코드를 생성하세요.' : '인증 코드를 입력해주세요.'}
+              ${view === 'qr' ? `${googleOtp}` : `${qrCodeMessage}`}
             </div>
             <div class="w-44 h-44 left-[163px] top-[148px] absolute">
               ${
@@ -138,7 +149,7 @@ export class TwoFactorModal extends Component {
                        class="ml-2 px-2 py-1 bg-mainColor text-white rounded text-xs ${isResetRequested ? 'opacity-50 cursor-not-allowed' : ''}"
                        type="button"
                        ${isResetRequested ? 'disabled' : ''}
-                     >2FA 리셋 요청</button>
+                     >${reset2fa}</button>
                    </div>
                  `
                      : ''
@@ -150,9 +161,9 @@ export class TwoFactorModal extends Component {
             <div class="w-64 h-24 bg-mainColor rounded-br-2xl"></div>
           </div>
           <div class="w-16 h-10 left-[340.83px] top-[397.73px] absolute justify-start text-white text-4xl font-extrabold font-['Inter']" 
-               id="confirmButton">확인</div>
+               id="confirmButton">${confirm}</div>
           <div class="w-16 h-10 left-[90.83px] top-[397.73px] absolute justify-start text-zinc-600 text-4xl font-extrabold font-['Inter']" 
-               id="cancelButton">취소</div>
+               id="cancelButton">${cancel}</div>
         </div>
       </div>
     `;
@@ -215,6 +226,10 @@ export class TwoFactorModal extends Component {
 
   // PIN 입력 관련 focusInput 등 유틸 함수도 이 클래스에 포함
   async fetchPinNumber(code: string) {
+    const {language} = store.getState();
+    const failed2fa = i18n[language].failed2fa;
+    const error2fa = i18n[language].error2fa;
+
     try {
       const response = await fetch('/api/2fa/verify', {
         method: 'POST',
@@ -226,7 +241,7 @@ export class TwoFactorModal extends Component {
       });
       const data = await response.json(); // 반드시 한 번만!
       if (!response.ok) {
-        alert(data.message || '2FA 인증 실패');
+        alert(data.message || `${failed2fa}`);
         return;
       }
       store.setState({ user: data.user });
@@ -234,11 +249,15 @@ export class TwoFactorModal extends Component {
       window.location.replace('#/');
       // 성공 처리
     } catch (error) {
-      alert('2FA 인증 중 오류가 발생했습니다.');
+      alert(`${error2fa}`);
     }
   }
 
   async request2faReset() {
+    const {language} = store.getState();
+    const failedReset2fa = i18n[language].failedReset2fa;
+    const sendLoginLink = i18n[language].sendLoginLink;
+
     try {
       const url = `/api/2fa/reset/request`;
       const tmpToken = store.getState().tmpToken;
@@ -257,11 +276,11 @@ export class TwoFactorModal extends Component {
       }
       // 요청 성공 시 버튼 비활성화
       this.setState({
-        error: '회원가입 시 사용한 이메일로 로그인 링크를 전송했습니다.',
+        error: `${sendLoginLink}`,
         isResetRequested: true,
       });
     } catch (error) {
-      console.error('2FA 리셋 요청 실패:', error);
+      console.error(`${failedReset2fa}:`, error);
     }
   }
 }

@@ -45,6 +45,13 @@ export class TournamentGamePage extends Component {
     const $waitingModal = this.$target.querySelector(
       '[data-component="waitingModal"]',
     ) as HTMLElement;
+    const waitingComponent = new waitingModal($waitingModal, {
+      socket: null,
+      onClose: () => {
+        this.socket?.socket.close();
+        navigate('/');
+      },
+    });
     const $tournamentTree = this.$target.querySelector(
       '[data-component="tournamentTree"]',
     ) as HTMLElement;
@@ -55,20 +62,13 @@ export class TournamentGamePage extends Component {
     const canvas = this.$target.querySelector('canvas') as HTMLCanvasElement;
 
     try {
-      await this.setWebSocket();
-      new waitingModal($waitingModal, {
-        socket: this.socket,
-        onClose: () => {
-          this.socket?.socket.close();
-          navigate('/');
-        },
-      });
+      await this.setWebSocket(waitingComponent);
       await this.gameStartSetting($waitingModal);
       await this.listenMessageLoop($waitingModal, $tournamentTree, $resultTarget, canvas);
     } catch (e) {}
   }
 
-  async setWebSocket() {
+  async setWebSocket(waitingComponent: waitingModal) {
     const { accessToken } = store.getState(); // 임의로 작성해둠
     this.socket = new TournamentSocket(accessToken ? accessToken : 'tmp');
     try {
@@ -77,6 +77,7 @@ export class TournamentGamePage extends Component {
       console.error('WebSocket 연결 실패로 인해 setWebSocket 종료됨');
       throw error;
     }
+    waitingComponent.setState(this.socket);
   }
 
   checkConnection(msg: TournamentMessage) {

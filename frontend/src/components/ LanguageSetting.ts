@@ -1,6 +1,7 @@
 import { Component } from '../core/Component';
 import { store } from '../core/store';
 import { Language } from '../types';
+import { i18n } from '../types/i18n';
 
 export class LanguageSetting extends Component {
   setEvent() {
@@ -13,11 +14,13 @@ export class LanguageSetting extends Component {
   }
   template(): string {
     const { language } = store.getState();
+    const myLanguage = i18n[language].myLanguage;
+
     return `
         <div class="w-full h-full p-16 bg-backgroundColor rounded-b-lg rounded-tl-lg">
             <div class="flex flex-row justify-end">
                   <div>
-                    <label for="languages" class="text-lg font-bold">언어 설정</label>
+                    <label for="languages" class="text-lg font-bold">${myLanguage}</label>
                     <select class="text-base">
                         <option value="EN" ${language === Language.EN ? 'selected' : ''}>English</option>
                         <option value="KR" ${language === Language.KR ? 'selected' : ''}>한국어</option>

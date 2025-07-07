@@ -1,5 +1,6 @@
 import { Component } from '../core/Component';
 import { store } from '../core/store';
+import { i18n } from '../types/i18n';
 
 export class QrModal extends Component {
   setup() {
@@ -24,7 +25,10 @@ export class QrModal extends Component {
     });
   }
   template() {
-    
+    const {language} = store.getState();
+    const googleOtp = i18n[language].googleOtp;
+    const confirm = i18n[language].confirm;
+    const cancel = i18n[language].cancel;
     const { qrCode } = this.$state;
     if (!qrCode) {
       return '';
@@ -32,7 +36,7 @@ export class QrModal extends Component {
     return `
         <div class="w-[500px] h-[462.97px] relative shadow-[0px_0px_15.47743034362793px_0px_rgba(0,0,0,0.25)]">
             <div class="w-[500px] h-96 left-0 top-0 absolute bg-gray rounded-2xl">
-                <div class="left-[83px] top-[55px] absolute text-center justify-start text-mainColor text-3xl font-semibold font-['Inter']">Google OTP<br/> 인증 코드를 생성하세요. </div>
+                <div class="left-[83px] top-[55px] absolute text-center justify-start text-mainColor text-3xl font-semibold font-['Inter']">${googleOtp} </div>
                 <div class="bg-red-100 w-44 h-44 left-[163px] top-[148px] absolute">
                 <img src="${qrCode}" />
                 </div>
@@ -41,8 +45,8 @@ export class QrModal extends Component {
                 <div class="w-64 h-24 bg-stone-300 rounded-bl-2xl"></div>
                 <div class="w-64 h-24 bg-mainColor rounded-br-2xl"></div>
             </div>
-            <div class="w-16 h-10 left-[340.83px] top-[397.73px] absolute justify-start text-white text-4xl font-extrabold font-['Inter']" id="confirmButton">확인</div>
-            <div class="w-16 h-10 left-[90.83px] top-[397.73px] absolute justify-start text-zinc-600 text-4xl font-extrabold font-['Inter']" id="cancelButton">취소</div>
+            <div class="w-16 h-10 left-[340.83px] top-[397.73px] absolute justify-start text-white text-4xl font-extrabold font-['Inter']" id="confirmButton">${confirm}</div>
+            <div class="w-16 h-10 left-[90.83px] top-[397.73px] absolute justify-start text-zinc-600 text-4xl font-extrabold font-['Inter']" id="cancelButton">${cancel}</div>
         </div>
         `;
   }
