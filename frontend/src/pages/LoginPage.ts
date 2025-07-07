@@ -80,7 +80,7 @@ export class LoginPage extends Component {
       console.log('pin');
       // 실제 QR코드 URL이 있다면 이쪽으로
       new TwoFactorModal($twoFactor, {
-        view:'qr',
+        view:'pin',
         handleModal: this.handleModal.bind(this),
         token: tmpToken,
       });

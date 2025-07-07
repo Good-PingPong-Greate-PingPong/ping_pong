@@ -151,6 +151,10 @@ export class Profile extends Component {
                                   <input type="radio" name="twoFactorEnabled" value="true" class="peer hidden" ${twoFactorEnabled ? 'checked' : ''} />
                                   <span class="peer-checked:bg-mainColor peer-checked:text-white bg-gray-200 text-gray-400 px-6 py-3 rounded-lg">활성</span>
                                 </label>
+                                <label class="...">
+                                  <input type="radio" name="twoFactorEnabled" value="true" class="peer hidden" ${twoFactorEnabled ? 'checked' : ''} />
+                                  <span class="peer-checked:bg-mainColor peer-checked:text-white bg-gray-200 text-gray-400 px-6 py-3 rounded-lg">활성</span>
+                                </label>
                             `
                               : `
                                 <label class="...">
@@ -215,7 +219,7 @@ export class Profile extends Component {
 
       // console.log('getProfileData : ', data);
       const nickname = data.user.nickname;
-      const profileImage = data.user.profileImage;
+      const profileImage = 'https://localhost:443' + data.user.profileImage; // test
       const twoFactorEnabled =
         data.user.twoFactorEnabled === true || data.user.twoFactorEnabled === 'true';
 

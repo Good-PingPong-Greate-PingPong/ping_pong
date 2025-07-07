@@ -27,7 +27,6 @@ const authHandler = () => {
       const googleUser = await jwtUtil.getGoogleUser(access_token);
       const user = await authService.saveUser(googleUser);
 
-      // front test :
       if (user.twoFactorEnabled) {
         const tmpToken = jwtUtil.signTmpToken({ userId: user.id });
 

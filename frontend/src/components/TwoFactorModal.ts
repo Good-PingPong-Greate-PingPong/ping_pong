@@ -10,6 +10,7 @@ export class TwoFactorModal extends Component {
       authCode: ['', '', '', '', '', ''],
       error: '',
       currentFocusIndex: 0,
+      isResetRequested: false, // 추가된 부분
     });
     if (view === 'qr') {
       this.getTwoFactor();
@@ -63,7 +64,8 @@ export class TwoFactorModal extends Component {
     // QR 화면 이벤트
     this.addEvent('click', '#confirmButton', () => {
       if (this.$state.view === 'qr') {
-        this.setState({ view: 'pin' });
+        // this.setState({ view: 'pin' });
+        window.location.replace('#/');
       }
     });
     this.addEvent('click', '#cancelButton', () => {
@@ -85,13 +87,17 @@ export class TwoFactorModal extends Component {
           this.setState({ error: '6자리 인증번호를 입력해주세요.' });
           return;
         }
+        console.log('pin check : ', authCode);
         this.fetchPinNumber(authCode);
       }
+    });
+    this.addEvent('click', '#reset2faBtn', () => {
+      this.request2faReset();
     });
   }
 
   template() {
-    const { view, qrCode, authCode, error } = this.$state;
+    const { view, qrCode, authCode, error, isResetRequested } = this.$state;
 
     return `
       <div class="w-[500px] h-[462.97px] relative shadow-[0px_0px_15.47743034362793px_0px_rgba(0,0,0,0.25)]">
@@ -114,7 +120,21 @@ export class TwoFactorModal extends Component {
                      )
                      .join('')}
                  </div>
-                 ${error ? `<div class="error text-red-500 text-sm mt-2 text-center">${error}</div>` : ''}`
+                 ${
+                   error
+                     ? `
+                   <div class="error text-red-500 text-sm mt-2 text-center">
+                     ${error}
+                     <button 
+                       id="reset2faBtn"
+                       class="ml-2 px-2 py-1 bg-mainColor text-white rounded text-xs ${isResetRequested ? 'opacity-50 cursor-not-allowed' : ''}"
+                       type="button"
+                       ${isResetRequested ? 'disabled' : ''}
+                     >2FA 리셋 요청</button>
+                   </div>
+                 `
+                     : ''
+                 }`
             }
           </div>
         </div>
@@ -221,10 +241,14 @@ export class TwoFactorModal extends Component {
       if (!this.$state.error) {
         this.setState({ error: '인증에 실패했습니다. 다시 시도해주세요.' });
       }
+      // this.request2faReset();
+    }
+  }
+
+  async request2faReset() {
+    try {
       const url = `/api/2fa/reset/request`;
       const tmpToken = store.getState().tmpToken;
-      console.log('tmpToken:', tmpToken);
-
       const response = await fetch(url, {
         method: 'POST',
         credentials: 'include',
@@ -234,8 +258,17 @@ export class TwoFactorModal extends Component {
         },
         body: JSON.stringify({}),
       });
-      console.log("response" , response)
-      // 
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(`${errorData.error_code}: ${errorData.message}`);
+      }
+      // 요청 성공 시 버튼 비활성화
+      this.setState({
+        error: '회원가입 시 사용한 이메일로 로그인 링크를 전송했습니다.',
+        isResetRequested: true,
+      });
+    } catch (error) {
+      console.error('2FA 리셋 요청 실패:', error);
     }
   }
 }
