@@ -45,7 +45,6 @@ export class TournamentGamePage extends Component {
     const $waitingModal = this.$target.querySelector(
       '[data-component="waitingModal"]',
     ) as HTMLElement;
-    new waitingModal($waitingModal, {});
     const $tournamentTree = this.$target.querySelector(
       '[data-component="tournamentTree"]',
     ) as HTMLElement;
@@ -57,6 +56,13 @@ export class TournamentGamePage extends Component {
 
     try {
       await this.setWebSocket();
+      new waitingModal($waitingModal, {
+        socket: this.socket,
+        onClose: () => {
+          this.socket?.socket.close();
+          navigate('/');
+        },
+      });
       await this.gameStartSetting($waitingModal);
       await this.listenMessageLoop($waitingModal, $tournamentTree, $resultTarget, canvas);
     } catch (e) {}

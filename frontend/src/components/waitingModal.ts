@@ -1,10 +1,8 @@
 import { Component } from '../core/Component';
-import { navigate } from '../core/router';
 import x_button from '../assets/x_button.svg';
 import circle from '../assets/circle.gif';
 import { store } from '../core/store';
 import { i18n } from '../types/i18n';
-import { Language } from '../types';
 
 export class waitingModal extends Component {
   addEvent(eventType: string, selector: string, callback: (event: Event) => void): void {
@@ -17,7 +15,10 @@ export class waitingModal extends Component {
   }
 
   setEvent() {
-    this.addEvent('click', '#xBtn', () => navigate('/'));
+    const xBtn = this.$target.querySelector('#xBtn');
+    xBtn?.addEventListener('click', () => {
+      this.$props.onClose?.(); // 전달된 콜백 실행
+    });
   }
 
   template() {
