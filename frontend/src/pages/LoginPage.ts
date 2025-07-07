@@ -41,7 +41,6 @@ export class LoginPage extends Component {
           const socket = new WebSocket('wss://localhost/ws?token=' + data.token);
           socket.addEventListener('open', () => {
             console.log('✅ WebSocket 연결 성공');
-            socket.send(JSON.stringify({ type: 'hello', data: 'ping pong!' }));
           });
           window.location.replace('#/');
         } else {
