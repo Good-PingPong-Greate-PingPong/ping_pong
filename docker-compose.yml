@@ -1,20 +1,12 @@
 version: "3.9"
 
 services:
-  frontend:
-    build: ./frontend
-    container_name: frontend
-    volumes:
-      - frontend_dist:/app/dist
-    networks:
-      - transcendence
-    command: echo "✅ 프론트 빌드 완료"
-
   backend:
     build: ./backend
     container_name: backend
     volumes:
       - sqlite-data:/app/prisma
+      - upload_data:/app/upload
     networks:
       - transcendence
     restart: unless-stopped
@@ -23,19 +15,16 @@ services:
     build: ./nginx
     container_name: nginx
     depends_on:
-      - frontend
       - backend
     ports:
       - "443:443"
-    volumes:
-      - frontend_dist:/usr/share/nginx/html #정적 파일 mount
     networks:
       - transcendence
     restart: unless-stopped
 
 volumes:
-  frontend_dist:
   sqlite-data:
+  upload_data:
 
 networks:
   transcendence:

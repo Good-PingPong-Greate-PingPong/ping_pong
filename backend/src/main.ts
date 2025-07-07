@@ -1,7 +1,15 @@
 import { config } from './config';
 import { buildApp } from './startup';
+import fs from 'fs';
 
+const ensureUploadDirExists = () => {
+  if (!fs.existsSync(config.uploadDir)) {
+    fs.mkdirSync(config.uploadDir, { recursive: true });
+    console.log(`📁 Created upload directory at ${config.uploadDir}`);
+  }
+};
 const startServer = async () => {
+  ensureUploadDirExists();
   const app = await buildApp();
 
   process.on('SIGINT', async () => {

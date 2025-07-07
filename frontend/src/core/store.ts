@@ -8,9 +8,9 @@ class Store {
     this.state = {
       user: null,
       accessToken: null,
+      tmpToken: null,
       language: Language.KR,
-      // isLoading: false,
-      // error: null,
+      socket: null, // 추가
     };
     this.listeners = [];
   }

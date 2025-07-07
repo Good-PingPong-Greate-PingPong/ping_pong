@@ -21,7 +21,6 @@ const userService = () => {
         throw new Error('이미 존재하는 닉네임입니다');
       }
     }
-
     return prisma.user.update({
       where: { id: userId },
       data: updateData,
@@ -61,7 +60,14 @@ const userService = () => {
 
     const [users, totalCount] = await Promise.all([
       prisma.user.findMany({
-        where,
+        where: {
+          nickname: {
+            contains: nickname, // mode: "insensitive" 제거!
+          },
+          NOT: {
+            id: requesterId,
+          },
+        },
         skip: (page - 1) * pageSize,
         take: pageSize,
         select: {
@@ -70,7 +76,16 @@ const userService = () => {
           profileImage: true,
         },
       }),
-      prisma.user.count({ where }),
+      prisma.user.count({
+        where: {
+          nickname: {
+            contains: nickname, // mode: "insensitive" 제거!
+          },
+          NOT: {
+            id: requesterId,
+          },
+        },
+      }),
     ]);
 
     const totalPage = Math.ceil(totalCount / pageSize);
@@ -95,8 +110,8 @@ const userService = () => {
     }));
 
     return {
-      total_page: totalPage,
-      current_page: page,
+      totalPage: totalPage,
+      currentPage: page,
       users: userList,
     };
   };

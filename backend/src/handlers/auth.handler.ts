@@ -1,12 +1,21 @@
 import { authService } from '../services';
 import { jwtUtil, SUCCESS_MESSAGE, ERROR_MESSAGE, handlerUtil } from '../lib';
 import { FastifyRequest, FastifyReply } from 'fastify';
+import { env } from '../config/env';
 
 const authHandler = () => {
   const login = async (req: FastifyRequest, reply: FastifyReply) => {
     reply.redirect('/api/auth/google');
+    // req.server.googleOAuth2.generateAuthorizationUri(req, reply, (err, uri) => {
+    //   if (err) {
+    //     reply.code(500).send({ message: 'OAuth URL 생성 실패' });
+    //     return;
+    //   }
+    //   reply.redirect(uri);
+    // });
   };
 
+  //front test
   const googleCallback = async (req: FastifyRequest, reply: FastifyReply) => {
     try {
       const token =
@@ -26,7 +35,9 @@ const authHandler = () => {
           window.opener.postMessage({
             status: 206,
             token: '${tmpToken}'
-          }, window.location.origin);
+
+          }, '${env.frontendOrigin}');
+
           window.close();
         </script>
       `);
@@ -38,7 +49,8 @@ const authHandler = () => {
         window.opener.postMessage({
           status: 500,
           message: '로그인 중 오류가 발생했습니다.'
-        }, window.location.origin);
+        }, '${env.frontendOrigin}');
+
         window.close();
       </script>
     `);
@@ -124,7 +136,8 @@ const authHandler = () => {
         status: ${successMessage.status},
         user: ${JSON.stringify(user)},
         token: '${accessToken}'
-      }, window.location.origin);
+
+      }, '${env.frontendOrigin}');
       window.close();
       </script>
   `);

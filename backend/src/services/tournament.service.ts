@@ -71,7 +71,7 @@ const tournamentService = () => {
 
     const currentTournamentId = tournamentLists[currentPage - 1]?.tournamentId;
     if (!currentTournamentId) {
-      return { total_page: totalPage, current_page: currentPage, records: [] };
+      return { totalPage: totalPage, currentPage: currentPage, records: [] };
     }
 
     //해당 토너먼트의 모든 매치 불러오기

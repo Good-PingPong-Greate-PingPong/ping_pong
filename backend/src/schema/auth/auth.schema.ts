@@ -5,6 +5,7 @@ import {
   TRefreshRequest,
   TRefreshResponse,
 } from './auth.typebox';
+import { Type } from '@sinclair/typebox';
 
 export const googleCallbackSchema = {
   querystring: TGoogleCallbackRequest,
@@ -20,7 +21,7 @@ export const logoutSchema = {
 };
 
 export const refreshSchema = {
-  body: TRefreshRequest,
+  // body: TRefreshRequest,
   response: {
     201: TRefreshResponse,
   },

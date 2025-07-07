@@ -18,3 +18,4 @@ const tournamentRoute = async (fastify: FastifyInstance) => {
 };
 
 export default tournamentRoute;
+

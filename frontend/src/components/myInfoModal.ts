@@ -35,8 +35,40 @@ export class MyInfoModal extends Component {
     this.addEvent('click', '.tab-item', (event) => {
       const target = event.target as Element;
       const tabIndex = parseInt(target.getAttribute('data-tab-index') || '0');
-      this.setState({ activeTab: tabIndex });
+      if (this.$state.activeTab !== tabIndex) {
+        this.setState({ activeTab: tabIndex });
+        this.showTab(tabIndex); // 전체 render() 대신 이 함수만 호출
+      }
     });
+  }
+
+  showTab(tabIndex: number) {
+    // 모든 탭 영역 숨기기
+    const tabNames = ['myInfo', 'myFriends', 'myLogs', 'myLanguage'];
+    tabNames.forEach((name, idx) => {
+      const $el = this.$target.querySelector(`[data-component="${name}"]`);
+      if ($el) $el.classList.toggle('hidden', idx !== tabIndex);
+    });
+
+    // 해당 탭 컴포넌트가 없으면 생성
+    const $tab = this.$target.querySelector(`[data-component="${tabNames[tabIndex]}"]`) as HTMLElement;
+    if ($tab && !$tab.hasChildNodes()) {
+      const user = store.getState().user;
+      switch (tabIndex) {
+        case 0:
+          new Profile($tab , { user });
+          break;
+        case 1:
+          new FriendsList($tab, { user });
+          break;
+        case 2:
+          new GameHistory($tab, { user });
+          break;
+        case 3:
+          new LanguageSetting($tab);
+          break;
+      }
+    }
   }
 
   render() {
@@ -65,21 +97,19 @@ export class MyInfoModal extends Component {
   }
 
   mounted() {
-    const user = store.getState().user; // store에서 user 정보 가져오기
-    // 구독 시 수행할 함수를 인자로 넘기고 구독 해지 함수를 반환받는다.
-    this.unsubscribe = store.subscribe(() => this.render());
+    // 최초 1회만 각 탭 영역에 컴포넌트 생성
+    this.showTab(this.$state.activeTab);
 
-    // 초기 탭 컴포넌트 마운트
-    const $myInfo = this.$target.querySelector('[data-component="myInfo"]') as HTMLElement;
-    const $myFriends = this.$target.querySelector('[data-component="myFriends"]') as HTMLElement;
-    const $myLogs = this.$target.querySelector('[data-component="myLogs"]') as HTMLElement;
-    const $myLanguage = this.$target.querySelector('[data-component="myLanguage"]') as HTMLElement;
-
-    // 처음 렌더링 시에만 컴포넌트 생성
-    new Profile($myInfo, { user });
-    new FriendsList($myFriends, { user });
-    new GameHistory($myLogs, { user });
-    new LanguageSetting($myLanguage);
+    // store 구독은 user가 바뀔 때만 해당 탭만 갱신
+    this.unsubscribe = store.subscribe(() => {
+      const prevUser = this.$state.user;
+      const nextUser = store.getState().user;
+      if (prevUser !== nextUser) {
+        this.setState({ user: nextUser });
+        // 현재 탭만 다시 마운트
+        this.showTab(this.$state.activeTab);
+      }
+    });
   }
 
   Unmount() {

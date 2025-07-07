@@ -1,6 +1,5 @@
 import { FastifyRequest, FastifyReply } from 'fastify';
 import { twoFAService } from '../services';
-import authHandler from './auth.handler';
 import {
   mailer,
   jwtUtil,
@@ -49,11 +48,31 @@ const twoFAHandler = () => {
         );
       }
 
-      return authHandler.finalizeLogin(
-        reply,
-        userId,
-        SUCCESS_MESSAGE.verify2FA,
-      );
+      const user = await twoFAService.findUserById(userId);
+      if (!user) {
+        handlerUtil.handleError(reply, ERROR_MESSAGE.notFound, 'No user found');
+        return;
+      }
+      const accessToken = jwtUtil.signAccessToken({ userId: user.id });
+      const refreshToken = jwtUtil.signRefreshToken({ userId: user.id });
+      let userData = {
+        id: user.id,
+        nickname: user.nickname,
+        email: user.email,
+        twoFactorEnabled: user.twoFactorEnabled,
+        profileImage: user.profileImage,
+        accessToken: accessToken,
+      };
+      reply.setCookie('refreshToken', refreshToken, {
+        httpOnly: true,
+        secure: false,
+        sameSite: 'strict',
+        path: '/',
+        maxAge: 60 * 60 * 24 * 7,
+      });
+      return handlerUtil.handleSuccess(reply, SUCCESS_MESSAGE.verify2FA, {
+        user: userData,
+      });
     } catch (error) {
       handlerUtil.handleError(reply, ERROR_MESSAGE.serverError, error);
     }
