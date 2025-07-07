@@ -35,9 +35,14 @@ export class LoginPage extends Component {
           this.setState({ currentView: 'twoFactor' });
         } else if (data.status === 201) {
           // 로그인 성공
-          console.log("로그인 성공");
+          console.log('로그인 성공');
           store.setState({ user: data.user });
           store.setState({ accessToken: data.token });
+          const socket = new WebSocket('wss://localhost/ws?token=' + data.token);
+          socket.addEventListener('open', () => {
+            console.log('✅ WebSocket 연결 성공');
+            socket.send(JSON.stringify({ type: 'hello', data: 'ping pong!' }));
+          });
           window.location.replace('#/');
         } else {
           alert(data.message || '로그인 실패');
@@ -71,7 +76,6 @@ export class LoginPage extends Component {
   }
 
   mounted(): void {
-
     if (this.$state.currentView === 'twoFactor') {
       const $twoFactor = document.querySelector('[data-component="modal"]') as HTMLElement;
       const tmpToken = store.getState().tmpToken;
@@ -79,7 +83,7 @@ export class LoginPage extends Component {
       console.log('pin');
       // 실제 QR코드 URL이 있다면 이쪽으로
       new TwoFactorModal($twoFactor, {
-        view:'pin',
+        view: 'pin',
         handleModal: this.handleModal.bind(this),
         token: tmpToken,
       });
