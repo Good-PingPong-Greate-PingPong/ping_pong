@@ -30,10 +30,13 @@ export class LoginPage extends Component {
 
         if (data.status === 206) {
           // 2FA 필요
+          console.log(data.token)
           store.setState({ tmpToken: data.token });
           this.setState({ currentView: 'twoFactor' });
         } else if (data.status === 201) {
           // 로그인 성공
+          console.log(data.token)
+
           console.log('로그인 성공');
           store.setState({ user: data.user });
           store.setState({ accessToken: data.token });

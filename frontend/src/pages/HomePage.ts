@@ -21,7 +21,7 @@ export class HomePage extends Component {
       store.setState({ user: null });
       localStorage.removeItem('app-state');
       const socket = store.getState().socket;
-      if (socket) {
+      if (socket && typeof socket.close === 'function') {
         socket.close();
         store.setState({ socket: null });
       }

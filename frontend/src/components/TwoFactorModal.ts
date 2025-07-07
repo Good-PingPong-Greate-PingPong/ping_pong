@@ -216,40 +216,25 @@ export class TwoFactorModal extends Component {
   // PIN 입력 관련 focusInput 등 유틸 함수도 이 클래스에 포함
   async fetchPinNumber(code: string) {
     try {
-      const url = `/api/2fa/verify`;
-      const tmpToken = store.getState().tmpToken;
-
-      const response = await fetch(url, {
+      const response = await fetch('/api/2fa/verify', {
         method: 'POST',
-        credentials: 'include',
         headers: {
           'Content-Type': 'application/json',
-          Authorization: `Bearer ${tmpToken}`,
+          Authorization: `Bearer ${store.getState().tmpToken}`,
         },
         body: JSON.stringify({ code }),
       });
-
-      const contentType = response.headers.get('content-type');
+      const data = await response.json(); // 반드시 한 번만!
       if (!response.ok) {
-        if (contentType && contentType.includes('application/json')) {
-          const errorData = await response.json();
-          this.setState({ error: errorData.message || '인증 실패' });
-        } else {
-          this.setState({ error: '서버 오류 또는 잘못된 응답입니다.' });
-        }
-        // throw new Error('2FA 인증 실패');
+        alert(data.message || '2FA 인증 실패');
+        return;
       }
-      // window.location.replace('#/');
-      const data = await response.json();
       store.setState({ user: data.user });
       store.setState({ accessToken: data.user.accessToken });
       window.location.replace('#/');
+      // 성공 처리
     } catch (error) {
-      console.log(error, ' 2FA 인증 실패');
-      if (!this.$state.error) {
-        this.setState({ error: '인증에 실패했습니다. 다시 시도해주세요.' });
-      }
-      // this.request2faReset();
+      alert('2FA 인증 중 오류가 발생했습니다.');
     }
   }
 
