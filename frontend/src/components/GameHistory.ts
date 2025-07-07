@@ -55,7 +55,7 @@ export class GameHistory extends Component {
     return `
       <div class="w-full h-full p-16 bg-backgroundColor rounded-b-lg rounded-t-lg">
         <div class="flex flex-row justify-end">
-          <div class="w-[70px] h-6 ${category === 0 ? 'bg-mainColor' : 'bg-gray-300'} rounded inline-flex justify-center items-center gap-1.5">
+          <div class="w-[90px] h-6 ${category === 0 ? 'bg-mainColor' : 'bg-gray-300'} rounded inline-flex justify-center items-center gap-1.5">
               <div data-category-index="0" class="category-item ${category === 0 ? 'active-tab cursor-default text-white' : 'cursor-pointer text-mainColor'} text-center justify-center text-base font-extrabold font-['Inter']">${tournament}</div>
           </div>
           <div class="w-[70px] h-6 ${category === 1 ? 'bg-mainColor' : 'bg-gray-300'} rounded inline-flex justify-center items-center gap-1.5">
