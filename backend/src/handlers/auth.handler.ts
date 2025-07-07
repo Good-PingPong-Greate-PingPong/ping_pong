@@ -5,14 +5,14 @@ import { env } from '../config/env';
 
 const authHandler = () => {
   const login = async (req: FastifyRequest, reply: FastifyReply) => {
-    // reply.redirect('/api/auth/google');
-        req.server.googleOAuth2.generateAuthorizationUri(req, reply, (err, uri) => {
-      if (err) {
-        reply.code(500).send({ message: 'OAuth URL 생성 실패' });
-        return;
-      }
-      reply.redirect(uri);
-    });
+    reply.redirect('/api/auth/google');
+    // req.server.googleOAuth2.generateAuthorizationUri(req, reply, (err, uri) => {
+    //   if (err) {
+    //     reply.code(500).send({ message: 'OAuth URL 생성 실패' });
+    //     return;
+    //   }
+    //   reply.redirect(uri);
+    // });
   };
 
   //front test
@@ -27,7 +27,7 @@ const authHandler = () => {
       const googleUser = await jwtUtil.getGoogleUser(access_token);
       const user = await authService.saveUser(googleUser);
 
-      // front test : 
+      // front test :
       if (user.twoFactorEnabled) {
         const tmpToken = jwtUtil.signTmpToken({ userId: user.id });
 

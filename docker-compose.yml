@@ -6,6 +6,7 @@ services:
     container_name: backend
     volumes:
       - sqlite-data:/app/prisma
+      - upload_data:/app/upload
     networks:
       - transcendence
     restart: unless-stopped
@@ -23,6 +24,7 @@ services:
 
 volumes:
   sqlite-data:
+  upload_data:
 
 networks:
   transcendence:
