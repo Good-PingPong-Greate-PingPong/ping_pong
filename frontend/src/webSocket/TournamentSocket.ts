@@ -44,6 +44,7 @@ export class TournamentSocket {
       subtype: 'disconnection',
       message: 'plz!',
     });
+    this.socket.close();
   }
 
   public sendStartMessage(matchId: number) {
