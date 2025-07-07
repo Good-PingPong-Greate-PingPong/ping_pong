@@ -94,6 +94,20 @@ export class TwoFactorModal extends Component {
     this.addEvent('click', '#reset2faBtn', () => {
       this.request2faReset();
     });
+    this.addEvent('change', '#twoFactorEnableRadio', (event) => {
+      // 활성화 라디오 버튼이 체크될 때만 모달 띄우기
+      if ((event.target as HTMLInputElement).checked) {
+        // 모달 띄우기
+        const $modal = document.querySelector('[data-component="modal"]') as HTMLElement;
+        new TwoFactorModal($modal, {
+          view: 'qr',
+          handleModal: () => {
+            // 모달 닫기 시 동작 (예: 모달 영역 비우기)
+            $modal.innerHTML = '';
+          },
+        });
+      }
+    });
   }
 
   template() {
@@ -149,6 +163,20 @@ export class TwoFactorModal extends Component {
         <div class="w-16 h-10 left-[90.83px] top-[397.73px] absolute justify-start text-zinc-600 text-4xl font-extrabold font-['Inter']" 
              id="cancelButton">취소</div>
       </div>
+      <div class="mt-4">
+        <label class="inline-flex items-center">
+          <input
+            type="radio"
+            name="twoFactorEnabled"
+            value="true"
+            class="peer hidden"
+            id="twoFactorEnableRadio"
+            ${this.$props.twoFactorEnabled ? 'checked' : ''}
+          />
+          <span class="peer-checked:bg-mainColor peer-checked:text-white bg-gray-200 text-gray-400 px-6 py-3 rounded-lg">활성</span>
+        </label>
+      </div>
+      <div data-component="modal"></div>
     `;
   }
 
