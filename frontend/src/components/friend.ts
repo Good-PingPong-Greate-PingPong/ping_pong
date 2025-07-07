@@ -1,6 +1,7 @@
 import { Component } from '../core/Component';
 import onlineIcon from '../assets/online.svg';
 import { store } from '../core/store';
+import { i18n } from '../types/i18n';
 
 export class Friend extends Component {
   setup() {
@@ -60,7 +61,9 @@ export class Friend extends Component {
   }
 
   template(): string {
-    const { view, nickname, profileImage, isFriend, isLogin, isLoading } = this.$state;
+    const { nickname, profileImage, isFriend, isLogin, isLoading } = this.$state;
+    const { language } = store.getState();
+    const friendMessage: string = isFriend? i18n[language].friendDelete : i18n[language].friendAdd;
 
     // console.log('template : isFriend :', view);
     return `
@@ -109,7 +112,7 @@ export class Friend extends Component {
                         isLoading ? 'cursor-not-allowed' : 'cursor-pointer'
                       }"
                       ${isLoading ? 'disabled' : ''}
-                      title="${isFriend ? '친구 삭제' : '친구 추가'}"
+                      title="${friendMessage}"
                     >
                         ${isLoading ? '⏳' : isFriend ? '×' : '+'}
                     </button>

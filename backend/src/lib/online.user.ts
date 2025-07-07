@@ -5,10 +5,10 @@ const onlineUsers = new Map<number, WS.WebSocket>();
 
 const userOnlineUtil = {
   addOnlineUser: (userId: number, socket: WS.WebSocket) => {
-    const existingSocket = onlineUsers.get(userId);
-    if (existingSocket && existingSocket !== socket) {
-      existingSocket.close(1000, 'New connection established');
-    }
+    // const existingSocket = onlineUsers.get(userId);
+    // if (existingSocket && existingSocket !== socket) {
+    //   existingSocket.close(1000, 'New connection established');
+    // }
     onlineUsers.set(userId, socket);
   },
   removeOnlineUser: (userId: number) => {

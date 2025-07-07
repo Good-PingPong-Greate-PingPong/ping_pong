@@ -1,5 +1,5 @@
 import { Component } from '../core/Component';
-
+import { i18n } from '../types/i18n';
 import { store } from '../core/store';
 import { LanguageSetting } from './ LanguageSetting';
 import { FriendsList } from './FriendList';
@@ -76,16 +76,22 @@ export class MyInfoModal extends Component {
     this.mounted(); // 렌더링 후 추가 작업 수행
   }
   template() {
+    const { language } = store.getState();
+    const myInfo = i18n[language].myInfo;
+    const myFriends = i18n[language].myFriends;
+    const myLogs = i18n[language].myLogs;
+    const myLanguage = i18n[language].myLanguage;
+
     const { activeTab } = this.$state;
     return `
         <div id="modalOverlay" class="w-full h-full absolute top-0 bg-black opacity-20 transition">
         </div>
         <div class="w-[800px] fixed inset-y-32 transition ">
             <div class="flex flex-row ">
-                <div class="tab-item ${activeTab === 0 ? 'bg-backgroundColor' : 'bg-neutral-300 cursor-pointer'}  trapezoid-shape w-[200px] h-[52px] rounded-tl-lg flex justify-center items-center text-center ${activeTab === 0 ? 'active-tab' : ''}" data-tab-index="0">내 정보</div>
-                <div class="tab-item ${activeTab === 1 ? 'bg-backgroundColor' : 'bg-neutral-300 cursor-pointer'} trapezoid-shape w-[200px] h-[52px] rounded-tl-lg flex justify-center items-center text-center ${activeTab === 1 ? 'active-tab' : ''}" data-tab-index="1">친구 목록</div>
-                <div class="tab-item ${activeTab === 2 ? 'bg-backgroundColor' : 'bg-neutral-300 cursor-pointer'} trapezoid-shape w-[200px] h-[52px] rounded-tl-lg flex justify-center items-center text-center ${activeTab === 2 ? 'active-tab' : ''}" data-tab-index="2">게임 기록</div>
-                <div class="tab-item ${activeTab === 3 ? 'bg-backgroundColor' : 'bg-neutral-300 cursor-pointer'} trapezoid-shape w-[200px] h-[52px] rounded-tl-lg flex justify-center items-center text-center ${activeTab === 3 ? 'active-tab' : ''}" data-tab-index="3">언어 설정</div>
+                <div class="tab-item ${activeTab === 0 ? 'bg-backgroundColor' : 'bg-neutral-300 cursor-pointer'}  trapezoid-shape w-[200px] h-[52px] rounded-tl-lg flex justify-center items-center text-center ${activeTab === 0 ? 'active-tab' : ''}" data-tab-index="0">${myInfo}</div>
+                <div class="tab-item ${activeTab === 1 ? 'bg-backgroundColor' : 'bg-neutral-300 cursor-pointer'} trapezoid-shape w-[200px] h-[52px] rounded-tl-lg flex justify-center items-center text-center ${activeTab === 1 ? 'active-tab' : ''}" data-tab-index="1">${myFriends}</div>
+                <div class="tab-item ${activeTab === 2 ? 'bg-backgroundColor' : 'bg-neutral-300 cursor-pointer'} trapezoid-shape w-[200px] h-[52px] rounded-tl-lg flex justify-center items-center text-center ${activeTab === 2 ? 'active-tab' : ''}" data-tab-index="2">${myLogs}</div>
+                <div class="tab-item ${activeTab === 3 ? 'bg-backgroundColor' : 'bg-neutral-300 cursor-pointer'} trapezoid-shape w-[200px] h-[52px] rounded-tl-lg flex justify-center items-center text-center ${activeTab === 3 ? 'active-tab' : ''}" data-tab-index="3">${myLanguage}</div>
             </div>
             <div data-component="myInfo" class="${activeTab === 0 ? '' : 'hidden'} w-full h-full rounded-b-lg rounded-tr-lg"></div>
             <div data-component="myFriends" class="${activeTab === 1 ? '' : 'hidden'} w-full h-full rounded-b-lg rounded-tr-lg"></div>

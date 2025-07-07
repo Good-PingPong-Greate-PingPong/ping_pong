@@ -2,6 +2,7 @@ import { Component } from '../core/Component';
 import { Friend } from './friend';
 import nextIcon from '../assets/next.svg';
 import { store } from '../core/store';
+import { i18n } from '../types/i18n';
 
 interface IFriend {
   id: number;
@@ -119,6 +120,11 @@ export class FriendsList extends Component {
   template(): string {
     const { friends, currentPage, totalPage, searchTerm, isSearching, searchResults } = this.$state;
     const displayData = isSearching ? searchResults : friends;
+    const { language } = store.getState();
+    const searchingResult = i18n[language].searchingResult;
+    const failedFriendSearching = i18n[language].failedFriendSearching;
+    const failedTermSearching = i18n[language].failedTermSearching;
+    const searchingFriend = i18n[language].searchingFriend;
 
     return `
       <div class="w-full h-full p-16 bg-backgroundColor rounded-b-lg rounded-t-lg">
@@ -127,7 +133,7 @@ export class FriendsList extends Component {
             <input 
               type="text" 
               id="searchInput" 
-              placeholder="친구 검색..." 
+              placeholder="${searchingFriend}"
               value="${searchTerm}"
               class="w-full h-11 px-4 pr-10 bg-white rounded-[10px] border-[3px] border-default focus:outline-none focus:border-mainColor"
             />
@@ -172,8 +178,8 @@ export class FriendsList extends Component {
                   : `<div class="text-gray-400 text-center py-8">
                       ${
                         isSearching
-                          ? `"${searchTerm}"에 대한 검색 결과가 없습니다.`
-                          : '친구가 없습니다.'
+                          ? `${searchTerm} ${failedTermSearching}`
+                          : `${failedFriendSearching}`
                       }
                     </div>`
               }
@@ -204,7 +210,7 @@ export class FriendsList extends Component {
             isSearching
               ? `
             <div class="text-center text-sm text-gray-500 mt-2">
-              검색 결과: ${displayData.length}개
+              ${searchingResult}: ${displayData.length}
             </div>
           `
               : ''

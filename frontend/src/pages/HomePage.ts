@@ -4,6 +4,7 @@ import logoutIcon from '../assets/logout.svg';
 import { navigate } from '../core/router';
 import { MyInfoModal } from '../components/myInfoModal';
 import { store } from '../core/store';
+import { i18n } from '../types/i18n';
 
 export class HomePage extends Component {
   addEvent(eventType: string, selector: string, callback: (event: Event) => void): void {
@@ -32,9 +33,15 @@ export class HomePage extends Component {
   }
 
   template() {
+    const { language } = store.getState();
     const user = store.getState().user;
+    const afterLogin = i18n[language].afterLogin;
+    const myInfo = i18n[language].myInfo;
+    const local = i18n[language].local;
+    const tournament = i18n[language].tournament;
+
     if (!user) {
-      return `<div>🔒 로그인 후 이용해주세요.</div>
+      return `<div>${afterLogin}</div>
 						<footer class="w-full h-16 flex flex-row justify-end items-center">
 			<button class="mr-3" id="logoutBtn">
 				<img src="${logoutIcon}" alt="logout" class="w-8 h-8 cursor-pointer" >
@@ -46,9 +53,9 @@ export class HomePage extends Component {
 		<div class="w-full h-full flex flex-col justify-between ">
 			<div class="flex flex-row justify-around items-center border-2 w-full h-full">
 				<ul class="min-h-60 flex flex-col justify-around items-center text-white text-center">
-					<li class="min-w-40 min-h-14 bg-black rounded-lg flex flex-col justify-around"><a href="#/local-game">로컬</a></li>
-					<li class="min-w-40 min-h-14 bg-black rounded-lg flex flex-col justify-around"><a href="#/tournament-game">토너먼트</a></li>
-					<li id="myInfoBtn" class="min-w-40 min-h-14 bg-black rounded-lg flex flex-col justify-around"><a >내 정보</a></li>
+					<li class="min-w-40 min-h-14 bg-black rounded-lg flex flex-col justify-around"><a href="#/local-game">${local}</a></li>
+					<li class="min-w-40 min-h-14 bg-black rounded-lg flex flex-col justify-around"><a href="#/tournament-game">${tournament}</a></li>
+					<li id="myInfoBtn" class="min-w-40 min-h-14 bg-black rounded-lg flex flex-col justify-around"><a >${myInfo}</a></li>
 				</ul>
 				<div class="min-h-1/3 min-w-1/3 h-1/3 w-1/3 top-1/2" >
           <img src="${movingBall}">
