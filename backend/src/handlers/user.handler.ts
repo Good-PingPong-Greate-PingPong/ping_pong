@@ -88,7 +88,7 @@ const profileHandler = () => {
         userId,
         nickname,
         page,
-        10, // page size
+        4, // page size
       );
 
       return handlerUtil.handleSuccess(

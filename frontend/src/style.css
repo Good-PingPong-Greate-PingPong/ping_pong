@@ -92,19 +92,19 @@ h1 {
     text-align: center;
     justify-content: space-around;
 
-    border: 1px solid rgb(117, 177, 255);
+    /* border: 1px solid rgb(117, 177, 255);
 
     p {
       border: 1px solid rgb(117, 177, 255);
 
-    }
+    } */
   }
   
   canvas {
     width: 90%;
     height: 90%;
 
-    border: 1px solid rgb(117, 177, 255);
+    /* border: 1px solid rgb(117, 177, 255); */
 
   }
   

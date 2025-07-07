@@ -27,6 +27,7 @@ export const TGetfriendListResponse = Type.Object({
     totalPage: Type.Number(),
     currentPage: Type.Number(),
     friend: Type.Array(TFriend),
+    isLogin: Type.Boolean(),
   }),
 });
 

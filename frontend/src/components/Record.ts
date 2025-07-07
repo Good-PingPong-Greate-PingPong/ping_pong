@@ -1,6 +1,5 @@
 import { Component } from '../core/Component';
 
-
 export class Record extends Component {
   setup() {
     const isTournament = this.$state.isTournament;
@@ -26,7 +25,7 @@ export class Record extends Component {
     });
   }
   template(): string {
-    const {       
+    const {
       user1Nickname,
       user2Nickname,
       user1Score,
@@ -36,7 +35,6 @@ export class Record extends Component {
       createdAt,
       isTournament,
     } = this.$state;
-
 
     // 날짜 포맷팅 함수
     const formatDate = (dateString: string): string => {
@@ -63,11 +61,12 @@ export class Record extends Component {
             <!-- 게임 결과 카드 -->
             <div class="w-full h-20 bg-white rounded-lg shadow-sm flex overflow-hidden">
               <div class="flex-1 ${isUser1Winner ? 'bg-mainColor' : 'bg-gray-300'} flex items-center justify-between px-6 text-white">
-              ${isTournament
-                ? `<div class="w-12 h-12 rounded-full flex justify-center items-center overflow-hidden">
+              ${
+                isTournament
+                  ? `<div class="w-12 h-12 rounded-full flex justify-center items-center overflow-hidden">
                       <img src="${user1Image}" class="w-full h-full object-cover" />
                   </div>`
-                : ''
+                  : ''
               }
                 <div class="flex flex-col items-center justify-center text-2xl">
                   ${isUser1Winner ? '👑' : '💀'}
@@ -82,11 +81,12 @@ export class Record extends Component {
                     ${isUser2Winner ? '👑' : '💀'}
                     <div class="text-xl font-bold">${user2Nickname}</div>
                   </div>
-                  ${isTournament
-                    ? `<div class="w-12 h-12 rounded-full flex justify-center items-center overflow-hidden">
+                  ${
+                    isTournament
+                      ? `<div class="w-12 h-12 rounded-full flex justify-center items-center overflow-hidden">
                           <img src="${user2Image}" class="w-full h-full object-cover" />
                       </div>`
-                    : ''
+                      : ''
                   }
                 </div>
             </div>

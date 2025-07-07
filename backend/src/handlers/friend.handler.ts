@@ -19,7 +19,7 @@ const friendHandler = () => {
         page?: number;
       };
 
-      const data = await friendService.getFriendList(userId, page, 10);
+      const data = await friendService.getFriendList(userId, page, 4);
 
       return handlerUtil.handleSuccess(reply, SUCCESS_MESSAGE.getFriendList, {
         data,
