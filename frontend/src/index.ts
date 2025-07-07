@@ -11,8 +11,8 @@ document.addEventListener('DOMContentLoaded', () => {
     } catch (error) {
       console.error('Failed to initialize app:', error);
     }
-  } else { 
-	console.error('App container not found!');
+  } else {
+    console.error('App container not found!');
   }
 });
 

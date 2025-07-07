@@ -5,8 +5,8 @@ export interface BaseSocketMessage {
 }
 
 export interface TournamentTreeMessage extends BaseSocketMessage {
-  type: "game";
-  subtype: "tournament_tree";
+  type: 'game';
+  subtype: 'tournament_tree';
   data: {
     winner: [] | [string, string];
     bracket: [string, string][];
@@ -14,22 +14,22 @@ export interface TournamentTreeMessage extends BaseSocketMessage {
 }
 
 interface SessionInfoMessage extends BaseSocketMessage {
-  type: "game";
-  subtype: "session_info";
+  type: 'game';
+  subtype: 'session_info';
   data: {
-    round: "semi" | "final";
+    match_id: number;
+    round: 'semi' | 'final';
     nickname1: string;
     nickname2: string;
   };
 }
 
 interface MatchRunMessage extends BaseSocketMessage {
-  type: "game";
-  subtype: "match_run";
-  match_id: number;
+  type: 'game';
+  subtype: 'match_run';
   data: {
+    match_id: number;
     ball: {
-      status: string;
       x: number;
       y: number;
     };
@@ -49,9 +49,10 @@ interface MatchRunMessage extends BaseSocketMessage {
 }
 
 interface MatchInitSettingMessage extends BaseSocketMessage {
-  type: "game";
-  subtype: "match_init_setting";
+  type: 'game';
+  subtype: 'match_init_setting';
   data: {
+    match_id: number;
     ball: {
       x: number;
       y: number;
@@ -60,13 +61,13 @@ interface MatchInitSettingMessage extends BaseSocketMessage {
     paddle1: {
       x: number;
       y: number;
-      width: number;
+      radius: number;
       height: number;
     };
     paddle2: {
       x: number;
       y: number;
-      width: number;
+      radius: number;
       height: number;
     };
     nickname: {
@@ -77,30 +78,56 @@ interface MatchInitSettingMessage extends BaseSocketMessage {
 }
 
 interface MatchEndMessage extends BaseSocketMessage {
-  type: "game";
-  subtype: "match_end";
+  type: 'game';
+  subtype: 'match_end';
   data: {
-    round: "semi" | "final";
+    match_id: number;
+    round: 'semi' | 'final';
     score: {
       player1: number;
       player2: number;
-    }
+    };
     winner: string;
   };
 }
 
-export interface KeyMessage extends BaseSocketMessage {
-  type: "game";
-  subtype: "key_down";
-  message: "key!";
+interface MatchStartMessage extends BaseSocketMessage {
+  type: 'game';
+  subtype: 'match_start';
+  message: 'go!';
   data: {
+    match_id: number;
+  };
+}
+
+interface KeyMessage extends BaseSocketMessage {
+  type: 'game';
+  subtype: 'key';
+  message: string; // 'key_down' | 'key_up';
+  data: {
+    match_id: number;
     key_set: string;
-  }
+  };
 }
 
 interface ConnectionMessage extends BaseSocketMessage {
-  type: "connection";
-  subtype: "success" | "failed";
+  type: 'connection';
+  subtype: 'success' | 'failed';
 }
 
-export type TournamentMessage = TournamentTreeMessage | SessionInfoMessage | MatchRunMessage | MatchInitSettingMessage | ConnectionMessage| MatchEndMessage;
+interface DisconnectionMessage extends BaseSocketMessage {
+  type: 'connection';
+  subtype: 'disconnection';
+  message: 'plz!';
+}
+
+export type TournamentMessage =
+  | TournamentTreeMessage
+  | SessionInfoMessage
+  | MatchRunMessage
+  | MatchInitSettingMessage
+  | ConnectionMessage
+  | MatchEndMessage
+  | DisconnectionMessage
+  | KeyMessage
+  | MatchStartMessage;

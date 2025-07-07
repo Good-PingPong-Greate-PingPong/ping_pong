@@ -1,4 +1,3 @@
-
 import { Modal } from '../components/Modal';
 import { Component } from '../core/Component';
 import { store } from '../core/store';
@@ -97,4 +96,3 @@ export class LoginPage extends Component {
     }
   }
 }
-

@@ -1,14 +1,14 @@
-import { Component } from "../core/Component";
+import { Component } from '../core/Component';
 
 export class TwoFactorPage extends Component {
-    setEvent(): void {
-        this.addEvent("click", "#loginButton", () => {
-            //구글 로그인 리다이렉트 처리
-            console.log("로그인 리다이렉트");
-        })
-    }
-    template() {
-        return `
+  setEvent(): void {
+    this.addEvent('click', '#loginButton', () => {
+      //구글 로그인 리다이렉트 처리
+      console.log('로그인 리다이렉트');
+    });
+  }
+  template() {
+    return `
         <div class="flex flex-col items-center justify-center h-screen bg-gray-100">
             <div class="w-[500px] h-[462.97px] relative shadow-[0px_0px_15.47743034362793px_0px_rgba(0,0,0,0.25)]">
             <div class="w-[500px] h-96 left-0 top-0 absolute bg-gray rounded-2xl">
@@ -25,5 +25,5 @@ export class TwoFactorPage extends Component {
         </div>
         
         `;
-    }
+  }
 }

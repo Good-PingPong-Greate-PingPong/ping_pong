@@ -1,4 +1,3 @@
-
 import { Component } from '../core/Component';
 import settingIcon from '../assets/setting.svg';
 import saveIcon from '../assets/save.svg';
@@ -166,8 +165,7 @@ export class Profile extends Component {
         `;
   }
 
-  mounted() {
-  }
+  mounted() {}
 
   async updateProfileData(data: any) {
     try {
@@ -254,4 +252,3 @@ export class Profile extends Component {
     }
   }
 }
-

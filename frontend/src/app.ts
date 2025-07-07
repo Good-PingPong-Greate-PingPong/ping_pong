@@ -15,21 +15,22 @@ export class App extends Component {
 
     if (this.$target) {
       const router = new Router(this.$target);
-      router.addRoute("/", HomePage)
-      .addRoute("/login", LoginPage)
+      router
+        .addRoute('/', HomePage)
+        .addRoute('/login', LoginPage)
 
-      .addRoute("/login/two-factor", TwoFactorPage)
+        .addRoute('/login/two-factor', TwoFactorPage)
 
-      .addRoute("/tournament-game", TournamentGamePage)
-      .addRoute("/local-game", LocalGamePage)
-      .setNotFound(NotFoundPage)
-      .start();
+        .addRoute('/tournament-game', TournamentGamePage)
+        .addRoute('/local-game', LocalGamePage)
+        .setNotFound(NotFoundPage)
+        .start();
 
       if (!window.location.hash) {
-        window.location.hash = "#/";
-      } 
+        window.location.hash = '#/';
+      }
     } else {
-      console.error("app: 먼가이상함")
+      console.error('app: 먼가이상함');
     }
   }
   render() {
