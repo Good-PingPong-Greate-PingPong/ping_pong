@@ -1,0 +1,141 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id                Int            @id @default(autoincrement())
+  nickname          String         @unique
+  password          String
+  email             String         @unique
+  profileImage      String?
+  twoFactorEnabled  Boolean        @default(false)
+  twoFactorSecret   String?
+  createdAt         DateTime       @default(now())
+  updatedAt         DateTime       @updatedAt
+  isDeleted         Boolean        @default(false)
+  RefreshToken      RefreshToken[]
+  participants      Participant[]
+  friendsAsSender   Friend[]       @relation("FriendSender")
+  friendsAsReceiver Friend[]       @relation("FriendReceiver")
+  SingleMatches     SingleMatch[]
+}
+
+model RefreshToken {
+  id        Int      @id @default(autoincrement())
+  userId    Int      @unique
+  token     String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model Tournament {
+  id            Int              @id @default(autoincrement())
+  startDatetime DateTime
+  endDatetime   DateTime
+  status        TournamentStatus
+  createdAt     DateTime         @default(now())
+  updatedAt     DateTime         @updatedAt
+  isDeleted     Boolean          @default(false)
+
+  participants  Participant[]
+  matches       Match[]
+}
+
+
+
+model Match {
+  id             Int           @id @default(autoincrement())
+
+  tournamentId   Int
+  participant1Id Int?
+  participant2Id Int?
+  round          MatchRound
+  status         MatchStatus
+  scheduledAt    DateTime      @default(now())
+
+  createdAt      DateTime      @default(now())
+  updatedAt      DateTime      @updatedAt
+  isDeleted      Boolean       @default(false)
+
+  tournament     Tournament    @relation(fields: [tournamentId], references: [id])
+  participant1   Participant?  @relation("MatchParticipant1", fields: [participant1Id], references: [id])
+  participant2   Participant?  @relation("MatchParticipant2", fields: [participant2Id], references: [id])
+  matchResults   MatchResult[]
+}
+
+
+model Participant {
+  id           Int           @id @default(autoincrement())
+  tournamentId Int
+  userId       Int
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+  isDeleted    Boolean       @default(false)
+  tournament   Tournament    @relation(fields: [tournamentId], references: [id])
+  user         User          @relation(fields: [userId], references: [id])
+  matchesAsParticipant1 Match[]    @relation("MatchParticipant1")
+  matchesAsParticipant2 Match[]    @relation("MatchParticipant2")
+}
+
+model MatchResult {
+  id                Int         @id @default(autoincrement())
+  matchId           Int
+  participant1Score Int
+  participant2Score Int
+  isGiveUp          Boolean
+  createdAt         DateTime    @default(now())
+  updatedAt         DateTime    @updatedAt
+  isDeleted         Boolean     @default(false)
+  match             Match       @relation(fields: [matchId], references: [id])
+}
+
+model SingleMatch {
+  id            Int      @id @default(autoincrement())
+  userId        Int
+  user1Nickname String
+  user2Nickname String
+  user1Score    Int
+  user2Score    Int
+  scheduledAt   DateTime
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  isDeleted     Boolean  @default(false)
+  user          User     @relation(fields: [userId], references: [id])
+}
+
+model Friend {
+  id         Int      @id @default(autoincrement())
+  senderId   Int
+  receiverId Int
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+  isDeleted  Boolean  @default(false)
+  sender     User     @relation("FriendSender", fields: [senderId], references: [id])
+  receiver   User     @relation("FriendReceiver", fields: [receiverId], references: [id])
+}
+
+enum TournamentStatus {
+  upcoming
+  ongoing
+  completed
+}
+
+enum MatchRound {
+  semi
+  final
+}
+
+enum MatchStatus {
+  upcoming
+  ongoing
+  completed
+}

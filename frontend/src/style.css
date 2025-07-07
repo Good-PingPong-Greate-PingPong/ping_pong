@@ -1,0 +1,344 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer components {
+  .trapezoid-shape {
+    @apply relative bg-white;
+    border-top-right-radius: 12px;
+    clip-path: polygon(59% 0, 74% 0, 78% 1%, 79% 1%, 81% 3%, 83% 8%, 83% 9%, 100% 100%, 0 100%, 0 0);
+  }
+}
+
+:root {
+  font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
+  line-height: 1.5;
+  font-weight: 400;
+
+  color-scheme: light dark;
+  color: rgba(255, 255, 255, 0.87);
+  background-color: #797979;
+
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased; 
+  -moz-osx-font-smoothing: grayscale;
+  color: black;
+
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+  height: 100%;
+
+  
+}
+
+div {
+
+  /* border: rgb(186, 236, 255) 0.1px solid;   */
+
+}
+
+a {
+  font-size: 24px;
+  font-weight: bolder;
+  /* color: #ffffff; */
+  text-decoration: inherit;
+}
+
+
+body {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+}
+
+h1 {
+  font-size: 3.2em;
+  line-height: 1.1;
+}
+
+
+#app {
+
+  width: 100%;
+  height: 100%;
+  /* text-align: center; */
+  background-color: #ffffff;
+
+}
+
+#gameDiv {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+
+  #scoreDiv {
+    display: flex;
+    height: 80px;
+    width: 60%;
+    font-weight: bold;
+    font-family: Nunito;
+    color: black;
+    font-size: 3rem;
+    text-align: center;
+    justify-content: space-around;
+
+    /* border: 1px solid rgb(117, 177, 255);
+
+    p {
+      border: 1px solid rgb(117, 177, 255);
+
+    } */
+  }
+  
+  canvas {
+    width: 90%;
+    height: 90%;
+
+    /* border: 1px solid rgb(117, 177, 255); */
+
+  }
+  
+  #resultView {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-around;
+    align-items: center;
+ 
+    #winMsg {
+      display: block;
+      font-family: "Inria Sans";
+      font-size: 100px;
+      font-style: normal;
+      font-weight: 700;
+      line-height: normal;
+  
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+  
+      #winImageBox {
+        display: flex;
+        align-items: center;
+        margin-top: 1rem;
+        min-width: 20rem;
+        min-height: 10rem;
+  
+        img {
+          width: auto;
+          height: 100%;
+        }
+      }
+    }
+  
+    #tournamentWinMsg {
+      display: block;
+      font-family: "Inria Sans";
+      font-size: 100px;
+      font-style: normal;
+      font-weight: 700;
+      line-height: normal;
+      width: 100%;
+      height: 100%;
+      color: white;
+  
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+  
+      #tournamentWinImageBox {
+        position: fixed;
+        display: flex;
+        justify-content: space-around;
+        align-items: center;
+        margin-top: 1rem;
+        min-width: 20rem;
+        min-height: 10rem;
+        width:100%;
+
+        img {
+          width: auto;
+          height: 100%;
+        }
+      }
+    }
+
+    #backBtn {
+      position: absolute;
+      bottom: 1.5rem;
+      right: 1.5rem;
+  
+      #BackIcon {
+        width: 2rem;
+        height: 2rem;
+      }
+    }
+  }
+  
+  
+  button{
+    display: block;
+    padding:10px;
+    border-radius: 20px;
+    border:none;
+    /* background-color: #15814e; */
+    color:white;
+    font-weight: 900;
+    margin:auto;
+    cursor:pointer;
+  }
+
+}
+
+#gameModal{
+  width: 70%;
+  height: 60%;
+  top: 13rem; /* inset-y-32 */
+  position: fixed;
+  min-width: 1100px;
+  min-height: 500px;
+  border-radius: 20px;
+  border: 6px solid #302C2C;
+  background: #FFF;
+  transition: all 150ms ease-in-out;
+
+  font-size: 2rem;        /* text-6xl → 60px (Tailwind 기준) */
+  font-weight: bold;         /* font-bold */
+  font-family: 'Inria Sans', sans-serif; /* font-['Inria_Sans'] */
+  font-style: normal;
+  line-height: normal;
+
+  #xBtn{
+    position: absolute;
+    margin: 0 auto;
+    width: 4rem;
+    height: 4rem;
+    right: 1rem;
+    top: 1rem;
+    transform-origin: top left;         /* origin-top-left */
+    transform: rotate(360deg);       /* rotate-[134.46deg] */
+    fill: #302C2C;
+  }
+
+  #modalTitle{
+    margin-top: 5rem;
+    height: 5rem;               /* h-20 → 20 * 0.25rem = 5rem */
+    text-align: center;        /* text-center */
+    color: #302C2C;   /* text-mainColor → CSS 변수로 가정 */
+    font-size: 4rem;        /* text-6xl → 60px (Tailwind 기준) */
+  }
+
+  #modalContent{
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    color: #302C2C;
+    font-size: 2rem;
+    position: relative;
+
+    width: 100%;
+    height: 60%;
+    #playerNickname{
+      top: 15%;
+      width: 90%;
+      height: 80%;
+      align-items: center;
+      position: absolute;
+      justify-content: center;
+    }
+  }
+
+  #nickInputForm{
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    height: 30%;
+    width: 100%;
+    align-items: center;
+
+    #player1Form{
+      border: 3px solid #302C2C;
+      border-radius: 11px;
+      background-color: white; /* input 내부 배경 흰색 */
+      color: #302C2C;             /* 입력된 글씨는 검정 */
+    }
+
+    #player2Form{
+      border: 3px solid #302C2C;
+      border-radius: 11px;
+      background-color: white; /* input 내부 배경 흰색 */
+      color: #302C2C;             /* 입력된 글씨는 검정 */
+    }
+  }
+
+  #startBtn {
+    position: absolute;
+    width: 25%;
+    height: 12%;
+    bottom: 5rem;
+
+    background-color: #302C2C;
+    margin:auto;
+    text-align: center;
+      
+    transform: translateX(150%);
+    /* 글씨 */
+    color: #FFFFFF;
+  }
+  #startBtn:hover{
+    /* background-color:#20c076 ; */
+    color: #302C2C;
+    background-color:#FFFFFF;
+    border: 3px solid #302C2C;
+  }
+}
+
+/* button {
+  /* border-radius: 8px;
+  border: 1px solid transparent;
+  padding: 0.6em 1.2em;
+  font-size: 1em;
+  font-weight: 500;
+  font-family: inherit;
+  background-color: #1a1a1a;
+  cursor: pointer;
+  transition: border-color 0.25s; */
+/* } */
+/* button:hover {
+  /* border-color: #646cff; */
+/* } */
+
+button:focus,
+button:focus-visible {
+  /* outline: 4px auto -webkit-focus-ring-color; */
+}
+
+@media (prefers-color-scheme: light) {
+  :root {
+    /* color: #213547;
+    background-color: #ffffff; */
+  }
+  a:hover {
+    /* color: #747bff; */
+  }
+  button {
+    /* background-color: #f9f9f9; */
+  }
+}

@@ -1,0 +1,32 @@
+version: "3.9"
+
+services:
+  backend:
+    build: ./backend
+    container_name: backend
+    volumes:
+      - sqlite-data:/app/prisma
+      - upload_data:/app/upload
+    networks:
+      - transcendence
+    restart: unless-stopped
+
+  nginx:
+    build:
+      context: ./
+      dockerfile: ./nginx/Dockerfile
+    container_name: nginx
+    depends_on:
+      - backend
+    ports:
+      - "443:443"
+    networks:
+      - transcendence
+    restart: unless-stopped
+
+volumes:
+  sqlite-data:
+  upload_data:
+
+networks:
+  transcendence:

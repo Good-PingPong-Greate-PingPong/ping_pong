@@ -1,0 +1,126 @@
+import { prisma } from '../plugins/prisma';
+import { UpdateUserProfileRequest } from '../schema/type';
+import { userOnlineUtil } from '../lib';
+
+const userService = () => {
+  const updateUserProfileInfo = async (
+    userId: number,
+    updateData: UpdateUserProfileRequest,
+  ) => {
+    const user = await prisma.user.findUnique({ where: { id: userId } });
+    if (!user) throw new Error('User not found');
+
+    if (updateData.nickname) {
+      const existing = await prisma.user.findFirst({
+        where: {
+          nickname: updateData.nickname,
+          NOT: { id: userId },
+        },
+      });
+      if (existing) {
+        throw new Error('이미 존재하는 닉네임입니다');
+      }
+    }
+    return prisma.user.update({
+      where: { id: userId },
+      data: updateData,
+      select: {
+        id: true,
+        nickname: true,
+        email: true,
+        profileImage: true,
+        twoFactorEnabled: true,
+      },
+    });
+  };
+
+  const getUserProfile = async (userId: number) => {
+    return prisma.user.findUnique({
+      where: { id: userId },
+      select: {
+        id: true,
+        nickname: true,
+        email: true,
+        profileImage: true,
+        twoFactorEnabled: true,
+      },
+    });
+  };
+
+  const getUsersProfileList = async (
+    requesterId: number,
+    nickname: string,
+    page: number,
+    pageSize: number,
+  ) => {
+    const where = {
+      nickname: { contains: nickname, mode: 'insensitive' },
+      NOT: { id: requesterId },
+    };
+
+    const [users, totalCount] = await Promise.all([
+      prisma.user.findMany({
+        where: {
+          nickname: {
+            contains: nickname, // mode: "insensitive" 제거!
+          },
+          NOT: {
+            id: requesterId,
+          },
+        },
+        skip: (page - 1) * pageSize,
+        take: pageSize,
+        select: {
+          id: true,
+          nickname: true,
+          profileImage: true,
+        },
+      }),
+      prisma.user.count({
+        where: {
+          nickname: {
+            contains: nickname, // mode: "insensitive" 제거!
+          },
+          NOT: {
+            id: requesterId,
+          },
+        },
+      }),
+    ]);
+
+    const totalPage = Math.ceil(totalCount / pageSize);
+
+    const friends = await prisma.friend.findMany({
+      where: {
+        senderId: requesterId,
+        receiverId: { in: users.map((u) => u.id) },
+        isDeleted: false,
+      },
+      select: { receiverId: true },
+    });
+
+    const friendSet = new Set(friends.map((f) => f.receiverId));
+
+    const userList = users.map((user) => ({
+      id: user.id,
+      nickname: user.nickname,
+      profile_image: user.profileImage,
+      isFriend: friendSet.has(user.id),
+      isLogin: userOnlineUtil.isUserOnline(user.id),
+    }));
+
+    return {
+      totalPage: totalPage,
+      currentPage: page,
+      users: userList,
+    };
+  };
+
+  return {
+    updateUserProfileInfo,
+    getUserProfile,
+    getUsersProfileList,
+  };
+};
+
+export default userService();
