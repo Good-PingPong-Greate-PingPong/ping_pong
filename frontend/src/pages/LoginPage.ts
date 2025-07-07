@@ -38,10 +38,19 @@ export class LoginPage extends Component {
           console.log('로그인 성공');
           store.setState({ user: data.user });
           store.setState({ accessToken: data.token });
-          const socket = new WebSocket('wss://localhost/ws?token=' + data.token);
-          socket.addEventListener('open', () => { // CHECK
-            console.log('✅ WebSocket 연결 성공');
-          });
+
+          // 이미 연결된 소켓이 있으면 재연결하지 않음
+          let socket = store.getState().socket;
+          if (!socket || socket.readyState !== WebSocket.OPEN) {
+            socket = new WebSocket('wss://localhost/ws?token=' + data.token);
+            socket.addEventListener('open', () => {
+              console.log(' WebSocket 연결 성공');
+            });
+            store.setState({ socket }); // 소켓을 store에 저장
+          } else {
+            console.log('이미 연결된 소켓이 있습니다.');
+          }
+
           window.location.replace('#/');
         } else {
           alert(data.message || '로그인 실패');

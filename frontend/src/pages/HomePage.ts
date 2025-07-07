@@ -20,6 +20,11 @@ export class HomePage extends Component {
     this.addEvent('click', '#logoutBtn', () => {
       store.setState({ user: null });
       localStorage.removeItem('app-state');
+      const socket = store.getState().socket;
+      if (socket) {
+        socket.close();
+        store.setState({ socket: null });
+      }
       navigate('/login', true);
     });
 
