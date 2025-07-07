@@ -10,6 +10,7 @@ const websocketHandler = () => {
     req: FastifyRequest<WebSocketQuery>,
   ) => {
     try {
+      console.log('🟢 WebSocket connection established');
       const token = req.query.token;
       const decoded = jwtUtil.coreVerifyToken(token, jwtUtil.tokenTypes.access);
       const userId = decoded.userId;
