@@ -8,31 +8,31 @@ export class TournamentSocket {
   public msg: TournamentMessage;
 
   constructor(token: string) {
-    this.socket = new WebSocket(`/ws/tournament?token=${token}`);
+    this.socket = new WebSocket(`wss://localhost/ws/tournament?token=${token}`);
     this.msg = {} as TournamentMessage;
   }
 
   public waitForOpen(): Promise<void> {
-  return new Promise((resolve, reject) => {
-    if (this.socket.readyState === WebSocket.OPEN) return resolve();
+    return new Promise((resolve, reject) => {
+      if (this.socket.readyState === WebSocket.OPEN) return resolve();
 
-    this.socket.onopen = () => resolve();
+      this.socket.onopen = () => resolve();
 
-    const { language } = store.getState();
+      const { language } = store.getState();
 
-    this.socket.onerror = (event) => {
-      console.error('WebSocket 연결 오류:', event);
-      sendError(i18n[language].socketError);
-      reject(new Error('WebSocket 연결 오류'));
-    };
+      this.socket.onerror = (event) => {
+        console.error('WebSocket 연결 오류:', event);
+        sendError(i18n[language].socketError);
+        reject(new Error('WebSocket 연결 오류'));
+      };
 
-    this.socket.onclose = (event) => {
-      console.warn('WebSocket 연결 종료:', event.code, event.reason);
-      sendError(i18n[language].socketClose);
-      reject(new Error('WebSocket 연결 종료'));
-    };
-  });
-}
+      this.socket.onclose = (event) => {
+        console.warn('WebSocket 연결 종료:', event.code, event.reason);
+        sendError(i18n[language].socketClose);
+        reject(new Error('WebSocket 연결 종료'));
+      };
+    });
+  }
 
   public sendMessage(msg: TournamentMessage) {
     this.socket.send(JSON.stringify(msg));
