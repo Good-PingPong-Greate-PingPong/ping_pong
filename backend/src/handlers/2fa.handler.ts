@@ -55,8 +55,8 @@ const twoFAHandler = () => {
       }
       const accessToken = jwtUtil.signAccessToken({ userId: user.id });
       const refreshToken = jwtUtil.signRefreshToken({ userId: user.id });
-      const userData = {
-        userId: user.id,
+      let userData = {
+        id: user.id,
         nickname: user.nickname,
         email: user.email,
         twoFactorEnabled: user.twoFactorEnabled,
@@ -70,11 +70,9 @@ const twoFAHandler = () => {
         path: '/',
         maxAge: 60 * 60 * 24 * 7,
       });
-      return handlerUtil.handleSuccess(
-        reply,
-        SUCCESS_MESSAGE.verify2FA,
-        userData,
-      );
+      return handlerUtil.handleSuccess(reply, SUCCESS_MESSAGE.verify2FA, {
+        user: userData,
+      });
     } catch (error) {
       handlerUtil.handleError(reply, ERROR_MESSAGE.serverError, error);
     }

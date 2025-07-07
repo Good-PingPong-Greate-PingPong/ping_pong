@@ -28,6 +28,14 @@ export const TVerify2FAResponse = Type.Object({
   success: Type.Boolean(),
   status: Type.Number(),
   message: Type.String(),
+  user: Type.Object({
+    id: Type.Number(),
+    nickname: Type.String(),
+    email: Type.String({ format: 'email' }),
+    profileImage: Type.Optional(Type.String()),
+    twoFactorEnabled: Type.Boolean(),
+    accessToken: Type.String(),
+  }),
 });
 
 /**

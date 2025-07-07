@@ -18,8 +18,10 @@ const websocketHandler = () => {
       userOnlineUtil.addOnlineUser(userId, socket);
       console.log(`🟢 User ${userId} connected`);
 
-      socket.on('close', () => {
+      socket.on('close', (code: number, reason: Buffer) => {
         console.log(`🔴 User ${userId} disconnected`);
+        console.log('⛔ 종료 코드:', code);
+        console.log('📄 종료 이유:', reason.toString());
         userOnlineUtil.removeOnlineUser(userId);
       });
     } catch (err) {
