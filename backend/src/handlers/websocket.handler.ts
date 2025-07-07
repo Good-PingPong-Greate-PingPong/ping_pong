@@ -40,12 +40,8 @@ const websocketHandler = () => {
       const userId = decoded.userId;
 
       const result = await tournamentService.startTournament(userId, socket);
-      if (!result) {
-        console.warn('❌ 토너먼트 시작 실패');
-        socket.close();
-        return;
-      }
 
+      console.log(`🟢 User ${userId} connected to tournament`);
       socket.on('message', (data) => {
         try {
           const msg = JSON.parse(data.toString());
