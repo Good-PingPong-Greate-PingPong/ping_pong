@@ -18,10 +18,10 @@ export class TournamentGamePage extends Component {
   language!: Language;
 
   template() {
-    const lan: Language = store.getState().language;
-    const connectingServer: string = i18n[lan].connectingServer;
-    const defaultPlayer1: string = i18n[lan].defaultPlayer1;
-    const defaultPlayer2: string = i18n[lan].defaultPlayer2;
+    this.language = store.getState().language;
+    const connectingServer: string = i18n[this.language].connectingServer;
+    const defaultPlayer1: string = i18n[this.language].defaultPlayer1;
+    const defaultPlayer2: string = i18n[this.language].defaultPlayer2;
 
     return `
 		<div id="loading" class="w-full h-full top-0 absolute" >${connectingServer}</div>
@@ -65,12 +65,12 @@ export class TournamentGamePage extends Component {
   async setWebSocket() {
     const { accessToken } = store.getState(); // 임의로 작성해둠
     this.socket = new TournamentSocket(accessToken ? accessToken : 'tmp');
-    // try {
-    //   await this.socket.waitForOpen();
-    // } catch (error) {
-    //   console.error('WebSocket 연결 실패로 인해 setWebSocket 종료됨');
-    //   throw error;
-    // }
+    try {
+      await this.socket.waitForOpen();
+    } catch (error) {
+      console.error('WebSocket 연결 실패로 인해 setWebSocket 종료됨');
+      throw error;
+    }
   }
 
   checkConnection(msg: TournamentMessage) {
@@ -178,7 +178,6 @@ export class TournamentGamePage extends Component {
     resultComponent.setState({ winnerName });
 
     var isFinal: boolean = msg.data.round === 'final';
-    console.log('rount: ' + msg.data.round);
 
     await this.delay(5000);
 
@@ -186,6 +185,7 @@ export class TournamentGamePage extends Component {
     if (user != null && user.nickname !== msg.data.winner) navigate('/');
     this.gameReSetting(waitingModal, resultTarget);
     if (isFinal) {
+      this.gameWindow.stopRenderLoop();
       this.socket.sendDisconnectionMessage();
       navigate('/');
     }

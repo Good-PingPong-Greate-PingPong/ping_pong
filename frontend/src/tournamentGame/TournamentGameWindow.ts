@@ -1,5 +1,7 @@
 import { sendError } from '../errorHandling/sendError';
 import { TournamentBall, TournamentPad } from './TournamentGameObject';
+import { store } from '../core/store';
+import { i18n } from '../types/i18n';
 
 export class TournamentGameWindow {
   public canvas: HTMLCanvasElement;
@@ -37,7 +39,8 @@ export class TournamentGameWindow {
       this.canvas.width = this.DocWidth;
       this.canvas.style.background = 'white';
     } catch (error) {
-      sendError('Failed to get 2D context');
+      const { language } = store.getState();
+      sendError(i18n[language].contextError);
     }
   }
 

@@ -34,6 +34,7 @@ export const i18n = {
     tournamentGame: '토너먼트 게임',
     gameStart: '시작',
     waitingMessage: '다른 참가자가 모두 준비되면 자동으로 시작됩니다...',
+    contextError: '2D context 데이터 반환에 실패했습니다',
   },
   [Language.EN]: {
     login: 'Login',
@@ -68,6 +69,7 @@ export const i18n = {
     tournamentGame: 'tournament game',
     gameStart: 'start',
     waitingMessage: 'automatically start when all the other participants are ready...',
+    contextError: 'Failed to get 2D context',
   },
   [Language.FN]: {
     login: 'Connexion',
@@ -102,5 +104,6 @@ export const i18n = {
     tournamentGame: 'jeu de tournoi',
     gameStart: 'Commencer',
     waitingMessage: 'démarre automatiquement quand tous les autres participants sont prêts...',
+    contextError: "Échec de l'obtention du contexte 2Dt",
   },
 };

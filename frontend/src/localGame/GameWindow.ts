@@ -1,9 +1,12 @@
 import { Ball, Pad } from './GameObject';
 import { GameStatus } from './GameStatus';
+import { store } from '../core/store';
+import { i18n } from '../types/i18n';
+import { sendError } from '../errorHandling/sendError';
 
 export class GameWindow {
   public canvas: HTMLCanvasElement;
-  public ctx: CanvasRenderingContext2D;
+  public ctx!: CanvasRenderingContext2D;
   public Pad2YPos: number;
   public Pad1YPos: number;
   public DocHeight: number;
@@ -20,15 +23,17 @@ export class GameWindow {
     this.dirY = this.generateRandomDir();
 
     this.canvas = canvas;
-    const ctsRes = this.canvas.getContext('2d');
-    if (!ctsRes || !(ctsRes instanceof CanvasRenderingContext2D)) {
-      throw new Error('Failed to get 2D context');
-      // error handling 상의해보기
+    try {
+      const ctsRes = this.canvas.getContext('2d');
+      if (!ctsRes || !(ctsRes instanceof CanvasRenderingContext2D)) throw new Error();
+      this.ctx = ctsRes;
+      this.canvas.height = this.DocHeight;
+      this.canvas.width = this.DocWidth;
+      this.canvas.style.background = 'white';
+    } catch (error) {
+      const { language } = store.getState();
+      sendError(i18n[language].contextError);
     }
-    this.ctx = ctsRes;
-    this.canvas.height = this.DocHeight;
-    this.canvas.width = this.DocWidth;
-    this.canvas.style.background = 'white';
   }
 
   public generateRandomDir(): boolean {

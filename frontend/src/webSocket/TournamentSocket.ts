@@ -63,8 +63,8 @@ export class TournamentSocket {
       subtype: 'key',
       message: isUp ? 'key_up' : 'key_down',
       data: {
-        key_set: key,
         match_id: matchId,
+        key_set: key,
       },
     });
   }
