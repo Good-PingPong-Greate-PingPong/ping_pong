@@ -1,6 +1,7 @@
 import { TwoFactorModal } from '../components/TwoFactorModal';
 import { Component } from '../core/Component';
 import { store } from '../core/store';
+import { i18n } from '../types/i18n';
 
 export class LoginPage extends Component {
   setup() {
@@ -11,6 +12,9 @@ export class LoginPage extends Component {
 
   setEvent(): void {
     this.addEvent('click', '#loginButton', () => {
+      const { language } = store.getState();
+      const { popUp, loginFail } = i18n[language];
+
       const popup = window.open(
         '/api/auth/google', // 서버에서 Google OAuth 인증 시작
         '_blank',
@@ -18,7 +22,7 @@ export class LoginPage extends Component {
       );
 
       if (!popup) {
-        alert('팝업이 차단되었습니다. 팝업 차단을 해제해주세요.');
+        alert(popUp);
         return;
       }
 
@@ -30,12 +34,12 @@ export class LoginPage extends Component {
 
         if (data.status === 206) {
           // 2FA 필요
-          console.log(data.token)
+          console.log(data.token);
           store.setState({ tmpToken: data.token });
           this.setState({ currentView: 'twoFactor' });
         } else if (data.status === 201) {
           // 로그인 성공
-          console.log(data.token)
+          console.log(data.token);
 
           console.log('로그인 성공');
           store.setState({ user: data.user });
@@ -55,7 +59,7 @@ export class LoginPage extends Component {
 
           window.location.replace('#/');
         } else {
-          alert(data.message || '로그인 실패');
+          alert(data.message || loginFail);
         }
 
         // 이벤트 리스너 제거 (한 번만 받도록)
@@ -68,11 +72,13 @@ export class LoginPage extends Component {
 
   template() {
     const { currentView } = this.$state;
+    const { language } = store.getState();
+    const { googleLogin } = i18n[language];
 
     if (currentView === 'login') {
       return `
         <div class="flex flex-col items-center justify-center h-screen bg-gray-100">
-          <button id="loginButton"> 구글 계정으로 로그인 </button>
+          <button id="loginButton"> ${googleLogin} </button>
           <div data-component="modal"></div>
         </div>
       `;
