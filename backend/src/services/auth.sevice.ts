@@ -29,7 +29,7 @@ const authService = () => {
         data: {
           email,
           nickname: uniqueNickname,
-          profileImage: picture,
+          profileImage: '',
           password: '',
         },
       });
