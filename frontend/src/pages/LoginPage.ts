@@ -27,7 +27,6 @@ export class LoginPage extends Component {
         if (event.origin !== window.location.origin) return;
 
         const data = event.data;
-        console.log('로그인 응답:', data);
 
         if (data.status === 206) {
           // 2FA 필요
@@ -88,8 +87,6 @@ export class LoginPage extends Component {
       const $twoFactor = document.querySelector('[data-component="modal"]') as HTMLElement;
       const tmpToken = store.getState().tmpToken;
 
-      console.log('pin');
-      // 실제 QR코드 URL이 있다면 이쪽으로
       new TwoFactorModal($twoFactor, {
         view: 'pin',
         handleModal: this.handleModal.bind(this),
@@ -99,7 +96,6 @@ export class LoginPage extends Component {
   }
 
   handleModal(view: string) {
-    console.log('currentView : ', view);
     this.setState({ currentView: view });
   }
 }

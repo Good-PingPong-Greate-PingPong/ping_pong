@@ -31,12 +31,8 @@ export class HomePage extends Component {
     this.addEvent('click', '#myInfoBtn', () => this.openModal('[data-component="myInfoModal"]'));
   }
 
-  setup() {
-    console.log('home');
-  }
   template() {
     const user = store.getState().user;
-    const accessToken = store.getState().accessToken;
     if (!user) {
       return `<div>🔒 로그인 후 이용해주세요.</div>
 						<footer class="w-full h-16 flex flex-row justify-end items-center">
@@ -47,10 +43,6 @@ export class HomePage extends Component {
 			</footer>`;
     }
     return `
-		<div class="p-6">
-        	<h1 class="text-2xl">🎉 환영합니다, ${user.nickname}님!</h1>
-        	<p>이메일: ${user.email}, 토큰: ${accessToken}</p>
-      	</div>
 		<div class="w-full h-full flex flex-col justify-between ">
 			<div class="flex flex-row justify-around items-center border-2 w-full h-full">
 				<ul class="min-h-60 flex flex-col justify-around items-center text-white text-center">

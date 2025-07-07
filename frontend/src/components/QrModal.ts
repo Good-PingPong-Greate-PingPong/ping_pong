@@ -8,19 +8,16 @@ export class QrModal extends Component {
   setEvent(): void {
     this.addEvent('click', '#loginButton', () => {
       //구글 로그인 리다이렉트 처리
-      console.log('로그인 리다이렉트');
     });
 
     this.addEvent('click', '#confirmButton', () => {
       // 확인 버튼 클릭 시 처리
-      console.log('확인 버튼 클릭');
       this.$props.handleModal('twoFactorPin')
       // 예: 모달 닫기, 인증 완료 처리 등
     });
 
     this.addEvent('click', '#cancelButton', () => {
       // 취소 버튼 클릭 시 처리
-      console.log('취소 버튼 클릭');
       this.$props.handleModal('login')
 
       // 예: 모달 닫기, 상태 초기화 등
@@ -29,7 +26,6 @@ export class QrModal extends Component {
   template() {
     
     const { qrCode } = this.$state;
-    console.log('qrCode', qrCode);
     if (!qrCode) {
       return '';
     }
@@ -68,7 +64,6 @@ export class QrModal extends Component {
         throw new Error(`${errorData.error_code}: ${errorData.message}`);
       }
       const data = await response.json();
-      console.log('qr: ', data);
       this.setState({
         qrCode: data.qrCode,
       });

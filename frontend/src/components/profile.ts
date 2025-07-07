@@ -8,7 +8,6 @@ import { TwoFactorModal } from './TwoFactorModal';
 
 export class Profile extends Component {
   setup() {
-    console.log('profile');
     this.setState({
       isQrView: false,
       isEditMode: false,
@@ -20,13 +19,11 @@ export class Profile extends Component {
   setEvent(): void {
     this.addEvent('submit', '.profile-form', (event) => {
       event.preventDefault();
-      console.log('폼 제출');
       this.handleSubmit();
     });
 
     this.addEvent('click', '.editBtn', (event) => {
       event.preventDefault();
-      console.log('버튼 클릭');
       const mode = this.$state.isEditMode;
 
       if (mode) {
@@ -44,16 +41,20 @@ export class Profile extends Component {
       const file = (event.target as HTMLInputElement).files?.[0];
       if (file) {
         const allowedTypes = ['image/jpeg', 'image/png'];
+        const maxSize = 2 * 1024 * 1024; // 2MB
         if (!allowedTypes.includes(file.type)) {
           alert('지원하지 않는 이미지 파일입니다. (jpg, jpeg, png 만 가능합니다.)');
-          // 파일 input 비우기
           (event.target as HTMLInputElement).value = '';
           return;
         }
-        // 1. 파일 객체도 상태에 저장
+        if (file.size > maxSize) {
+          alert('파일 크기는 2MB 이하만 업로드할 수 있습니다.');
+          (event.target as HTMLInputElement).value = '';
+          return;
+        }
         this.setState({
           profileImage: URL.createObjectURL(file),
-          profileImageFile: file, // ← 파일 객체 저장
+          profileImageFile: file,
         });
       }
     });
@@ -89,22 +90,40 @@ export class Profile extends Component {
     const form = this.$target.querySelector('.profile-form') as HTMLFormElement;
     const formData = new FormData(form);
 
+    // 닉네임 유효성 검사
+    const nickname = formData.get('nickname')?.toString().trim() || '';
+    const nicknameRegex = /^[가-힣a-zA-Z0-9]{1,16}$/;
+
+    if (!nickname) {
+      alert('닉네임을 입력해주세요.');
+      return;
+    }
+    if (!nicknameRegex.test(nickname)) {
+      alert(
+        '닉네임은 1~16자의 한글, 영문, 숫자만 사용할 수 있습니다.\n(공백, 특수문자, 자음/모음 단독 입력은 불가)',
+      );
+      return;
+    }
+
+    // 모두 공백으로만 이루어진 경우도 막기
+    if (nickname.replace(/[\s]/g, '').length === 0) {
+      alert('닉네임에 공백만 사용할 수 없습니다.');
+      return;
+    }
+
     // 파일 객체가 상태에 있으면 FormData에 추가
     if (this.$state.profileImageFile) {
       formData.set('profileImage', this.$state.profileImageFile);
     } else {
-      // 파일을 새로 선택하지 않았다면 FormData에서 profileImage 필드를 제거
       formData.delete('profileImage');
     }
 
     this.updateProfileData(formData);
-    this.setState({ isEditMode: false, profileImageFile: undefined }); // 파일 객체 초기화
+    this.setState({ isEditMode: false, profileImageFile: undefined });
   }
 
   template() {
     const { nickname, profileImage, twoFactorEnabled, isEditMode } = this.$state;
-    // console.log('template : ', nickname, profileImage, twoFactorEnabled, isEditMode);
-    // console.log('twoFactorEnabled : ', twoFactorEnabled, typeof twoFactorEnabled);
     return `
     <div class="w-full max-w-4xl mx-auto h-full flex flex-col bg-backgroundColor">
         <!-- 헤더 영역 -->
@@ -180,7 +199,7 @@ export class Profile extends Component {
                                   <input type="radio" name="twoFactorEnabled" value="true" class="peer hidden" ${twoFactorEnabled ? 'checked' : ''} />
                                   <span class="peer-checked:bg-mainColor peer-checked:text-white bg-gray-200 text-gray-400 px-6 py-3 rounded-lg">활성</span>
                                 </label>
-                                <button id="twoFactorEnableBtn" class="" > 큐알 </button>
+                                <button id="twoFactorEnableBtn" class="bg-white px-6 py-3 border-1 border-mainColor rounded-lg" > 큐알 생성하기 </button>
                             `
                               : `
                                 <label class="...">
@@ -221,6 +240,19 @@ export class Profile extends Component {
       const user = this.$props.user; // 또는 store에서 가져오기
       const url = `/api/users/info?userId=${user?.id}`;
 
+      // 변경사항 비교
+      const prevNickname = this.$state.nickname;
+      const prevTwoFactor = this.$state.twoFactorEnabled;
+      const newNickname = formData.get('nickname')?.toString().trim() || '';
+      const newTwoFactor = formData.get('twoFactorEnabled');
+      const fileChanged = !!this.$state.profileImageFile;
+
+      // 변경사항이 없으면 요청하지 않음
+      if (newNickname === prevNickname && prevTwoFactor === newTwoFactor && !fileChanged) {
+        alert('변경된 내용이 없습니다.');
+        return;
+      }
+
       const response = await fetch(url, {
         method: 'POST',
         credentials: 'include',
@@ -235,12 +267,7 @@ export class Profile extends Component {
         throw new Error(`${errorData.error_code}: ${errorData.message}`);
       }
 
-      // await this.getProfileData();
-      // this.setState({
-      //   nickname: nickname,
-      //   profileImage: profileImage,
-      //   twoFactorEnabled: twoFactorEnabled,
-      // });
+      window.location.replace('#/');
     } catch (error) {
       console.error('프로필 업데이트 실패:', error);
       throw error;
@@ -265,18 +292,15 @@ export class Profile extends Component {
       }
       const data = await response.json();
 
-      // console.log('getProfileData : ', data);
       const nickname = data.user.nickname;
-      // console.log("profile data.user.profileImage : ", data.user.profileImage);
-      // let profileImage = 'https://localhost:443' +  data.user.profileImage;
-      let profileImage = data.user.profileImage;
+      let profileImage = 'https://localhost:443' + data.user.profileImage;
 
       if (!profileImage) {
         profileImage = mockImg;
       }
       const twoFactorEnabled =
         data.user.twoFactorEnabled === true || data.user.twoFactorEnabled === 'true';
-
+      console.log(nickname, profileImage, twoFactorEnabled);
       this.setState({
         nickname: nickname,
         profileImage: profileImage,

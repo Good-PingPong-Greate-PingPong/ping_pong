@@ -146,7 +146,7 @@ export class FriendsList extends Component {
           </div>
           <button 
             id="searchBtn"
-            class="w-11 h-11 bg-mainColor rounded-[10px] flex items-center justify-center hover:bg-opacity-80 transition-colors"
+            class="w-11 h-11 rounded-[10px] flex items-center justify-center hover:bg-opacity-80 transition-colors"
           >
             <span class="text-white text-lg">🔍</span>
           </button>

@@ -64,7 +64,6 @@ export class TwoFactorModal extends Component {
     // QR 화면 이벤트
     this.addEvent('click', '#confirmButton', () => {
       const { view } = this.$state;
-      console.log('view : ', view);
 
       if (view === 'qr') {
         // this.setState({ view: 'pin' });
@@ -72,7 +71,6 @@ export class TwoFactorModal extends Component {
         // window.location.replace('#/');
       }
       if (view === 'pin') {
-        console.log('pinConfirmButton2');
         // 확인 버튼 클릭 시 input 값들을 읽어서 상태에 저장
         const inputs = this.$target.querySelectorAll(
           '.auth-digit-input',
@@ -85,7 +83,6 @@ export class TwoFactorModal extends Component {
           this.setState({ error: '6자리 인증번호를 입력해주세요.' });
           return;
         }
-        console.log('pin check : ', authCode);
         this.fetchPinNumber(authCode);
       }
     });
@@ -93,12 +90,6 @@ export class TwoFactorModal extends Component {
       this.$props.handleModal('login');
     });
 
-    // PIN 화면 이벤트
-    // this.addEvent('click', '#pinConfirmButton', () => {
-    //   console.log('pinConfirmButton');
-    //   const { view } = this.$state;
-    //   console.log('view : ', view);
-    // });
     this.addEvent('click', '#reset2faBtn', () => {
       this.request2faReset();
     });
@@ -184,7 +175,6 @@ export class TwoFactorModal extends Component {
         throw new Error(`${errorData.error_code}: ${errorData.message}`);
       }
       const data = await response.json();
-      console.log('qr: ', data);
       this.setState({
         qrCode: data.qrCode,
       });
@@ -207,9 +197,6 @@ export class TwoFactorModal extends Component {
         const tokenType = parts[0]; // 'Bearer'
         const token = parts[1]; // 실제 토큰 값
 
-        console.log('Token Type:', tokenType);
-        console.log('Token:', token);
-
         // 토큰 타입 검증
         if (tokenType === 'Bearer') {
           localStorage.setItem('accessToken', token);
@@ -231,7 +218,6 @@ export class TwoFactorModal extends Component {
     try {
       const url = `/api/2fa/verify`;
       const tmpToken = store.getState().tmpToken;
-      console.log('tmpToken:', tmpToken);
 
       const response = await fetch(url, {
         method: 'POST',
@@ -255,8 +241,6 @@ export class TwoFactorModal extends Component {
       }
       // window.location.replace('#/');
       const data = await response.json();
-      console.log('인증 성공:', data);
-      console.log('인증 성공 user:', data.user);
       store.setState({ user: data.user });
       store.setState({ accessToken: data.user.accessToken });
       window.location.replace('#/');
